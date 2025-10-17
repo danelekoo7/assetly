@@ -4,7 +4,7 @@ Assetly to aplikacja internetowa w wersji MVP (Minimum Viable Product), zaprojek
 
 Produkt jest skierowany do użytkowników indywidualnych, którzy posiadają swoje środki i zobowiązania w wielu różnych miejscach i potrzebują narzędzia do ich agregacji bez konieczności automatycznej synchronizacji z bankami.
 
-Wersja MVP zostanie zbudowana jako aplikacja webowa przeznaczona na komputery stacjonarne, z wykorzystaniem stosu technologicznego: Astro, React, TypeScript, Tailwind CSS, Shadcn/ui oraz Supabase jako backend (BaaS).
+Wersja MVP zostanie zbudowana jako responsywna aplikacja webowa przeznaczona zarówno na komputery stacjonarne, jak i telefony komórkowe, z wykorzystaniem stosu technologicznego: Astro, React, TypeScript, Tailwind CSS, Shadcn/ui oraz Supabase jako backend (BaaS).
 
 ## 2. Problem użytkownika
 Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta bankowe, domy maklerskie, kredyty hipoteczne), nie mają prostego, scentralizowanego narzędzia do śledzenia swojej całkowitej wartości netto. Obecne rozwiązania, takie jak ręczne prowadzenie arkuszy kalkulacyjnych, są czasochłonne, podatne na błędy i nie oferują dynamicznego wglądu w historyczne zmiany sytuacji finansowej. Brak jednego źródła prawdy o stanie majątkowym utrudnia podejmowanie świadomych decyzji finansowych i zrozumienie, jak wartość netto zmienia się w czasie.
@@ -49,16 +49,26 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
     1.  Link do prostej ankiety (3-4 pytania) w celu zebrania opinii na temat użyteczności i brakujących funkcji.
     2.  Link `mailto:` do kontaktowego adresu e-mail, umożliwiający bezpośredni kontakt.
 
-### 3.7. Wymagania niefunkcjonalne
+### 3.7. Responsywność i interfejs mobilny
+-   Interfejs aplikacji jest w pełni responsywny i dostosowuje się do różnych rozmiarów ekranu (desktop, tablet, telefon).
+-   Na urządzeniach mobilnych:
+    -   Tabela danych jest scrollowalna poziomo, aby umożliwić przeglądanie wszystkich kolumn (dat).
+    -   Kluczowe akcje (dodawanie konta, dodawanie kolumny z datą) są łatwo dostępne poprzez przyciski dostosowane do interakcji dotykowych (większe obszary klikalne).
+    -   Edycja wartości w komórkach tabeli jest możliwa poprzez dotknięcie komórki, co aktywuje natywną klawiaturę numeryczną.
+    -   Wykres wartości netto jest responsywny i czytelny na małych ekranach.
+    -   Menu i opcje nawigacji są dostępne poprzez hamburger menu lub dolny pasek nawigacyjny.
+    -   Formularze i modale są optymalizowane pod kątem małych ekranów (pełna szerokość, czytelne czcionki, odpowiednie odstępy).
+
+### 3.8. Wymagania niefunkcjonalne
 -   Waluta: Aplikacja obsługuje jedną walutę (PLN). Interfejs nie wyświetla symbolu waluty, ale baza danych jest przygotowana na jego dodanie w przyszłości.
 -   Bezpieczeństwo: Wszystkie dane użytkownika są szyfrowane w spoczynku i podczas przesyłania (at-rest, in-transit) z wykorzystaniem mechanizmów platformy Supabase.
--   Platforma: Aplikacja jest przeznaczona do użytku na przeglądarkach internetowych na komputerach stacjonarnych. Optymalizacja pod kątem urządzeń mobilnych nie jest priorytetem dla MVP.
+-   Platforma: Aplikacja jest przeznaczona do użytku na przeglądarkach internetowych zarówno na komputerach stacjonarnych, jak i na urządzeniach mobilnych (telefony, tablety).
 
 ## 4. Granice produktu
 Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby zapewnić terminowe dostarczenie produktu:
 -   Brak obsługi wielu walut i automatycznego przeliczania kursów.
 -   Brak automatycznych integracji z bankami, giełdami i innymi instytucjami finansowymi. Wszystkie dane są wprowadzane wyłącznie ręcznie.
--   Brak dedykowanej wersji mobilnej lub interfejsu w pełni responsywnego.
+-   Brak natywnej aplikacji mobilnej (iOS/Android). MVP oferuje responsywną aplikację webową dostępną w przeglądarce mobilnej.
 -   Brak możliwości przywrócenia (cofnięcia archiwizacji) zarchiwizowanego konta.
 -   Brak zaawansowanych narzędzi analitycznych i raportów poza głównym wykresem wartości netto.
 -   Brak funkcji resetowania hasła (może zostać dodane w razie potrzeby, ale nie jest w minimalnym zakresie).
@@ -159,6 +169,35 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
     -   Wyświetlana wartość netto jest poprawnie obliczona (suma aktywów - suma pasywów) dla ostatniej daty.
     -   Wykres liniowy poprawnie renderuje dane historyczne wartości netto.
     -   Oś X wykresu reprezentuje czas (daty), a oś Y reprezentuje wartość netto.
+
+### Responsywność i mobilność
+-   ID: US-013
+-   Tytuł: Przeglądanie aplikacji na telefonie
+-   Opis: Jako użytkownik korzystający z telefonu, chcę mieć dostęp do wszystkich funkcji aplikacji w wygodny sposób, aby móc zarządzać swoimi finansami w dowolnym miejscu.
+-   Kryteria akceptacji:
+    -   Wszystkie elementy interfejsu (przyciski, formularze, tabele) są czytelne i dostępne na ekranie telefonu.
+    -   Tabela z danymi jest scrollowalna poziomo, umożliwiając przeglądanie wszystkich kolumn z datami.
+    -   Przyciski są wystarczająco duże, aby można było w nie łatwo trafić palcem (minimum 44x44px).
+    -   Wykres wartości netto dostosowuje się do szerokości ekranu i pozostaje czytelny.
+    -   Nawigacja jest intuicyjna i dostępna (np. hamburger menu lub dolny pasek nawigacyjny).
+
+-   ID: US-014
+-   Tytuł: Edycja wartości na urządzeniu dotykowym
+-   Opis: Jako użytkownik telefonu, chcę móc łatwo edytować wartości w tabeli, używając klawiatury dotykowej.
+-   Kryteria akceptacji:
+    -   Dotknięcie komórki z wartością aktywuje pole edycji.
+    -   Automatycznie pojawia się klawiatura numeryczna (input type="number" lub inputmode="numeric").
+    -   Pole edycji jest wystarczająco duże, aby komfortowo wprowadzać dane.
+    -   Po zatwierdzeniu wartości (np. blur lub Enter), zmiana jest zapisywana automatycznie.
+
+-   ID: US-015
+-   Tytuł: Dodawanie konta na telefonie
+-   Opis: Jako użytkownik telefonu, chcę móc dodać nowe konto finansowe w prosty sposób, używając formularza zoptymalizowanego pod ekran dotykowy.
+-   Kryteria akceptacji:
+    -   Formularz dodawania konta zajmuje pełną szerokość ekranu na urządzeniach mobilnych.
+    -   Wszystkie pola formularza są czytelne i łatwe do wypełnienia.
+    -   Przełącznik typu konta (aktywo/pasywo) jest duży i łatwy do użycia na ekranie dotykowym.
+    -   Klawiatura dostosowuje się do typu pola (numeryczna dla wartości, standardowa dla nazwy).
 
 ### Zarządzanie kontem i feedback
 -   ID: US-011
