@@ -1,94 +1,161 @@
 # Assetly
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+[![Project Status: MVP](https://img.shields.io/badge/status-MVP-green.svg)](https://shields.io/)
+
+A simple, centralized web application for tracking your net worth by manually managing assets and liabilities across multiple accounts.
+
+## Table of Contents
+
+- [About](#about)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
+
+## About
+
+Assetly is an MVP (Minimum Viable Product) web application designed to help individuals track their total net worth in one centralized location. If you have financial holdings spread across multiple banks, investment accounts, and various liabilities, Assetly provides a simple tool to aggregate and visualize your financial status over time.
+
+### Key Features
+
+- **Authentication & User Management**: Email/password registration with email verification
+- **Dashboard**: View current net worth, total assets, and total liabilities at a glance
+- **Historical Visualization**: Line chart showing net worth changes over time
+- **Spreadsheet Interface**: Intuitive table view for managing financial data
+  - Add, edit, and delete accounts
+  - Archive accounts while preserving historical data
+  - Auto-save functionality for seamless updates
+- **Manual Data Entry**: Full control over your data without automatic bank integrations
+- **Mobile Responsive**: Fully optimized for desktop, tablet, and mobile devices
+  - Horizontal scrolling for data tables
+  - Touch-optimized inputs
+  - Responsive charts and navigation
+- **User Feedback**: Built-in survey and contact options for collecting feedback
+
+### Target Audience
+
+Assetly is built for individuals who:
+- Have assets and liabilities across multiple institutions
+- Want a simple, manual way to track their net worth
+- Need historical visualization of their financial progress
+- Prefer control over automatic bank synchronization
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+### Frontend
 
-## Prerequisites
+- **Astro 5**: Fast, performance-focused web framework with minimal JavaScript
+- **React 19**: Interactive components for dynamic functionality
+- **TypeScript 5**: Static typing for improved code quality and IDE support
+- **Tailwind CSS 4**: Utility-first CSS framework for rapid UI development
+- **Shadcn/ui**: Accessible, customizable React component library built on Radix UI
+- **Lucide React**: Icon library
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+### Backend
+
+- **Supabase**: Open-source Backend-as-a-Service providing:
+  - PostgreSQL database
+  - Built-in authentication
+  - Real-time capabilities
+  - Data encryption at rest and in transit
+
+### AI Integration
+
+- **Openrouter.ai**: Access to multiple AI models (OpenAI, Anthropic, Google) with financial limits on API keys
+
+### Development & Deployment
+
+- **Node.js 22.14.0**: Runtime environment
+- **ESLint & Prettier**: Code linting and formatting
+- **Husky**: Git hooks for code quality
+- **GitHub Actions**: CI/CD pipeline automation
+- **DigitalOcean**: Application hosting via Docker containers
 
 ## Getting Started
 
-1. Clone the repository:
+### Prerequisites
 
-```bash
-git clone https://github.com/danelekoo7/assetly.git
-cd assetly
-```
+- Node.js version 22.14.0 (specified in `.nvmrc`)
+- npm or yarn package manager
+- Supabase account and project
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/assetly.git
+   cd assetly
+   ```
 
 2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+3. Set up environment variables:
+   Create a `.env` file in the root directory and configure your Supabase credentials:
+   ```env
+   PUBLIC_SUPABASE_URL=your_supabase_url
+   PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-3. Run the development server:
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm run dev
-```
-
-4. Build for production:
-
-```bash
-npm run build
-```
+5. Open your browser and navigate to `http://localhost:3000`
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+- **`npm run dev`**: Start the Astro development server with hot reload
+- **`npm run build`**: Build the application for production
+- **`npm run preview`**: Preview the production build locally
+- **`npm run astro`**: Run Astro CLI commands
+- **`npm run lint`**: Run ESLint to check code quality
+- **`npm run lint:fix`**: Automatically fix ESLint issues
+- **`npm run format`**: Format code using Prettier
 
-## Project Structure
+## Project Scope
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+### Included in MVP
 
-## AI Development Support
+- ✅ Email/password authentication with verification
+- ✅ Dashboard with net worth, assets, and liabilities summary
+- ✅ Historical net worth visualization (line chart)
+- ✅ Spreadsheet-like data management interface
+- ✅ CRUD operations for financial accounts (assets/liabilities)
+- ✅ Account archiving (preserves historical data)
+- ✅ Auto-save functionality
+- ✅ Full mobile responsiveness
+- ✅ Empty states and onboarding UX
+- ✅ Feedback collection (survey + email contact)
+- ✅ PLN currency support
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+### Explicitly Out of Scope
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+- ❌ Multiple currency support and automatic conversion
+- ❌ Automatic bank/investment account integrations
+- ❌ Native mobile applications (iOS/Android)
+- ❌ Restoring archived accounts
+- ❌ Advanced analytics and reporting beyond net worth chart
+- ❌ Password reset functionality (minimal scope)
+- ❌ Final logo design (using text-based logo for MVP)
 
-### Cursor IDE
+## Project Status
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+**Current Phase**: MVP Development
 
-### GitHub Copilot
-
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
-
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+- **Version**: 0.0.1 (Pre-release)
+- **Timeline**: 6-week development cycle
+- **Focus**: Core functionality for manual net worth tracking with mobile-responsive design
 
 ## License
 
-MIT
+This project is under a private license. All rights reserved.
+
+---
+
+**Feedback & Contact**: Links available in application footer for surveys and direct email communication.
