@@ -22,7 +22,11 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
     1.  Aktualna całkowita wartość netto (duża, czytelna liczba).
     2.  Suma wartości wszystkich aktywów.
     3.  Suma wartości wszystkich pasywów.
+-   Dodatkowo pulpit pokazuje szczegółowy podział wpływu na wartość netto:
+    1.  Skumulowana wartość wpłat/wypłat (przepływy środków).
+    2.  Skumulowana wartość zysków/strat z inwestycji.
 -   Na pulpicie znajduje się główny wykres liniowy, który prezentuje historyczne zmiany całkowitej wartości netto w czasie.
+-   Wykres może opcjonalnie pokazywać podział na wartość pochodzącą z wpłat/wypłat i wartość wypracowaną przez inwestycje.
 
 ### 3.3. Interfejs tabelaryczny (Zarządzanie danymi)
 -   Główny widok do zarządzania danymi ma formę siatki przypominającej arkusz kalkulacyjny.
@@ -30,14 +34,32 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
 -   Kolumny reprezentują daty, dla których wprowadzono wartości.
 -   Użytkownik może dodać nową kolumnę z danymi dla bieżącego dnia. Nowa kolumna automatycznie kopiuje wartości z ostatniej istniejącej kolumny.
 -   Użytkownik może edytować wartość dowolnego konta w dowolnej komórce (data historyczna lub bieżąca).
+-   Przy edycji wartości konta, użytkownik może wprowadzić dane na trzy sposoby:
+    1.  **Tylko nową wartość**: System automatycznie przypisuje zmianę do wpłaty lub zysku w zależności od typu konta (Aktywo gotówkowe/Pasywo → wpłata; Aktywo inwestycyjne → zysk).
+    2.  **Nową wartość + wpłatę/wypłatę**: System automatycznie oblicza zysk/stratę jako różnicę (zysk = nowa wartość - poprzednia wartość - wpłata).
+    3.  **Nową wartość + wpłatę + zysk/stratę**: System waliduje spójność danych (poprzednia wartość + wpłata + zysk = nowa wartość).
+-   Interfejs edycji oferuje:
+    -   Pole "Nowa wartość" (wymagane).
+    -   Pole "Wpłata/Wypłata" (opcjonalne, domyślnie 0 dla aktywów inwestycyjnych lub obliczone dla aktywów gotówkowych/pasywów).
+    -   Pole "Zysk/Strata" (opcjonalne, domyślnie 0 dla aktywów gotówkowych/pasywów lub obliczone dla aktywów inwestycyjnych, można nadpisać).
+-   Jeśli użytkownik ręcznie wpisze wszystkie trzy wartości, system waliduje ich spójność przed zapisem.
 -   Wszystkie zmiany w komórkach są zapisywane automatycznie w tle. Dyskretny wskaźnik wizualny informuje użytkownika o stanie zapisu (np. "Zapisywanie...", "Zapisano").
 -   Komórki edytowalne wizualnie sygnalizują możliwość edycji po najechaniu na nie kursorem (np. zmiana tła, ikona ołówka).
 -   Pola do wprowadzania wartości akceptują tylko dane liczbowe. Wartości pasywów wprowadza się jako liczby dodatnie.
 -   Tabela zawiera wiersz podsumowania na dole, który pokazuje sumę aktywów, pasywów oraz wartość netto dla każdej kolumny (daty).
 
 ### 3.4. Zarządzanie kontami finansowymi (Aktywa/Pasywa)
--   Użytkownik może dodawać nowe konta, określając ich nazwę i typ (akrywo/pasywo).
--   Aktywa i pasywa są wizualnie rozróżnione w tabeli (np. kolor tła, ikona ▲/▼) w celu zapewnienia czytelności i dostępności.
+-   Użytkownik może dodawać nowe konta, określając ich:
+    -   Nazwę (np. "mBank", "Portfel", "XTB").
+    -   Typ konta, który determinuje domyślne zachowanie przy edycji wartości:
+        -   **Aktywo inwestycyjne** - wartość zmienia się samoistnie w czasie (akcje, fundusze, kryptowaluty, nieruchomości). Zmiana wartości domyślnie = zysk/strata (wpłata = 0).
+        -   **Aktywo gotówkowe** - wartość stała, zmienia się tylko przez wpłaty/wypłaty (portfel, konto bankowe, gotówka w sejfie). Zmiana wartości domyślnie = wpłata/wypłata (zysk = 0).
+        -   **Pasywo** - zobowiązanie (kredyt, pożyczka, dług). Zmiana wartości domyślnie = wpłata/wypłata (zysk = 0).
+-   Typ konta wpływa na domyślne przypuszczenie systemu przy edycji:
+    -   Dla **Aktywów gotówkowych** i **Pasywów**: jeśli użytkownik poda tylko nową wartość, system zakłada, że cała zmiana to wpłata/wypłata (zysk = 0).
+    -   Dla **Aktywów inwestycyjnych**: jeśli użytkownik poda tylko nową wartość, system zakłada, że cała zmiana to zysk/strata (wpłata = 0).
+-   Użytkownik zawsze może ręcznie zmienić podział na wpłaty i zyski niezależnie od typu konta.
+-   Typy kont są wizualnie rozróżnione w tabeli (np. kolor tła, ikony) w celu zapewnienia czytelności i dostępności.
 -   Użytkownik może zarchiwizować konto. Zarchiwizowane konto jest wyszarzone i ukryte z domyślnego widoku tabeli, ale jego historyczne dane nadal są uwzględniane na wykresie wartości netto. Operacja wymaga potwierdzenia w oknie dialogowym.
 -   Użytkownik może trwale usunąć konto. Usunięcie konta powoduje skasowanie całej jego historii wartości i jest operacją nieodwracalną. Operacja wymaga potwierdzenia w oknie dialogowym.
 
@@ -114,12 +136,16 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
 
 ### Zarządzanie kontami finansowymi
 -   ID: US-005
--   Tytuł: Dodawanie nowego konta (aktywa/pasywa)
--   Opis: Jako użytkownik, chcę móc dodać nowe konto, podając jego nazwę, typ (aktywo lub pasywo) i początkową wartość, aby rozpocząć śledzenie.
+-   Tytuł: Dodawanie nowego konta z typem
+-   Opis: Jako użytkownik, chcę móc dodać nowe konto, podając jego nazwę, typ (Aktywo inwestycyjne, Aktywo gotówkowe lub Pasywo) i początkową wartość, aby rozpocząć śledzenie.
 -   Kryteria akceptacji:
     -   Istnieje przycisk "+ Dodaj nowe konto", który otwiera formularz/modal.
-    -   Formularz zawiera pole na nazwę konta, przełącznik typu (aktywo/pasywo) i pole na jego wartość początkową.
+    -   Formularz zawiera:
+        -   Pole na nazwę konta.
+        -   Wybór typu konta: Aktywo inwestycyjne, Aktywo gotówkowe, lub Pasywo.
+        -   Pole na wartość początkową.
     -   Po dodaniu, nowe konto pojawia się jako nowy wiersz w tabeli.
+    -   Typ konta jest zapisany i będzie wpływać na domyślne zachowanie przy edycji wartości.
     -   Pulpit i wykres są aktualizowane o wartość nowego konta.
 
 -   ID: US-006
@@ -151,23 +177,34 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
     -   Jeśli jest to pierwsza kolumna, wartości są ustawiane na 0 lub wartości początkowe kont.
 
 -   ID: US-009
--   Tytuł: Edycja wartości konta
--   Opis: Jako użytkownik, chcę móc kliknąć w dowolną komórkę z wartością w tabeli i ją edytować, aby poprawić błąd lub zaktualizować dane.
+-   Tytuł: Edycja wartości konta z automatycznym podziałem na wpłaty i zyski
+-   Opis: Jako użytkownik, chcę móc zaktualizować wartość konta w prosty sposób, a system automatycznie obliczy podział na wpłaty i zyski w zależności od typu konta, z możliwością ręcznego doprecyzowania.
 -   Kryteria akceptacji:
     -   Najazd kursorem na komórkę z wartością zmienia jej wygląd, sugerując możliwość edycji.
-    -   Kliknięcie w komórkę zmienia ją w pole edytowalne.
-    -   Pole akceptuje tylko wartości liczbowe.
-    -   Po zmianie wartości i opuszczeniu pola (np. kliknięcie poza), zmiana jest automatycznie zapisywana.
+    -   Kliknięcie w komórkę otwiera formularz z trzema polami:
+        1. "Nowa wartość" (wymagane, puste pole do wypełnienia).
+        2. "Wpłata/Wypłata" (opcjonalne).
+        3. "Zysk/Strata" (opcjonalne).
+    -   System automatycznie oblicza wartości w zależności od typu konta:
+        -   **Aktywo gotówkowe/Pasywo**: Jeśli podano tylko nową wartość, cała zmiana trafia do "Wpłata/Wypłata", "Zysk/Strata" = 0.
+        -   **Aktywo inwestycyjne**: Jeśli podano tylko nową wartość, cała zmiana trafia do "Zysk/Strata", "Wpłata/Wypłata" = 0.
+    -   Gdy użytkownik wpisuje nową wartość i wpłatę, pole "Zysk/Strata" automatycznie się aktualizuje: zysk = nowa wartość - poprzednia wartość - wpłata.
+    -   Użytkownik może ręcznie edytować wszystkie pola niezależnie od typu konta.
+    -   Jeśli użytkownik ręcznie zmieni wszystkie trzy pola, system waliduje spójność przed zapisem.
+    -   Jeśli walidacja nie przechodzi, wyświetlany jest komunikat o błędzie z wyjaśnieniem.
+    -   Po zatwierdzeniu, zmiana jest automatycznie zapisywana.
     -   Wskaźnik zapisu informuje o statusie operacji.
-    -   Po zapisaniu, wszystkie sumy (pulpit, wiersz podsumowania) oraz wykres są aktualizowane.
+    -   Po zapisaniu, wszystkie sumy (pulpit, wiersz podsumowania) oraz wykres są aktualizowane z uwzględnieniem podziału na wpłaty i zyski.
 
 -   ID: US-010
--   Tytuł: Przeglądanie pulpitu
--   Opis: Jako użytkownik, chcę po zalogowaniu widzieć na pulpicie moją aktualną wartość netto, sumy aktywów/pasywów i wykres historyczny, aby szybko ocenić moją sytuację finansową.
+-   Tytuł: Przeglądanie pulpitu z podziałem na wpłaty i zyski
+-   Opis: Jako użytkownik, chcę po zalogowaniu widzieć na pulpicie moją aktualną wartość netto oraz podział pokazujący, ile z tej wartości pochodzi z wpłat/wypłat, a ile z zysków/strat inwestycyjnych.
 -   Kryteria akceptacji:
     -   Pulpit jest domyślnym widokiem po zalogowaniu.
     -   Wyświetlana wartość netto jest poprawnie obliczona (suma aktywów - suma pasywów) dla ostatniej daty.
+    -   Pulpit pokazuje osobno skumulowaną wartość wpłat/wypłat i skumulowaną wartość zysków/strat z inwestycji dla wszystkich kont.
     -   Wykres liniowy poprawnie renderuje dane historyczne wartości netto.
+    -   Wykres może opcjonalnie pokazywać podział na wartość pochodzącą z wpłat/wypłat i wartość wypracowaną przez inwestycje.
     -   Oś X wykresu reprezentuje czas (daty), a oś Y reprezentuje wartość netto.
 
 ### Responsywność i mobilność
