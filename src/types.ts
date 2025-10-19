@@ -51,9 +51,11 @@ export type AccountDto = Pick<
  * This is the standard representation of a value entry sent to the client.
  *
  * @see ValueEntry
- * @description Directly maps to the `ValueEntry` type.
  */
-export type ValueEntryDto = ValueEntry;
+export type ValueEntryDto = Pick<
+    ValueEntry,
+    'id' | 'account_id' | 'date' | 'value' | 'cash_flow' | 'gain_loss'
+>;
 
 /**
  * DTO for the main data grid view (`GET /grid-data`).
