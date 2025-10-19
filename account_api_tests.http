@@ -1,0 +1,82 @@
+### Test API endpoints for /api/accounts
+# You can run these requests directly in IntelliJ IDEA.
+# Make sure your Astro development server is running.
+# The default URL is http://localhost:3000.
+
+### 1. GET all non-archived accounts (default behavior)
+# Should return a 200 OK with an array of accounts where archived_at is null.
+GET http://localhost:3000/api/accounts
+Accept: application/json
+
+### 2. GET all accounts, including archived ones
+# Should return a 200 OK with an array of all accounts for the user.
+GET http://localhost:3000/api/accounts?archived=true
+Accept: application/json
+
+### 3. GET accounts with an invalid 'archived' parameter
+# Should return a 400 Bad Request because the value is not 'true' or 'false'.
+GET http://localhost:3000/api/accounts?archived=invalid-value
+Accept: application/json
+
+### 4. POST to create a new cash asset account (Success)
+# Should return a 201 Created with the new account object.
+POST http://localhost:3000/api/accounts
+Content-Type: application/json
+
+{
+  "name": "New Savings Account",
+  "type": "cash_asset",
+  "initial_value": 5000,
+  "date": "{{$isoTimestamp}}"
+}
+
+### 5. POST to create a new investment account (Success)
+# Should return a 201 Created with the new account object.
+POST http://localhost:3000/api/accounts
+Content-Type: application/json
+
+{
+  "name": "My Brokerage Account",
+  "type": "investment_asset",
+  "initial_value": 10000,
+  "date": "{{$isoTimestamp}}"
+}
+
+### 6. POST to create an account with a duplicate name
+# Should return a 409 Conflict.
+# NOTE: To test this, first run one of the successful POST requests above,
+# then run this request with the exact same "name".
+POST http://localhost:3000/api/accounts
+Content-Type: application/json
+
+{
+  "name": "New Savings Account",
+  "type": "cash_asset",
+  "initial_value": 100,
+  "date": "{{$isoTimestamp}}"
+}
+
+### 7. POST with invalid data
+# Should return a 400 Bad Request with validation error details.
+# - name is empty
+# - type is not a valid enum value
+# - initial_value is not a number
+# - date is not a valid ISO 8601 string
+POST http://localhost:3000/api/accounts
+Content-Type: application/json
+
+{
+  "name": "",
+  "type": "some_other_type",
+  "initial_value": "a lot of money",
+  "date": "yesterday"
+}
+
+### 8. POST with missing required fields
+# Should return a 400 Bad Request with validation error details.
+POST http://localhost:3000/api/accounts
+Content-Type: application/json
+
+{
+  "name": "Incomplete Account"
+}

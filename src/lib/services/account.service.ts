@@ -55,7 +55,7 @@ export class AccountService {
 	 * This operation is "pseudo-atomic" with manual rollback on failure.
 	 *
 	 * @param supabase - The Supabase client instance, scoped to the user's request.
-	 * @param session - The authenticated user's session.
+	 * @param userId - The authenticated user's id.
 	 * @param command - The command object containing data for the new account.
 	 * @returns The newly created account data.
 	 * @throws {ConflictError} If an account with the same name already exists for the user.
@@ -63,7 +63,7 @@ export class AccountService {
 	 */
 	static async createAccountWithInitialValue(
 		supabase: SupabaseClient<Database>,
-		session: Session,
+		userId: string,
 		command: CreateAccountCommand,
 	) {
 		// Step 1: Insert the new account into the 'accounts' table.
@@ -74,7 +74,7 @@ export class AccountService {
 			.insert({
 				name: command.name,
 				type: command.type,
-				user_id: session.user.id,
+				user_id: userId,
 				currency: 'PLN', // Default currency
 			})
 			.select()

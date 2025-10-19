@@ -101,8 +101,15 @@ const CreateAccountSchema = z.object({
 export const POST: APIRoute = async ({ request, locals }) => {
 	const { supabase, session } = locals;
 
-	// Verify that a user session exists.
-	if (!session) {
+	// In development, allow using a default user ID if no session is available.
+	// In production, a valid session is always required.
+	const userId =
+		session?.user?.id ?? (import.meta.env.DEV ? import.meta.env.DEFAULT_USER_ID : undefined);
+
+	console.log('User ID:', userId);
+
+	// Verify that a user is authenticated or a fallback is available.
+	if (!userId) {
 		return new Response(JSON.stringify({ error: 'Unauthorized' }), {
 			status: 401,
 			headers: { 'Content-Type': 'application/json' },
@@ -129,11 +136,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
 	try {
 		// Call the service to perform the creation logic.
-		const newAccount = await AccountService.createAccountWithInitialValue(
-			supabase,
-			session,
-			command,
-		);
+		const newAccount = await AccountService.createAccountWithInitialValue(supabase, userId, command);
 
 		// Map the full account data to the AccountDto for the response.
 		const accountDto: AccountDto = {
@@ -161,6 +164,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
 		// Log and return a generic 500 error for any other failures.
 		console.error('Failed to create account:', error);
+		console.log('Failed to create account:', error);
 		return new Response(
 			JSON.stringify({
 				error: 'Internal Server Error',
