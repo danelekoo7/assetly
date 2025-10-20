@@ -4,8 +4,8 @@
  * which can then translate it into a 409 Conflict HTTP response.
  */
 export class ConflictError extends Error {
-	constructor(message: string = 'Resource already exists.') {
-		super(message);
-		this.name = 'ConflictError';
-	}
+  constructor(message = "Resource already exists.") {
+    super(message);
+    this.name = "ConflictError";
+  }
 }
