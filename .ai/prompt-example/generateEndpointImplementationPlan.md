@@ -4,102 +4,100 @@ Zanim zaczniemy, zapoznaj się z poniższymi informacjami:
 
 1. Route API specification:
    <route_api_specification>
-```markdown
+
+````markdown
 #### `GET /accounts`
 
--   **Description**: Retrieves a list of all financial accounts for the authenticated user.
--   **Query Parameters**:
-    -   `archived` (boolean, optional): Set to `true` to include archived accounts in the response. Defaults to `false`.
--   **Success Response**: `200 OK`
-    ```json
-    [
-      {
-        "id": "a1b2c3d4-...",
-        "name": "mBank Savings",
-        "type": "cash_asset",
-        "currency": "PLN",
-        "archived_at": null,
-        "created_at": "2023-10-27T10:00:00Z"
-      },
-      {
-        "id": "e5f6g7h8-...",
-        "name": "XTB Portfolio",
-        "type": "investment_asset",
-        "currency": "PLN",
-        "archived_at": null,
-        "created_at": "2023-10-27T10:05:00Z"
-      }
-    ]
-    ```
--   **Error Responses**: `401 Unauthorized`
+- **Description**: Retrieves a list of all financial accounts for the authenticated user.
+- **Query Parameters**:
+  - `archived` (boolean, optional): Set to `true` to include archived accounts in the response. Defaults to `false`.
+- **Success Response**: `200 OK`
+  ```json
+  [
+    {
+      "id": "a1b2c3d4-...",
+      "name": "mBank Savings",
+      "type": "cash_asset",
+      "currency": "PLN",
+      "archived_at": null,
+      "created_at": "2023-10-27T10:00:00Z"
+    },
+    {
+      "id": "e5f6g7h8-...",
+      "name": "XTB Portfolio",
+      "type": "investment_asset",
+      "currency": "PLN",
+      "archived_at": null,
+      "created_at": "2023-10-27T10:05:00Z"
+    }
+  ]
+  ```
+- **Error Responses**: `401 Unauthorized`
 
 ---
-```
-
-
-
+````
 
 </route_api_specification>
 
 2. Related database resources:
    <related_db_resources>
-```markdown
+
+````markdown
 ### 1. Lista tabel z ich kolumnami, typami danych i ograniczeniami
 
 #### Typy niestandardowe (ENUM)
 
-*   **`account_type`**: Definiuje dozwolone typy kont.
-    ```sql
-    CREATE TYPE account_type AS ENUM ('investment_asset', 'cash_asset', 'liability');
-    ```
+- **`account_type`**: Definiuje dozwolone typy kont.
+  ```sql
+  CREATE TYPE account_type AS ENUM ('investment_asset', 'cash_asset', 'liability');
+  ```
 
 #### Tabela `accounts`
+
 Przechowuje informacje o kontach finansowych użytkowników.
 
-| Nazwa kolumny | Typ danych     | Ograniczenia                                                                | Opis                                                                 |
-| :------------ | :------------- | :-------------------------------------------------------------------------- | :------------------------------------------------------------------- |
-| `id`          | `uuid`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                                  | Unikalny identyfikator konta.                                        |
-| `user_id`     | `uuid`         | `NOT NULL`, `FOREIGN KEY REFERENCES auth.users(id) ON DELETE CASCADE`       | Odniesienie do użytkownika w systemie autentykacji Supabase.         |
-| `name`        | `text`         | `NOT NULL`                                                                  | Nazwa konta (np. "mBank", "Portfel XTB").                            |
-| `type`        | `account_type` | `NOT NULL`                                                                  | Typ konta (Aktywo inwestycyjne, Aktywo gotówkowe, Pasywo).           |
-| `currency`    | `text`         | `NOT NULL`, `DEFAULT 'PLN'`                                                 | Waluta konta, z domyślną wartością 'PLN'.                            |
-| `archived_at` | `timestamptz`  | `NULL`                                                                      | Data i czas zarchiwizowania konta. `NULL` oznacza aktywne konto.     |
-| `created_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                                 | Data i czas utworzenia rekordu.                                      |
-| `updated_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                                 | Data i czas ostatniej aktualizacji rekordu.                          |
-|               |                | `UNIQUE (user_id, name)`                                                    | Zapewnia, że nazwy kont są unikalne dla każdego użytkownika.         |
+| Nazwa kolumny | Typ danych     | Ograniczenia                                                          | Opis                                                             |
+| :------------ | :------------- | :-------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| `id`          | `uuid`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                            | Unikalny identyfikator konta.                                    |
+| `user_id`     | `uuid`         | `NOT NULL`, `FOREIGN KEY REFERENCES auth.users(id) ON DELETE CASCADE` | Odniesienie do użytkownika w systemie autentykacji Supabase.     |
+| `name`        | `text`         | `NOT NULL`                                                            | Nazwa konta (np. "mBank", "Portfel XTB").                        |
+| `type`        | `account_type` | `NOT NULL`                                                            | Typ konta (Aktywo inwestycyjne, Aktywo gotówkowe, Pasywo).       |
+| `currency`    | `text`         | `NOT NULL`, `DEFAULT 'PLN'`                                           | Waluta konta, z domyślną wartością 'PLN'.                        |
+| `archived_at` | `timestamptz`  | `NULL`                                                                | Data i czas zarchiwizowania konta. `NULL` oznacza aktywne konto. |
+| `created_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas utworzenia rekordu.                                  |
+| `updated_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas ostatniej aktualizacji rekordu.                      |
+|               |                | `UNIQUE (user_id, name)`                                              | Zapewnia, że nazwy kont są unikalne dla każdego użytkownika.     |
 
 #### Tabela `value_entries`
+
 Przechowuje historyczne wpisy wartości dla każdego konta.
 
-| Nazwa kolumny | Typ danych      | Ograniczenia                                                            | Opis                                                                                             |
-| :------------ | :-------------- | :---------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
-| `id`          | `uuid`          | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                              | Unikalny identyfikator wpisu.                                                                    |
-| `account_id`  | `uuid`          | `NOT NULL`, `FOREIGN KEY REFERENCES accounts(id) ON DELETE CASCADE`     | Odniesienie do konta, którego dotyczy wpis. `ON DELETE CASCADE` usunie wpisy po usunięciu konta. |
-| `date`        | `timestamptz`   | `NOT NULL`                                                              | Data, dla której zapisano wartość.                                                               |
-| `value`       | `numeric(18, 4)`| `NOT NULL`                                                              | Całkowita wartość konta na dany dzień.                                                           |
-| `cash_flow`   | `numeric(18, 4)`| `NOT NULL`, `DEFAULT 0`                                                 | Wpłata lub wypłata środków.                                                                      |
-| `gain_loss`   | `numeric(18, 4)`| `NOT NULL`, `DEFAULT 0`                                                 | Zysk lub strata wynikająca ze zmiany wartości (np. na giełdzie).                                 |
-| `created_at`  | `timestamptz`   | `NOT NULL`, `DEFAULT now()`                                             | Data i czas utworzenia rekordu.                                                                  |
-| `updated_at`  | `timestamptz`   | `NOT NULL`, `DEFAULT now()`                                             | Data i czas ostatniej aktualizacji rekordu.                                                      |
-|               |                 | `UNIQUE (account_id, date)`                                             | Zapewnia, że dla danego konta istnieje tylko jeden wpis na dany dzień.                           |
+| Nazwa kolumny | Typ danych       | Ograniczenia                                                        | Opis                                                                                             |
+| :------------ | :--------------- | :------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------- |
+| `id`          | `uuid`           | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                          | Unikalny identyfikator wpisu.                                                                    |
+| `account_id`  | `uuid`           | `NOT NULL`, `FOREIGN KEY REFERENCES accounts(id) ON DELETE CASCADE` | Odniesienie do konta, którego dotyczy wpis. `ON DELETE CASCADE` usunie wpisy po usunięciu konta. |
+| `date`        | `timestamptz`    | `NOT NULL`                                                          | Data, dla której zapisano wartość.                                                               |
+| `value`       | `numeric(18, 4)` | `NOT NULL`                                                          | Całkowita wartość konta na dany dzień.                                                           |
+| `cash_flow`   | `numeric(18, 4)` | `NOT NULL`, `DEFAULT 0`                                             | Wpłata lub wypłata środków.                                                                      |
+| `gain_loss`   | `numeric(18, 4)` | `NOT NULL`, `DEFAULT 0`                                             | Zysk lub strata wynikająca ze zmiany wartości (np. na giełdzie).                                 |
+| `created_at`  | `timestamptz`    | `NOT NULL`, `DEFAULT now()`                                         | Data i czas utworzenia rekordu.                                                                  |
+| `updated_at`  | `timestamptz`    | `NOT NULL`, `DEFAULT now()`                                         | Data i czas ostatniej aktualizacji rekordu.                                                      |
+|               |                  | `UNIQUE (account_id, date)`                                         | Zapewnia, że dla danego konta istnieje tylko jeden wpis na dany dzień.                           |
 
 ---
 
 ### 2. Relacje między tabelami
 
-*   **`auth.users` -> `accounts` (Jeden-do-wielu)**
-    *   Jeden użytkownik (`users`) może mieć wiele kont finansowych (`accounts`).
-    *   Relacja jest zdefiniowana przez klucz obcy `accounts.user_id`, który odnosi się do `auth.users.id`.
+- **`auth.users` -> `accounts` (Jeden-do-wielu)**
+  - Jeden użytkownik (`users`) może mieć wiele kont finansowych (`accounts`).
+  - Relacja jest zdefiniowana przez klucz obcy `accounts.user_id`, który odnosi się do `auth.users.id`.
 
-*   **`accounts` -> `value_entries` (Jeden-do-wielu)**
-    *   Jedno konto (`accounts`) może mieć wiele historycznych wpisów wartości (`value_entries`).
-    *   Relacja jest zdefiniowana przez klucz obcy `value_entries.account_id`, który odnosi się do `accounts.id`.
+- **`accounts` -> `value_entries` (Jeden-do-wielu)**
+  - Jedno konto (`accounts`) może mieć wiele historycznych wpisów wartości (`value_entries`).
+  - Relacja jest zdefiniowana przez klucz obcy `value_entries.account_id`, który odnosi się do `accounts.id`.
 
 ---
-```
-
-
-
+````
 
 </related_db_resources>
 
@@ -108,12 +106,12 @@ Przechowuje historyczne wpisy wartości dla każdego konta.
    @file:types.ts
    </type_definitions>
 
-3. Tech stack:
+4. Tech stack:
    <tech_stack>
    @file:tech-stack.md
    </tech_stack>
 
-4. Implementation rules:
+5. Implementation rules:
    <implementation_rules>
    @file:shared.md
    @file:backend.md
@@ -143,51 +141,62 @@ Po przeprowadzeniu analizy utwórz szczegółowy plan wdrożenia w formacie mark
 8. Kroki implementacji
 
 W całym planie upewnij się, że
+
 - Używać prawidłowych kodów stanu API:
-    - 200 dla pomyślnego odczytu
-    - 201 dla pomyślnego utworzenia
-    - 400 dla nieprawidłowych danych wejściowych
-    - 401 dla nieautoryzowanego dostępu
-    - 404 dla nie znalezionych zasobów
-    - 500 dla błędów po stronie serwera
+  - 200 dla pomyślnego odczytu
+  - 201 dla pomyślnego utworzenia
+  - 400 dla nieprawidłowych danych wejściowych
+  - 401 dla nieautoryzowanego dostępu
+  - 404 dla nie znalezionych zasobów
+  - 500 dla błędów po stronie serwera
 - Dostosowanie do dostarczonego stacku technologicznego
 - Postępuj zgodnie z podanymi zasadami implementacji
 
 Końcowym wynikiem powinien być dobrze zorganizowany plan wdrożenia w formacie markdown. Oto przykład tego, jak powinny wyglądać dane wyjściowe:
 
 ``markdown
+
 # API Endpoint Implementation Plan: [Nazwa punktu końcowego]
 
 ## 1. Przegląd punktu końcowego
+
 [Krótki opis celu i funkcjonalności punktu końcowego]
 
 ## 2. Szczegóły żądania
+
 - Metoda HTTP: [GET/POST/PUT/DELETE]
 - Struktura URL: [wzorzec URL]
 - Parametry:
-    - Wymagane: [Lista wymaganych parametrów]
-    - Opcjonalne: [Lista opcjonalnych parametrów]
+  - Wymagane: [Lista wymaganych parametrów]
+  - Opcjonalne: [Lista opcjonalnych parametrów]
 - Request Body: [Struktura treści żądania, jeśli dotyczy]
 
 ## 3. Wykorzystywane typy
+
 [DTOs i Command Modele niezbędne do implementacji]
 
 ## 3. Szczegóły odpowiedzi
+
 [Oczekiwana struktura odpowiedzi i kody statusu]
 
 ## 4. Przepływ danych
+
 [Opis przepływu danych, w tym interakcji z zewnętrznymi usługami lub bazami danych]
 
 ## 5. Względy bezpieczeństwa
+
 [Szczegóły uwierzytelniania, autoryzacji i walidacji danych]
 
 ## 6. Obsługa błędów
+
 [Lista potencjalnych błędów i sposób ich obsługi]
 
 ## 7. Rozważania dotyczące wydajności
+
 [Potencjalne wąskie gardła i strategie optymalizacji]
 
 ## 8. Etapy wdrożenia
+
 1. [Krok 1]
 2. [Krok 2]
 3. [Krok 3]
@@ -195,5 +204,4 @@ Końcowym wynikiem powinien być dobrze zorganizowany plan wdrożenia w formacie
 
 Końcowe wyniki powinny składać się wyłącznie z planu wdrożenia w formacie markdown i nie powinny powielać ani powtarzać żadnej pracy wykonanej w sekcji analizy.
 
-Pamiętaj, aby zapisać swój plan wdrożenia jako account-endpoint-implementation-plan.md w folderze @folder:.ai  Upewnij się, że plan jest szczegółowy, przejrzysty i zapewnia kompleksowe wskazówki dla zespołu programistów.
-
+Pamiętaj, aby zapisać swój plan wdrożenia jako account-endpoint-implementation-plan.md w folderze @folder:.ai Upewnij się, że plan jest szczegółowy, przejrzysty i zapewnia kompleksowe wskazówki dla zespołu programistów.

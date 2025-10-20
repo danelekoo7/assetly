@@ -37,6 +37,7 @@ Assetly is an MVP (Minimum Viable Product) web application designed to help indi
 ### Target Audience
 
 Assetly is built for individuals who:
+
 - Have assets and liabilities across multiple institutions
 - Want a simple, manual way to track their net worth
 - Need historical visualization of their financial progress
@@ -84,24 +85,28 @@ Assetly is built for individuals who:
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/assetly.git
    cd assetly
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
    Create a `.env` file in the root directory and configure your Supabase credentials:
+
    ```env
    PUBLIC_SUPABASE_URL=your_supabase_url
    PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
 4. Start the development server:
+
    ```bash
    npm run dev
    ```

@@ -60,6 +60,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   const { data, error } = await AccountService.getAccounts(locals.supabase, includeArchived);
 
   if (error) {
+    // eslint-disable-next-line no-console
     console.error("Error fetching accounts:", error);
     return new Response(
       JSON.stringify({
@@ -105,8 +106,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // In development, allow using a default user ID if no session is available.
   // In production, a valid session is always required.
   const userId = session?.user?.id ?? (import.meta.env.DEV ? import.meta.env.DEFAULT_USER_ID : undefined);
-
-  console.log("User ID:", userId);
 
   // Verify that a user is authenticated or a fallback is available.
   if (!userId) {
@@ -163,8 +162,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Log and return a generic 500 error for any other failures.
+    // eslint-disable-next-line no-console
     console.error("Failed to create account:", error);
-    console.log("Failed to create account:", error);
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",
