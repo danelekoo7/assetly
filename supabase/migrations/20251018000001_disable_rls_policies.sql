@@ -16,6 +16,10 @@ drop policy if exists "authenticated_users_insert_own_value_entries" on value_en
 drop policy if exists "authenticated_users_update_own_value_entries" on value_entries;
 drop policy if exists "authenticated_users_delete_own_value_entries" on value_entries;
 
+-- Disable RLS on both tables
+alter table accounts disable row level security;
+alter table value_entries disable row level security;
+
 -- ============================================================================
 -- End of migration
 -- ============================================================================

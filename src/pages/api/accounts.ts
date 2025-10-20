@@ -13,7 +13,8 @@ export const prerender = false;
  * Accepts string values "true" or "false" and transforms them to boolean.
  */
 const archivedQuerySchema = z
-	.string()
+	.enum(['true', 'false'])
+	.nullable()
 	.optional()
 	.default('false')
 	.transform((val) => val === 'true')
