@@ -1,8 +1,11 @@
 ---
-import Welcome from "../components/Welcome.astro";
-import Layout from "../layouts/Layout.astro";
+import IntegratedDashboardPage from "@/components/dashboard/IntegratedDashboardPage";
+import Layout from "@/layouts/Layout.astro";
+
+// Redirect to login if not authenticated
+// TODO: Add authentication check when auth is implemented
 ---
 
 <Layout>
-  <Welcome />
+  <IntegratedDashboardPage client:load />
 </Layout>
