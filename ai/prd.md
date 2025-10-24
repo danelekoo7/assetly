@@ -107,7 +107,6 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
 - Brak natywnej aplikacji mobilnej (iOS/Android). MVP oferuje responsywną aplikację webową dostępną w przeglądarce mobilnej.
 - Brak możliwości przywrócenia (cofnięcia archiwizacji) zarchiwizowanego konta.
 - Brak zaawansowanych narzędzi analitycznych i raportów poza głównym wykresem wartości netto.
-- Brak funkcji resetowania hasła (może zostać dodane w razie potrzeby, ale nie jest w minimalnym zakresie).
 - Brak ostatecznego projektu logo. Na potrzeby MVP zostanie użyte proste logo tekstowe.
 
 ## 5. Historyjki użytkowników
