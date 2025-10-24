@@ -148,6 +148,16 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
   - Po zalogowaniu na puste konto, pulpit i tabela danych są puste.
   - Na środku ekranu widoczny jest komunikat powitalny oraz przycisk/link "+ Dodaj nowe konto".
   - Wykres wartości netto jest pusty i wyświetla informację, że potrzebne są dane.
+- ID: US-016
+- Tytuł: Odzyskiwanie hasła
+- Opis: Jako użytkownik, który zapomniał hasła, chcę mieć możliwość jego zresetowania, aby odzyskać dostęp do mojego konta.
+- Kryteria akceptacji:
+  - Na stronie logowania znajduje się link "Zapomniałem hasła".
+  - Po kliknięciu w link, użytkownik jest proszony o podanie adresu e-mail powiązanego z kontem.
+  - Po podaniu e-maila, na adres użytkownika wysyłana jest wiadomość z unikalnym linkiem do zresetowania hasła.
+  - Link do resetowania hasła prowadzi do formularza, w którym można ustawić nowe hasło.
+  - Po pomyślnym ustawieniu nowego hasła, użytkownik może zalogować się przy jego użyciu.
+  - Link do resetowania hasła jest jednorazowy i ma ograniczony czas ważności.
 
 ### Zarządzanie kontami finansowymi
 
