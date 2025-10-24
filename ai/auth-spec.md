@@ -107,13 +107,13 @@ Niniejsza specyfikacja opisuje architekturę i szczegóły techniczne implementa
 **Przepływ:**
 1. Użytkownik klika link z maila: `?token_hash=...&type=signup`
 2. Astro SSR wywołuje `supabase.auth.verifyOtp()` na serwerze
-3. **Sukces:** Wyświetlenie komunikatu, link do logowania
-4. **Błąd:** Komunikat o wygaśnięciu linku, opcja ponownego wysłania
+3. **Sukces:** Automatyczne przekierowanie do `/login` z parametrem URL `?confirmed=true` (komunikat Toast na stronie logowania: "Konto aktywowane! Możesz się teraz zalogować.")
+4. **Błąd:** Komunikat o wygaśnięciu linku z przyciskiem do ponownego wysłania maila (formularz z polem email)
 
-**Treść (sukces):**
-- Nagłówek: "Konto aktywowane!"
-- Komunikat: "Twoje konto zostało pomyślnie aktywowane."
-- Przycisk: "Przejdź do logowania" → `/login`
+**Treść (błąd - link wygasł):**
+- Nagłówek: "Link aktywacyjny wygasł"
+- Komunikat: "Link aktywacyjny stracił ważność. Możesz poprosić o nowy."
+- Formularz: Pole email + przycisk "Wyślij ponownie link aktywacyjny"
 
 ---
 
@@ -276,7 +276,7 @@ Podobne komponenty: `LoginForm.tsx`, `ForgotPasswordForm.tsx`, `ResetPasswordFor
 4. **Sukces:** Wywołanie `signUp` → przekierowanie do `/auth/check-email`
 5. **Błąd (email istnieje):** Alert na stronie `/register`
 6. Użytkownik otwiera maila, klika link aktywacyjny
-7. Ląduje na `/auth/confirmed` → komunikat sukcesu → link do `/login`
+7. Ląduje na `/auth/confirmed` → automatyczne przekierowanie do `/login?confirmed=true` z komunikatem Toast
 
 #### **Scenariusz 2: Logowanie**
 1. Użytkownik wchodzi na `/login`
@@ -599,26 +599,36 @@ src/
 │   ├── register.astro                # Strona rejestracji (SSR)
 │   ├── forgot-password.astro         # Strona zapomnienia hasła (SSR)
 │   ├── reset-password.astro          # Strona resetowania hasła (SSR)
+│   ├── settings.astro                # Ustawienia użytkownika (chroniony, SSR)
 │   ├── auth/
 │   │   ├── check-email.astro         # Komunikat po rejestracji (statyczny)
 │   │   ├── check-email-reset.astro   # Komunikat po prośbie o reset (statyczny)
-│   │   └── confirmed.astro           # Potwierdzenie aktywacji (SSR)
+│   │   ├── confirmed.astro           # Potwierdzenie aktywacji (SSR, redirect)
+│   │   └── resend-activation.astro   # Ponowne wysłanie maila aktywacyjnego (SSR)
 │   └── api/
 │       └── auth/
-│           └── logout.ts             # Endpoint wylogowania (opcjonalny)
+│           ├── logout.ts             # Endpoint wylogowania (POST)
+│           ├── delete-account.ts     # Endpoint usuwania konta (POST)
+│           └── resend-activation.ts  # Endpoint ponownego wysyłania aktywacji (POST)
 ├── components/
-│   └── auth/
-│       ├── RegisterForm.tsx          # Formularz rejestracji (React)
-│       ├── LoginForm.tsx             # Formularz logowania (React)
-│       ├── ForgotPasswordForm.tsx    # Formularz zapomnienia hasła (React)
-│       └── ResetPasswordForm.tsx     # Formularz resetowania hasła (React)
+│   ├── auth/
+│   │   ├── RegisterForm.tsx          # Formularz rejestracji (React)
+│   │   ├── LoginForm.tsx             # Formularz logowania (React)
+│   │   ├── ForgotPasswordForm.tsx    # Formularz zapomnienia hasła (React)
+│   │   ├── ResetPasswordForm.tsx     # Formularz resetowania hasła (React)
+│   │   ├── DeleteAccountForm.tsx     # Formularz usuwania konta (React)
+│   │   └── ResendActivationForm.tsx  # Formularz ponownego wysłania aktywacji (React)
+│   └── settings/
+│       └── UserSettings.tsx          # Komponenty ustawień użytkownika (React)
 ├── layouts/
-│   └── AuthLayout.astro              # Layout dla stron autentykacji
+│   ├── AuthLayout.astro              # Layout dla stron autentykacji
+│   └── SettingsLayout.astro          # Layout dla strony ustawień
 ├── middleware/
-│   └── index.ts                      # Middleware sesji i ochrony tras
+│   └── index.ts                      # Middleware sesji i ochrony tras (UWAGA: integracja z istniejącym)
 ├── db/
-│   ├── client-browser.ts             # Klient Supabase (client-side)
-│   ├── client-server.ts              # Klient Supabase (server-side)
+│   ├── supabase.client.ts            # Główny klient Supabase (ISTNIEJĄCY - do weryfikacji)
+│   ├── client-browser.ts             # Klient Supabase dla przeglądarki (NOWY)
+│   ├── client-server.ts              # Klient Supabase dla serwera (NOWY)
 │   └── database.types.ts             # Typy generowane przez Supabase
 ├── lib/
 │   └── validation/
@@ -627,11 +637,319 @@ src/
 ```
 
 
+**UWAGI dotyczące struktury:**
+- **ISTNIEJĄCY KOD:** Plik `src/db/supabase.client.ts` już istnieje w projekcie. Należy zweryfikować czy potrzebne są osobne pliki `client-browser.ts` i `client-server.ts`, czy też należy rozszerzyć istniejący plik.
+- **MIDDLEWARE:** Plik `src/middleware/index.ts` już istnieje. Nowa implementacja musi być zintegrowana z istniejącą logiką, nie nadpisywać jej całkowicie.
+- **AuthLayout.astro:** Wymaga szczegółowej specyfikacji (patrz sekcja 6.1 poniżej).
+
+
+### 6.1. Szczegóły layoutów
+
+#### **AuthLayout.astro**
+Layout dla wszystkich stron autentykacji (login, register, forgot-password, reset-password).
+
+**Struktura:**
+- Prosty, minimalistyczny design
+- Logo Assetly (tymczasowe tekstowe)
+- Centrowany kontener formularza
+- Opcjonalny link powrotny (np. "← Powrót do logowania")
+- Brak nawigacji użytkownika (bo niezalogowany)
+- Responsywny na mobile (pełna szerokość na małych ekranach)
+
+**Przykładowa struktura HTML:**
+```astro
+---
+// src/layouts/AuthLayout.astro
+interface Props {
+  title: string;
+  backLink?: { href: string; text: string };
+}
+
+const { title, backLink } = Astro.props;
 ---
 
-## 7. SCENARIUSZE EDGE CASES
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title} | Assetly</title>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    {backLink && (
+      <a href={backLink.href} class="text-sm text-gray-600 hover:text-gray-900 mb-4 inline-block">
+        ← {backLink.text}
+      </a>
+    )}
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Assetly</h1>
+      </div>
+      <slot />
+    </div>
+  </div>
+</body>
+</html>
+```
 
-| **Scenariusz**                                      | **Obsługa**                                                                                       |
+#### **SettingsLayout.astro**
+Layout dla strony ustawień użytkownika (chronionej).
+
+**Struktura:**
+- Nagłówek z logo i menu użytkownika (wylogowanie)
+- Sidebar z opcjami ustawień (na razie tylko "Konto")
+- Główna treść z formularzami/opcjami
+- Responsywny (sidebar zamienia się w tabs na mobile)
+
+---
+
+## 7. USUWANIE KONTA UŻYTKOWNIKA (US-011)
+
+### 7.1. Opis funkcjonalności
+
+**Lokalizacja:** Strona `/settings` (nowa strona, chroniona)
+
+**Przepływ:**
+1. Użytkownik wchodzi na `/settings` (zalogowany)
+2. W sekcji "Konto" znajduje przycisk "Usuń konto" w strefie niebezpiecznej (danger zone)
+3. Po kliknięciu otwiera się modal z ostrzeżeniem i formularzem
+4. Użytkownik musi wpisać swoje hasło jako potwierdzenie
+5. Po zatwierdzeniu:
+   - Wywołanie API endpoint `/api/auth/delete-account` (POST)
+   - Backend weryfikuje hasło poprzez Supabase Auth
+   - **Sukces:** Usunięcie użytkownika z `auth.users` (kaskadowo usuwa wszystkie powiązane dane)
+   - Automatyczne wylogowanie i przekierowanie do `/login` z komunikatem Toast
+6. **Błąd (niepoprawne hasło):** Alert w modalu "Nieprawidłowe hasło"
+
+### 7.2. Strona ustawień
+
+**Ścieżka:** `src/pages/settings.astro`
+**Layout:** `SettingsLayout.astro`
+**Główny komponent:** `UserSettings.tsx` (React, client:load)
+
+**Sekcje na stronie:**
+1. **Informacje o koncie** (tylko do odczytu):
+   - Email użytkownika
+   - Data rejestracji (opcjonalnie)
+
+2. **Zmiana hasła** (opcjonalnie w MVP):
+   - Link do `/forgot-password` z informacją "Aby zmienić hasło, użyj funkcji resetowania hasła"
+
+3. **Danger Zone**:
+   - Sekcja wizualnie oddzielona (czerwone obramowanie)
+   - Przycisk "Usuń konto" z warningiem
+   - Komunikat: "Ta operacja jest nieodwracalna. Wszystkie Twoje dane zostaną trwale usunięte."
+
+### 7.3. Komponent DeleteAccountForm.tsx
+
+```typescript
+// src/components/auth/DeleteAccountForm.tsx
+import { useState } from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createBrowserClient } from '@/db/client-browser';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, Input, Button, Alert } from '@/components/ui';
+
+const deleteAccountSchema = z.object({
+  password: z.string().min(1, 'Hasło jest wymagane')
+});
+
+export function DeleteAccountForm() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = createBrowserClient();
+  
+  const form = useForm({
+    resolver: zodResolver(deleteAccountSchema),
+    defaultValues: { password: '' }
+  });
+
+  const onSubmit = async (values: z.infer<typeof deleteAccountSchema>) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Weryfikacja hasła poprzez re-autentykację
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        throw new Error('Brak danych użytkownika');
+      }
+      
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: values.password
+      });
+      
+      if (signInError) {
+        setError('Nieprawidłowe hasło');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Wywołanie endpoint do usunięcia konta
+      const response = await fetch('/api/auth/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Błąd podczas usuwania konta');
+      }
+      
+      // Przekierowanie nastąpi automatycznie przez backend
+      window.location.href = '/login?deleted=true';
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Wystąpił błąd');
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Button 
+        variant="destructive" 
+        onClick={() => setIsOpen(true)}
+      >
+        Usuń konto
+      </Button>
+      
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Czy na pewno chcesz usunąć konto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ta operacja jest nieodwracalna. Wszystkie Twoje dane (konta, historia wartości) zostaną trwale usunięte.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Potwierdź swoim hasłem</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Wprowadź hasło" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {error && <Alert variant="destructive" className="mt-4">{error}</Alert>}
+              
+              <AlertDialogFooter className="mt-6">
+                <AlertDialogCancel disabled={isLoading}>Anuluj</AlertDialogCancel>
+                <Button type="submit" variant="destructive" disabled={isLoading}>
+                  {isLoading ? 'Usuwanie...' : 'Usuń konto'}
+                </Button>
+              </AlertDialogFooter>
+            </form>
+          </Form>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+```
+
+### 7.4. API Endpoint - Usuwanie konta
+
+**Ścieżka:** `src/pages/api/auth/delete-account.ts`
+
+```typescript
+// src/pages/api/auth/delete-account.ts
+import type { APIContext } from 'astro';
+
+export const prerender = false;
+
+export async function POST({ locals, redirect }: APIContext) {
+  const { supabase, session } = locals;
+  
+  if (!session) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  try {
+    // Usunięcie użytkownika z Supabase Auth
+    // Kaskadowe usuwanie danych obsłuży RLS i ON DELETE CASCADE
+    const { error } = await supabase.auth.admin.deleteUser(session.user.id);
+    
+    if (error) {
+      throw error;
+    }
+    
+    // Wylogowanie
+    await supabase.auth.signOut();
+    
+    return redirect('/login?deleted=true');
+    
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    return new Response(JSON.stringify({ error: 'Failed to delete account' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+```
+
+**UWAGA:** W środowisku produkcyjnym `supabase.auth.admin.deleteUser()` wymaga klucza service role. Alternatywnie można użyć Supabase Edge Function lub Database Function do usuwania użytkownika.
+
+---
+
+## 8. PONOWNE WYSYŁANIE MAILA AKTYWACYJNEGO
+
+### 8.1. Scenariusze użycia
+
+1. **Po wygaśnięciu linku aktywacyjnego:**
+   - Użytkownik ląduje na `/auth/confirmed` z błędem tokena
+   - Widzi formularz do ponownego wysłania maila
+
+2. **Logowanie przed aktywacją:**
+   - Użytkownik próbuje się zalogować
+   - Otrzymuje błąd "Email not confirmed"
+   - W komunikacie błędu znajduje się link do `/auth/resend-activation`
+
+### 8.2. Strona resend-activation
+
+**Ścieżka:** `src/pages/auth/resend-activation.astro`
+**Layout:** `AuthLayout.astro`
+**Główny komponent:** `ResendActivationForm.tsx` (React, client:load)
+
+**Komponent ResendActivationForm.tsx:**
+```typescript
+// src/components/auth/ResendActivationForm.tsx
+import { useState } from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createBrowserClient } from '@/db/client-browser';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, Input, Button, Alert } from '@/components/ui';
+
+const resendSchema = z.object({
+  email: z.string().email('Nieprawidłowy format adresu email')
+});
+
+export function ResendActivationForm() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = createBrowserClient();
+  
+  const form = useForm({
+    resolver: zodResolver(resendSchema),
+    defaultValues
 |-----------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | Użytkownik klika ponownie link aktywacyjny          | Supabase zwraca błąd "Token już użyty" → komunikat "Konto już aktywowane, przejdź do logowania"  |
 | Użytkownik próbuje się zalogować przed aktywacją    | Błąd "Email not confirmed" → komunikat z linkiem do ponownego wysłania maila aktywacyjnego       |
