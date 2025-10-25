@@ -1,11 +1,22 @@
 ---
 import "../styles/global.css";
+import { createSupabaseServerInstance } from "../db/supabase.server";
 
 interface Props {
   title?: string;
 }
 
 const { title = "10x Astro Starter" } = Astro.props;
+
+// Server-side check of current user session via Supabase
+const supabase = createSupabaseServerInstance({
+  headers: Astro.request.headers,
+  cookies: Astro.cookies,
+});
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+const isAuthenticated = !!user;
 ---
 
 <!doctype html>
@@ -18,15 +29,22 @@ const { title = "10x Astro Starter" } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <slot />
+    <header class="sticky top-0 z-10 bg-white dark:bg-background border-b border-gray-200 dark:border-border flex items-center justify-between px-4 py-3">
+      <a href="/" class="font-semibold text-foreground no-underline">Assetly</a>
+      <nav class="flex items-center gap-2">
+        {isAuthenticated ? (
+          <form method="POST" action="/api/auth/logout">
+            <button type="submit" class="inline-flex items-center rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground no-underline hover:bg-gray-50 dark:bg-background dark:hover:bg-muted">Wyloguj</button>
+          </form>
+        ) : (
+          <a href="/login" class="inline-flex items-center rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground no-underline hover:bg-gray-50 dark:bg-background dark:hover:bg-muted">Zaloguj</a>
+        )}
+      </nav>
+    </header>
+
+    <main class="p-4">
+      <slot />
+    </main>
   </body>
 </html>
 
-<style>
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>
