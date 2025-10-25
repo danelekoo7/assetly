@@ -1,0 +1,39 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  backLink?: { href: string; text: string };
+}
+
+const { title, backLink } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Assetly</title>
+  </head>
+  <body class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      {backLink && (
+        <a
+          href={backLink.href}
+          class="text-sm text-gray-600 hover:text-gray-900 mb-4 inline-block transition-colors"
+        >
+          ← {backLink.text}
+        </a>
+      )}
+      <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-900">Assetly</h1>
+        </div>
+        <slot />
+      </div>
+    </div>
+  </body>
+</html>

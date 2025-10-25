@@ -1,0 +1,56 @@
+---
+import AuthLayout from '@/layouts/AuthLayout.astro';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CheckCircle2 } from 'lucide-react';
+
+const tokenHash = Astro.url.searchParams.get('token_hash');
+const type = Astro.url.searchParams.get('type');
+
+// W produkcji tutaj będzie weryfikacja tokena server-side
+const isValid = tokenHash && type === 'signup';
+---
+
+<AuthLayout title="Potwierdzenie konta">
+  {
+    isValid ? (
+      <div class="space-y-6 text-center">
+        <div class="flex justify-center">
+          <div class="rounded-full bg-green-100 p-3">
+            <CheckCircle2 className="h-8 w-8 text-green-600" />
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h2 class="text-2xl font-semibold tracking-tight">
+            Konto aktywowane!
+          </h2>
+          <p class="text-sm text-muted-foreground">
+            Twoje konto zostało pomyślnie aktywowane. Możesz się teraz zalogować.
+          </p>
+        </div>
+
+        <a href="/login?confirmed=true">
+          <Button className="w-full">Przejdź do logowania</Button>
+        </a>
+      </div>
+    ) : (
+      <div class="space-y-6">
+        <Alert variant="destructive">
+          <AlertTitle>Link aktywacyjny wygasł</AlertTitle>
+          <AlertDescription>
+            Link aktywacyjny stracił ważność. Możesz poprosić o nowy link aktywacyjny.
+          </AlertDescription>
+        </Alert>
+
+        <div class="space-y-4">
+          <a href="/login">
+            <Button variant="outline" className="w-full">
+              Powrót do logowania
+            </Button>
+          </a>
+        </div>
+      </div>
+    )
+  }
+</AuthLayout>
