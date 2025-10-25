@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { supabaseClient } from '@/db/supabase.client';
 import { loginSchema } from '@/lib/validation/auth.schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,22 +31,32 @@ export default function LoginForm() {
     setIsLoading(true);
     setError(null);
 
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: values.email, password: values.password }),
+      });
 
-    if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        setError('Nieprawidłowy email lub hasło');
-      } else if (error.message.includes('Email not confirmed')) {
-        setError('Aktywuj swoje konto poprzez link w mailu');
-      } else {
-        setError('Wystąpił błąd. Spróbuj ponownie później.');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as any));
+        const msg = (data?.error as string) || 'Wystąpił błąd. Spróbuj ponownie później.';
+        if (msg.includes('Invalid login credentials')) {
+          setError('Nieprawidłowy email lub hasło');
+        } else if (msg.includes('Email not confirmed')) {
+          setError('Aktywuj swoje konto poprzez link w mailu');
+        } else {
+          setError('Wystąpił błąd. Spróbuj ponownie później.');
+        }
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
-    } else {
+
+      // Success -> redirect to dashboard/root
       window.location.href = '/';
+    } catch (e) {
+      setError('Wystąpił błąd sieci. Spróbuj ponownie później.');
+      setIsLoading(false);
     }
   };
 
