@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { supabaseClient } from '@/db/supabase.client';
 import { registerSchema } from '@/lib/validation/auth.schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +18,7 @@ import {
 export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successEmail, setSuccessEmail] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -32,31 +32,44 @@ export default function RegisterForm() {
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
     setError(null);
+    setSuccessEmail(null);
 
-    const { error } = await supabaseClient.auth.signUp({
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: values.email, password: values.password }),
+      });
 
-    if (error) {
-      if (error.message.includes('already registered')) {
-        setError('Użytkownik o tym adresie email już istnieje');
-      } else {
-        setError(error.message);
+      const data = await res.json().catch(() => ({} as any));
+      if (!res.ok) {
+        const msg = (data?.error as string) || 'Wystąpił błąd. Spróbuj ponownie później.';
+        if (/already/i.test(msg)) {
+          setError('Użytkownik o tym adresie email już istnieje');
+        } else {
+          setError(msg);
+        }
+        setIsLoading(false);
+        return;
       }
+
+      // Success: inform user to check inbox for confirmation link
+      setSuccessEmail(values.email);
       setIsLoading(false);
-    } else {
-      window.location.href = `/auth/check-email?email=${encodeURIComponent(values.email)}`;
+      // Optionally, we could redirect after a short delay to /login
+    } catch (e) {
+      setError('Wystąpił błąd sieci. Spróbuj ponownie później.');
+      setIsLoading(false);
     }
   };
+
+  const disabled = isLoading || !!successEmail;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Utwórz konto
-          </h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Utwórz konto</h2>
           <p className="text-sm text-muted-foreground">
             Wprowadź swoje dane, aby zarejestrować się
           </p>
@@ -68,6 +81,15 @@ export default function RegisterForm() {
           </Alert>
         )}
 
+        {successEmail && (
+          <Alert>
+            <AlertDescription>
+              Rejestracja prawie gotowa! Wysłaliśmy link aktywacyjny na adres <b>{successEmail}</b>.
+              Otwórz wiadomość i kliknij w link, aby potwierdzić konto. Po potwierdzeniu możesz się zalogować.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <FormField
           control={form.control}
           name="email"
@@ -75,12 +97,7 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="twoj@email.pl"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="email" placeholder="twoj@email.pl" disabled={disabled} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,12 +111,7 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Hasło</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="password" placeholder="••••••••" disabled={disabled} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -113,28 +125,20 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Potwierdź hasło</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="password" placeholder="••••••••" disabled={disabled} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Rejestracja...' : 'Zarejestruj się'}
+        <Button type="submit" className="w-full" disabled={disabled}>
+          {isLoading ? 'Rejestracja...' : successEmail ? 'Sprawdź e‑mail' : 'Zarejestruj się'}
         </Button>
 
         <div className="text-center text-sm">
           <span className="text-muted-foreground">Masz już konto? </span>
-          <a
-            href="/login"
-            className="font-medium text-primary hover:underline"
-          >
+          <a href="/login" className="font-medium text-primary hover:underline">
             Zaloguj się
           </a>
         </div>
