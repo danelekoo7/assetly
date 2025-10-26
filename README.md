@@ -73,6 +73,9 @@ Assetly is built for individuals who:
 - **Husky**: Git hooks for code quality
 - **GitHub Actions**: CI/CD pipeline automation
 - **DigitalOcean**: Application hosting via Docker containers
+- **Vitest**: Modern testing framework for unit and integration tests
+- **React Testing Library**: Utilities for testing React components
+- **Playwright**: End-to-end testing framework for browser automation
 
 ## Getting Started
 
