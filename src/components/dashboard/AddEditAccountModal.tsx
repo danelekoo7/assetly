@@ -10,21 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
@@ -125,9 +112,7 @@ export default function AddEditAccountModal() {
     <Dialog open={isOpen || isEditMode} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? "Edytuj konto" : "Dodaj nowe konto"}
-          </DialogTitle>
+          <DialogTitle>{isEditMode ? "Edytuj konto" : "Dodaj nowe konto"}</DialogTitle>
           <DialogDescription>
             {isEditMode
               ? "Zaktualizuj nazwę konta poniżej."
@@ -160,10 +145,7 @@ export default function AddEditAccountModal() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Typ konta</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Wybierz typ konta" />
@@ -190,12 +172,7 @@ export default function AddEditAccountModal() {
                     <FormItem>
                       <FormLabel>Wartość początkowa</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          {...field}
-                        />
+                        <Input type="number" step="0.01" placeholder="0.00" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -220,26 +197,15 @@ export default function AddEditAccountModal() {
 
             {/* Root Error Message */}
             {form.formState.errors.root && (
-              <p className="text-sm font-medium text-destructive">
-                {form.formState.errors.root.message}
-              </p>
+              <p className="text-sm font-medium text-destructive">{form.formState.errors.root.message}</p>
             )}
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="button" variant="outline" onClick={handleClose} disabled={form.formState.isSubmitting}>
                 Anuluj
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting
-                  ? "Zapisywanie..."
-                  : isEditMode
-                  ? "Zapisz zmiany"
-                  : "Dodaj konto"}
+                {form.formState.isSubmitting ? "Zapisywanie..." : isEditMode ? "Zapisz zmiany" : "Dodaj konto"}
               </Button>
             </DialogFooter>
           </form>

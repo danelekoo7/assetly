@@ -256,9 +256,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       const { gridData } = get();
       if (gridData) {
         const updatedGridData = { ...gridData };
-        const accountIndex = updatedGridData.accounts.findIndex(
-          (acc) => acc.id === command.account_id
-        );
+        const accountIndex = updatedGridData.accounts.findIndex((acc) => acc.id === command.account_id);
 
         if (accountIndex !== -1) {
           const account = updatedGridData.accounts[accountIndex];
@@ -293,9 +291,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       // Refresh summary data
       const { dateRange, showArchived } = get();
       const toDate = formatDate(dateRange.to);
-      const summaryResponse = await fetch(
-        `/api/dashboard/summary?date=${toDate}&showArchived=${showArchived}`
-      );
+      const summaryResponse = await fetch(`/api/dashboard/summary?date=${toDate}&showArchived=${showArchived}`);
 
       if (summaryResponse.ok) {
         const summaryData: DashboardSummaryDto = await summaryResponse.json();

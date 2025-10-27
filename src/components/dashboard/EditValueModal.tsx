@@ -10,15 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
@@ -198,8 +190,7 @@ export default function EditValueModal() {
         <DialogHeader>
           <DialogTitle>Edytuj wartość</DialogTitle>
           <DialogDescription>
-            Zaktualizuj wartość konta na wybrany dzień. System automatycznie
-            obliczy pozostałe pola.
+            Zaktualizuj wartość konta na wybrany dzień. System automatycznie obliczy pozostałe pola.
           </DialogDescription>
         </DialogHeader>
 
@@ -214,15 +205,11 @@ export default function EditValueModal() {
             </div>
             <div>
               <span className="font-medium">Data:</span>{" "}
-              <span className="text-muted-foreground">
-                {format(new Date(context.date), "PPP", { locale: pl })}
-              </span>
+              <span className="text-muted-foreground">{format(new Date(context.date), "PPP", { locale: pl })}</span>
             </div>
             <div className="col-span-2">
               <span className="font-medium">Poprzednia wartość:</span>{" "}
-              <span className="text-muted-foreground">
-                {formatCurrency(previousValue)}
-              </span>
+              <span className="text-muted-foreground">{formatCurrency(previousValue)}</span>
             </div>
           </div>
         </div>
@@ -272,9 +259,7 @@ export default function EditValueModal() {
                       }}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Dodatnia wartość dla wpłat, ujemna dla wypłat
-                  </FormDescription>
+                  <FormDescription>Dodatnia wartość dla wpłat, ujemna dla wypłat</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -299,9 +284,7 @@ export default function EditValueModal() {
                       }}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Zysk/strata inwestycyjna (obliczana automatycznie)
-                  </FormDescription>
+                  <FormDescription>Zysk/strata inwestycyjna (obliczana automatycznie)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -309,18 +292,11 @@ export default function EditValueModal() {
 
             {/* Root Error Message */}
             {form.formState.errors.root && (
-              <p className="text-sm font-medium text-destructive">
-                {form.formState.errors.root.message}
-              </p>
+              <p className="text-sm font-medium text-destructive">{form.formState.errors.root.message}</p>
             )}
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="button" variant="outline" onClick={handleClose} disabled={form.formState.isSubmitting}>
                 Anuluj
               </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>

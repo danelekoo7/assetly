@@ -1,14 +1,14 @@
 ---
-import AuthLayout from '@/layouts/AuthLayout.astro';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle2 } from 'lucide-react';
+import AuthLayout from "@/layouts/AuthLayout.astro";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CheckCircle2 } from "lucide-react";
 
-const tokenHash = Astro.url.searchParams.get('token_hash');
-const type = Astro.url.searchParams.get('type');
+const tokenHash = Astro.url.searchParams.get("token_hash");
+const type = Astro.url.searchParams.get("type");
 
 // W produkcji tutaj będzie weryfikacja tokena server-side
-const isValid = tokenHash && type === 'signup';
+const isValid = tokenHash && type === "signup";
 ---
 
 <AuthLayout title="Potwierdzenie konta">
@@ -22,9 +22,7 @@ const isValid = tokenHash && type === 'signup';
         </div>
 
         <div class="space-y-2">
-          <h2 class="text-2xl font-semibold tracking-tight">
-            Konto aktywowane!
-          </h2>
+          <h2 class="text-2xl font-semibold tracking-tight">Konto aktywowane!</h2>
           <p class="text-sm text-muted-foreground">
             Twoje konto zostało pomyślnie aktywowane. Możesz się teraz zalogować.
           </p>

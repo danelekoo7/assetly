@@ -39,8 +39,7 @@ export default function DashboardToolbar() {
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateRange.from && dateRange.to ? (
               <>
-                {format(dateRange.from, "PP", { locale: pl })} -{" "}
-                {format(dateRange.to, "PP", { locale: pl })}
+                {format(dateRange.from, "PP", { locale: pl })} - {format(dateRange.to, "PP", { locale: pl })}
               </>
             ) : (
               <span>Wybierz zakres dat</span>
@@ -90,11 +89,7 @@ export default function DashboardToolbar() {
 
       {/* Show Archived Switch */}
       <div className="flex items-center gap-2">
-        <Switch
-          id="show-archived"
-          checked={showArchived}
-          onCheckedChange={setShowArchived}
-        />
+        <Switch id="show-archived" checked={showArchived} onCheckedChange={setShowArchived} />
         <label
           htmlFor="show-archived"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

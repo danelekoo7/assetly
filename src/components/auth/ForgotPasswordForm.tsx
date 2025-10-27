@@ -1,20 +1,13 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { supabaseClient } from '@/db/supabase.client';
-import { forgotPasswordSchema } from '@/lib/validation/auth.schemas';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/components/ui/form';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { supabaseClient } from "@/db/supabase.client";
+import { forgotPasswordSchema } from "@/lib/validation/auth.schemas";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +16,7 @@ export default function ForgotPasswordForm() {
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
-      email: '',
+      email: "",
     },
   });
 
@@ -31,12 +24,9 @@ export default function ForgotPasswordForm() {
     setIsLoading(true);
     setError(null);
 
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(
-      values.email,
-      {
-        redirectTo: `${window.location.origin}/reset-password`,
-      }
-    );
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(values.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
 
     if (error) {
       setError(error.message);
@@ -50,12 +40,8 @@ export default function ForgotPasswordForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Zapomniałeś hasła?
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Wprowadź swój adres email, aby zresetować hasło
-          </p>
+          <h2 className="text-2xl font-semibold tracking-tight">Zapomniałeś hasła?</h2>
+          <p className="text-sm text-muted-foreground">Wprowadź swój adres email, aby zresetować hasło</p>
         </div>
 
         {error && (
@@ -71,12 +57,7 @@ export default function ForgotPasswordForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="twoj@email.pl"
-                  disabled={isLoading}
-                  {...field}
-                />
+                <Input type="email" placeholder="twoj@email.pl" disabled={isLoading} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,14 +65,11 @@ export default function ForgotPasswordForm() {
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Wysyłanie...' : 'Wyślij link resetujący'}
+          {isLoading ? "Wysyłanie..." : "Wyślij link resetujący"}
         </Button>
 
         <div className="text-center text-sm">
-          <a
-            href="/login"
-            className="text-primary hover:underline"
-          >
+          <a href="/login" className="text-primary hover:underline">
             Powrót do logowania
           </a>
         </div>

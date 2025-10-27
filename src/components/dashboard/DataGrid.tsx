@@ -36,12 +36,7 @@ const formatDate = (dateString: string): string => {
 export default function DataGrid({ gridData, isLoading }: DataGridProps) {
   const { openModal } = useDashboardStore();
 
-  const handleCellClick = (
-    accountId: string,
-    date: string,
-    accountType: AccountType,
-    previousValue: number
-  ) => {
+  const handleCellClick = (accountId: string, date: string, accountType: AccountType, previousValue: number) => {
     openModal("editValue", {
       accountId,
       date,
@@ -99,11 +94,7 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
-      <div
-        role="grid"
-        className="min-w-full divide-y divide-border bg-card"
-        aria-label="Siatka danych finansowych"
-      >
+      <div role="grid" className="min-w-full divide-y divide-border bg-card" aria-label="Siatka danych finansowych">
         {/* Header Row */}
         <div
           role="row"
@@ -140,9 +131,7 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
             >
               <div className="flex-1">
                 <div className="font-medium text-foreground">{account.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {account.type === "asset" ? "Aktywo" : "Pasywo"}
-                </div>
+                <div className="text-xs text-muted-foreground">{account.type === "asset" ? "Aktywo" : "Pasywo"}</div>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -182,14 +171,7 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
                   key={date}
                   role="gridcell"
                   className="cursor-pointer border-r border-border px-4 py-3 text-right transition-colors hover:bg-accent last:border-r-0"
-                  onClick={() =>
-                    handleCellClick(
-                      account.id,
-                      date,
-                      account.type,
-                      value ?? 0
-                    )
-                  }
+                  onClick={() => handleCellClick(account.id, date, account.type, value ?? 0)}
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -199,13 +181,7 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
                   }}
                 >
                   {value !== null ? (
-                    <span
-                      className={
-                        value >= 0
-                          ? "text-foreground"
-                          : "text-red-600 dark:text-red-400"
-                      }
-                    >
+                    <span className={value >= 0 ? "text-foreground" : "text-red-600 dark:text-red-400"}>
                       {formatCurrency(value)}
                     </span>
                   ) : (
@@ -239,11 +215,7 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
                 className="border-r border-border px-4 py-3 text-right font-bold last:border-r-0"
               >
                 <span
-                  className={
-                    netWorth >= 0
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
-                  }
+                  className={netWorth >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}
                 >
                   {formatCurrency(netWorth)}
                 </span>

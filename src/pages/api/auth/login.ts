@@ -12,10 +12,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const json = await request.json().catch(() => ({}));
     const parse = bodySchema.safeParse(json);
     if (!parse.success) {
-      return new Response(
-        JSON.stringify({ error: "Invalid payload", details: parse.error.flatten() }),
-        { status: 400 },
-      );
+      return new Response(JSON.stringify({ error: "Invalid payload", details: parse.error.flatten() }), {
+        status: 400,
+      });
     }
 
     const { email, password } = parse.data;
@@ -35,10 +34,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify({ error: message }), { status: 401 });
     }
 
-    return new Response(
-      JSON.stringify({ user: { id: data.user?.id, email: data.user?.email } }),
-      { status: 200 },
-    );
+    return new Response(JSON.stringify({ user: { id: data.user?.id, email: data.user?.email } }), { status: 200 });
   } catch (e) {
     return new Response(JSON.stringify({ error: "Unexpected server error" }), { status: 500 });
   }

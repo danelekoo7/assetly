@@ -14,10 +14,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const json = await request.json().catch(() => ({}));
     const parsed = bodySchema.safeParse(json);
     if (!parsed.success) {
-      return new Response(
-        JSON.stringify({ error: "Invalid payload", details: parsed.error.flatten() }),
-        { status: 400 },
-      );
+      return new Response(JSON.stringify({ error: "Invalid payload", details: parsed.error.flatten() }), {
+        status: 400,
+      });
     }
 
     const { email, password } = parsed.data;
@@ -33,7 +32,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
-      let message = error.message || "Registration failed";
+      const message = error.message || "Registration failed";
       if (/already registered/i.test(message)) {
         return new Response(JSON.stringify({ error: "User already registered" }), { status: 409 });
       }

@@ -1,0 +1,1 @@
+- Nie twórz żadnych plików ani nie edytuj istniejących bez mojej zgody. Chyba, że bezpośrednio o to poproszę.

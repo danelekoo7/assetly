@@ -16,5 +16,4 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   return redirect("/", 303);
 };
 
-export const GET: APIRoute = async () =>
-  new Response("Method Not Allowed", { status: 405 });
+export const GET: APIRoute = async () => new Response("Method Not Allowed", { status: 405 });

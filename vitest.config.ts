@@ -1,17 +1,17 @@
 /// <reference types="vitest" />
-import { getViteConfig } from 'astro/config';
-import { defineConfig } from 'vitest/config';
+import { getViteConfig } from "astro/config";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
     globals: true,
-    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**"],
   },
   resolve: {
     alias: {
-      '@/': new URL('./src/', import.meta.url).pathname,
+      "@/": new URL("./src/", import.meta.url).pathname,
     },
   },
 });

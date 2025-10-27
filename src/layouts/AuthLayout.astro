@@ -20,14 +20,13 @@ const { title, backLink } = Astro.props;
   </head>
   <body class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
     <div class="w-full max-w-md">
-      {backLink && (
-        <a
-          href={backLink.href}
-          class="text-sm text-gray-600 hover:text-gray-900 mb-4 inline-block transition-colors"
-        >
-          ← {backLink.text}
-        </a>
-      )}
+      {
+        backLink && (
+          <a href={backLink.href} class="text-sm text-gray-600 hover:text-gray-900 mb-4 inline-block transition-colors">
+            ← {backLink.text}
+          </a>
+        )
+      }
       <div class="bg-white rounded-lg shadow-md p-8">
         <div class="text-center mb-8">
           <h1 class="text-3xl font-bold text-gray-900">Assetly</h1>

@@ -33,10 +33,10 @@ const KpiCard = ({
     variant === "positive"
       ? "text-green-600"
       : variant === "negative"
-      ? "text-red-600"
-      : isPositive
-      ? "text-foreground"
-      : "text-red-600";
+        ? "text-red-600"
+        : isPositive
+          ? "text-foreground"
+          : "text-red-600";
 
   return (
     <Card>
@@ -45,9 +45,7 @@ const KpiCard = ({
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className={`text-2xl font-bold ${colorClass}`}>
-          {formatCurrency(value)}
-        </div>
+        <div className={`text-2xl font-bold ${colorClass}`}>{formatCurrency(value)}</div>
       </CardContent>
     </Card>
   );
@@ -82,33 +80,11 @@ export default function KpiSection({ summaryData, isLoading }: KpiSectionProps) 
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-      <KpiCard
-        title="Wartość netto"
-        value={summaryData.net_worth}
-        icon={Wallet}
-      />
-      <KpiCard
-        title="Aktywa"
-        value={summaryData.total_assets}
-        icon={TrendingUp}
-        variant="positive"
-      />
-      <KpiCard
-        title="Pasywa"
-        value={summaryData.total_liabilities}
-        icon={TrendingDown}
-        variant="negative"
-      />
-      <KpiCard
-        title="Skumulowane wpłaty"
-        value={summaryData.cumulative_cash_flow}
-        icon={ArrowUpCircle}
-      />
-      <KpiCard
-        title="Skumulowane zyski"
-        value={summaryData.cumulative_gain_loss}
-        icon={ArrowDownCircle}
-      />
+      <KpiCard title="Wartość netto" value={summaryData.net_worth} icon={Wallet} />
+      <KpiCard title="Aktywa" value={summaryData.total_assets} icon={TrendingUp} variant="positive" />
+      <KpiCard title="Pasywa" value={summaryData.total_liabilities} icon={TrendingDown} variant="negative" />
+      <KpiCard title="Skumulowane wpłaty" value={summaryData.cumulative_cash_flow} icon={ArrowUpCircle} />
+      <KpiCard title="Skumulowane zyski" value={summaryData.cumulative_gain_loss} icon={ArrowDownCircle} />
     </div>
   );
 }

@@ -2,16 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import type { GridDataDto } from "@/types";
 
 interface NetWorthChartProps {
@@ -68,9 +59,7 @@ export default function NetWorthChart({ gridData, isLoading }: NetWorthChartProp
           <CardTitle>Historia wartości netto</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex h-96 items-center justify-center text-muted-foreground">
-            Brak danych do wyświetlenia
-          </div>
+          <div className="flex h-96 items-center justify-center text-muted-foreground">Brak danych do wyświetlenia</div>
         </CardContent>
       </Card>
     );
@@ -112,12 +101,7 @@ export default function NetWorthChart({ gridData, isLoading }: NetWorthChartProp
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle>Historia wartości netto</CardTitle>
-        <ToggleGroup
-          type="multiple"
-          value={visibleSeries}
-          onValueChange={handleSeriesToggle}
-          className="justify-start"
-        >
+        <ToggleGroup type="multiple" value={visibleSeries} onValueChange={handleSeriesToggle} className="justify-start">
           <ToggleGroupItem value="net_worth" aria-label="Wartość netto">
             Wartość netto
           </ToggleGroupItem>
@@ -131,16 +115,9 @@ export default function NetWorthChart({ gridData, isLoading }: NetWorthChartProp
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
+          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="date"
-              tickFormatter={formatDate}
-              className="text-xs"
-            />
+            <XAxis dataKey="date" tickFormatter={formatDate} className="text-xs" />
             <YAxis tickFormatter={formatCurrency} className="text-xs" />
             <Tooltip
               formatter={(value: number) => formatCurrency(value)}

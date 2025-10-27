@@ -28,11 +28,7 @@ export default function IntegratedDashboardPage() {
           <AlertDescription className="mt-2">
             Nie udało się załadować danych dashboardu. Spróbuj odświeżyć stronę.
           </AlertDescription>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={() => window.location.reload()}
-          >
+          <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
             Odśwież stronę
           </Button>
         </Alert>
@@ -46,9 +42,7 @@ export default function IntegratedDashboardPage() {
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Twoje centrum finansowe - zarządzaj kontami i śledź wartość netto
-          </p>
+          <p className="text-muted-foreground">Twoje centrum finansowe - zarządzaj kontami i śledź wartość netto</p>
         </div>
 
         {/* Toolbar */}
