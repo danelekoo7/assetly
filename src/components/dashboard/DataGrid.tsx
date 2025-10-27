@@ -55,7 +55,6 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
       description: `Czy na pewno chcesz zarchiwizować konto "${accountName}"?`,
       onConfirm: () => {
         // TODO: Implement archive logic
-        console.log("Archive account:", accountId);
       },
     });
   };
@@ -66,7 +65,6 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
       description: `Czy na pewno chcesz usunąć konto "${accountName}"? Ta operacja jest nieodwracalna.`,
       onConfirm: () => {
         // TODO: Implement delete logic
-        console.log("Delete account:", accountId);
       },
     });
   };
@@ -131,7 +129,9 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
             >
               <div className="flex-1">
                 <div className="font-medium text-foreground">{account.name}</div>
-                <div className="text-xs text-muted-foreground">{account.type === "asset" ? "Aktywo" : "Pasywo"}</div>
+                <div className="text-xs text-muted-foreground">
+                  {account.type.includes("asset") ? "Aktywo" : "Pasywo"}
+                </div>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

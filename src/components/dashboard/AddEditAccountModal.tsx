@@ -20,7 +20,7 @@ import type { AccountType } from "@/types";
 // Validation schema
 const accountSchema = z.object({
   name: z.string().min(3, "Nazwa musi mieć co najmniej 3 znaki"),
-  type: z.enum(["asset", "liability"], {
+  type: z.enum(["investment_asset", "cash_asset", "liability"], {
     required_error: "Wybierz typ konta",
   }),
   initial_value: z.string().min(1, "Wartość początkowa jest wymagana"),
@@ -40,7 +40,7 @@ export default function AddEditAccountModal() {
     resolver: zodResolver(accountSchema),
     defaultValues: {
       name: "",
-      type: "asset",
+      type: "investment_asset",
       initial_value: "",
       date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD
     },
@@ -52,14 +52,14 @@ export default function AddEditAccountModal() {
       if (isEditMode && editContext) {
         form.reset({
           name: editContext.account.name,
-          type: editContext.account.type as AccountType,
+          type: editContext.account.type,
           initial_value: "",
           date: new Date().toISOString().split("T")[0],
         });
       } else {
         form.reset({
           name: "",
-          type: "asset",
+          type: "investment_asset",
           initial_value: "",
           date: new Date().toISOString().split("T")[0],
         });
@@ -71,7 +71,6 @@ export default function AddEditAccountModal() {
     try {
       if (isEditMode) {
         // TODO: Implement updateAccount when API is ready
-        console.log("Update account:", editContext?.account.id, data);
         closeModal("editAccount");
       } else {
         await addAccount({
@@ -152,7 +151,8 @@ export default function AddEditAccountModal() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="asset">Aktywo</SelectItem>
+                        <SelectItem value="investment_asset">Aktywo inwestycyjne</SelectItem>
+                        <SelectItem value="cash_asset">Aktywo gotówkowe</SelectItem>
                         <SelectItem value="liability">Pasywo</SelectItem>
                       </SelectContent>
                     </Select>

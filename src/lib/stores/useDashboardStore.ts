@@ -48,6 +48,7 @@ interface DashboardState {
   updateValueEntry: (command: UpsertValueEntryCommand) => Promise<void>;
   openModal: (modalName: keyof DashboardState["activeModals"], context?: unknown) => void;
   closeModal: (modalName: keyof DashboardState["activeModals"]) => void;
+  resetStore: () => void;
 }
 
 // Helper function to format date to YYYY-MM-DD
@@ -313,5 +314,22 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         [modalName]: modalName === "addAccount" ? false : null,
       },
     }));
+  },
+
+  resetStore: () => {
+    set({
+      gridData: null,
+      summaryData: null,
+      dateRange: getDefaultDateRange(),
+      showArchived: false,
+      isLoading: false,
+      error: null,
+      activeModals: {
+        addAccount: false,
+        editAccount: null,
+        editValue: null,
+        confirmAction: null,
+      },
+    });
   },
 }));
