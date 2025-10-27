@@ -46,7 +46,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     };
 
     return new Response(JSON.stringify(responseBody), { status: 200 });
-  } catch (e) {
+  } catch {
     return new Response(JSON.stringify({ error: "Unexpected server error" }), { status: 500 });
   }
 };

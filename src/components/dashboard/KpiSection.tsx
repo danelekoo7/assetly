@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp, TrendingDown, Wallet, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, ArrowUpCircle, ArrowDownCircle, type LucideIcon } from "lucide-react";
 import type { DashboardSummaryDto } from "@/types";
 
 interface KpiSectionProps {
@@ -25,7 +25,7 @@ const KpiCard = ({
 }: {
   title: string;
   value: number;
-  icon: any;
+  icon: LucideIcon;
   variant?: "default" | "positive" | "negative";
 }) => {
   const isPositive = value >= 0;

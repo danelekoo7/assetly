@@ -33,7 +33,7 @@ export default function ResetPasswordForm() {
       setError(error.message);
       setIsLoading(false);
     } else {
-      window.location.href = "/login?reset=success";
+      window.location.assign("/login?reset=success");
     }
   };
 

@@ -34,7 +34,7 @@ export default function RegisterForm() {
         body: JSON.stringify({ email: values.email, password: values.password }),
       });
 
-      const data = await res.json().catch(() => ({}) as any);
+      const data = await res.json().catch(() => ({}) as Record<string, unknown>);
       if (!res.ok) {
         const msg = (data?.error as string) || "Wystąpił błąd. Spróbuj ponownie później.";
         if (/already/i.test(msg)) {
@@ -50,7 +50,7 @@ export default function RegisterForm() {
       setSuccessEmail(values.email);
       setIsLoading(false);
       // Optionally, we could redirect after a short delay to /login
-    } catch (e) {
+    } catch {
       setError("Wystąpił błąd sieci. Spróbuj ponownie później.");
       setIsLoading(false);
     }

@@ -46,7 +46,7 @@ interface DashboardState {
   updateAccount: (id: string, command: UpdateAccountCommand) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
   updateValueEntry: (command: UpsertValueEntryCommand) => Promise<void>;
-  openModal: (modalName: keyof DashboardState["activeModals"], context?: any) => void;
+  openModal: (modalName: keyof DashboardState["activeModals"], context?: unknown) => void;
   closeModal: (modalName: keyof DashboardState["activeModals"]) => void;
 }
 
@@ -83,8 +83,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { dateRange, showArchived } = get();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const fromDate = formatDate(dateRange.from);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const toDate = formatDate(dateRange.to);
 
       // TODO: Replace with real API calls when endpoints are available
@@ -97,7 +100,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
           {
             id: "1",
             name: "Konto oszczędnościowe",
-            type: "asset",
+            type: "investment_asset",
             entries: {
               "2024-01-01": { value: 10000, cash_flow: 1000, gain_loss: 0 },
               "2024-02-01": { value: 10500, cash_flow: 500, gain_loss: 0 },
@@ -110,7 +113,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
           {
             id: "2",
             name: "Portfel inwestycyjny",
-            type: "asset",
+            type: "investment_asset",
             entries: {
               "2024-01-01": { value: 50000, cash_flow: 5000, gain_loss: 0 },
               "2024-02-01": { value: 52000, cash_flow: 0, gain_loss: 2000 },
@@ -189,63 +192,51 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   addAccount: async (command) => {
-    try {
-      const response = await fetch("/api/accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(command),
-      });
+    const response = await fetch("/api/accounts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(command),
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create account");
-      }
-
-      // Refresh data after successful creation
-      await get().fetchData();
-      get().closeModal("addAccount");
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to create account");
     }
+
+    // Refresh data after successful creation
+    await get().fetchData();
+    get().closeModal("addAccount");
   },
 
   updateAccount: async (id, command) => {
-    try {
-      const response = await fetch(`/api/accounts/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(command),
-      });
+    const response = await fetch(`/api/accounts/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(command),
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to update account");
-      }
-
-      // Refresh data after successful update
-      await get().fetchData();
-      get().closeModal("editAccount");
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to update account");
     }
+
+    // Refresh data after successful update
+    await get().fetchData();
+    get().closeModal("editAccount");
   },
 
   deleteAccount: async (id) => {
-    try {
-      const response = await fetch(`/api/accounts/${id}`, {
-        method: "DELETE",
-      });
+    const response = await fetch(`/api/accounts/${id}`, {
+      method: "DELETE",
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete account");
-      }
-
-      // Refresh data after successful deletion
-      await get().fetchData();
-      get().closeModal("confirmAction");
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      throw new Error("Failed to delete account");
     }
+
+    // Refresh data after successful deletion
+    await get().fetchData();
+    get().closeModal("confirmAction");
   },
 
   updateValueEntry: async (command) => {

@@ -32,7 +32,7 @@ export default function LoginForm() {
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}) as any);
+        const data = await res.json().catch(() => ({}) as Record<string, unknown>);
         const msg = (data?.error as string) || "Wystąpił błąd. Spróbuj ponownie później.";
         if (msg.includes("Invalid login credentials")) {
           setError("Nieprawidłowy email lub hasło");
@@ -46,8 +46,8 @@ export default function LoginForm() {
       }
 
       // Success -> redirect to dashboard/root
-      window.location.href = "/";
-    } catch (e) {
+      window.location.assign("/");
+    } catch {
       setError("Wystąpił błąd sieci. Spróbuj ponownie później.");
       setIsLoading(false);
     }

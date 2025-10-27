@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
@@ -17,7 +16,7 @@ export default function IntegratedDashboardPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   if (error) {
     return (

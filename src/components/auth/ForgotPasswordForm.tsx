@@ -32,7 +32,7 @@ export default function ForgotPasswordForm() {
       setError(error.message);
       setIsLoading(false);
     } else {
-      window.location.href = `/auth/check-email-reset?email=${encodeURIComponent(values.email)}`;
+      window.location.assign(`/auth/check-email-reset?email=${encodeURIComponent(values.email)}`);
     }
   };
 
