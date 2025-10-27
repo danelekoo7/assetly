@@ -257,8 +257,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
               ...account.entries,
               [command.date]: {
                 value: command.value,
-                cash_flow: command.cash_flow ?? null,
-                gain_loss: command.gain_loss ?? null,
+                cash_flow: command.cash_flow ?? 0,
+                gain_loss: command.gain_loss ?? 0,
               },
             },
           };
