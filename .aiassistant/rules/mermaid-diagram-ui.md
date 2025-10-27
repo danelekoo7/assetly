@@ -34,7 +34,6 @@ Kiedy będziesz gotowy do utworzenia diagramu, postępuj zgodnie z poniższymi w
    ```
 
 2. Uwzględnij następujące elementy w swoim diagramie:
-
    - Zaktualizowaną strukturę UI po wdrożeniu nowych wymagań
    - Layouts, server pages i aktualizacje istniejących komponentów
    - Grupowanie elementów według funkcjonalności
@@ -45,7 +44,6 @@ Kiedy będziesz gotowy do utworzenia diagramu, postępuj zgodnie z poniższymi w
    - Wyróżnij komponenty, które wymagały aktualizacji ze względu na nowe wymagania
 
 3. Przestrzegaj tych zasad składni Mermaid:
-
    - Używaj spójnego formatowania ID węzłów:
      ```
      A[Panel Główny] --> B[Formularz Logowania]

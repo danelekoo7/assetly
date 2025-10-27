@@ -3,6 +3,7 @@
 ## Zrealizowane kroki
 
 ### 1. Struktura plików i zależności ✅
+
 - Utworzono folder `src/components/dashboard/` dla komponentów React dashboardu
 - Utworzono folder `src/lib/stores/` dla zarządzania stanem
 - Zainstalowano wymagane zależności:
@@ -16,11 +17,13 @@
   - `toggle-group` - przełączanie serii na wykresie
 
 ### 2. Zarządzanie stanem (useDashboardStore) ✅
+
 **Plik:** `src/lib/stores/useDashboardStore.ts`
 
 Zaimplementowano pełny store Zustand z:
 
 **Stan aplikacji:**
+
 - `gridData: GridDataDto | null` - dane siatki
 - `summaryData: DashboardSummaryDto | null` - dane KPI
 - `dateRange: { from: Date; to: Date }` - zakres dat (domyślnie ostatnie 12 miesięcy)
@@ -30,6 +33,7 @@ Zaimplementowano pełny store Zustand z:
 - `activeModals` - zarządzanie widocznością modali
 
 **Zaimplementowane akcje:**
+
 - `fetchData()` - pobieranie danych z API (`/api/grid-data` i `/api/dashboard/summary`)
 - `setDateRange()` - zmiana zakresu dat i automatyczne odświeżenie danych
 - `setShowArchived()` - przełączanie widoczności zarchiwizowanych kont
@@ -40,9 +44,11 @@ Zaimplementowano pełny store Zustand z:
 - `openModal()` / `closeModal()` - zarządzanie stanami modali
 
 ### 3. IntegratedDashboardPage - Layout główny ✅
+
 **Plik:** `src/components/dashboard/IntegratedDashboardPage.tsx`
 
 Zaimplementowano:
+
 - Połączenie z `useDashboardStore` i automatyczne pobieranie danych przy montowaniu (`useEffect`)
 - Pełną obsługę błędów z wyświetlaniem `Alert` i przyciskiem odświeżenia strony
 - Podstawowy layout z sekcjami:
@@ -54,9 +60,11 @@ Zaimplementowano:
 - Aktualizacja `src/pages/index.astro` aby renderował `IntegratedDashboardPage` z dyrektywą `client:load`
 
 ### 4. KpiSection - Komponenty KPI ✅
+
 **Plik:** `src/components/dashboard/KpiSection.tsx`
 
 Zaimplementowano:
+
 - Komponent wyświetlający 5 kart KPI:
   1. **Wartość netto** - ikona `Wallet`
   2. **Aktywa** - ikona `TrendingUp` (zielony)
@@ -70,9 +78,11 @@ Zaimplementowano:
 - Obsługa braku danych (null state)
 
 ### 5. NetWorthChart - Wykres wartości netto ✅
+
 **Plik:** `src/components/dashboard/NetWorthChart.tsx`
 
 Zaimplementowano:
+
 - Wykres liniowy z użyciem biblioteki Recharts
 - Trzy serie danych z możliwością przełączania widoczności:
   1. **Wartość netto** - główna seria (kolor primary)
@@ -89,14 +99,17 @@ Zaimplementowano:
 - Obliczanie skumulowanych wartości z danych kont
 
 ### 6. Integracja komponentów ✅
+
 - Komponenty `KpiSection` i `NetWorthChart` zintegrowane w `IntegratedDashboardPage`
 - Dodano importy i podłączono dane ze store
 - Wszystkie komponenty wyświetlające działają poprawnie
 
 ### 7. DashboardToolbar ✅
+
 **Plik:** `src/components/dashboard/DashboardToolbar.tsx`
 
 Zaimplementowano:
+
 - **DateRangePicker** z użyciem `Calendar` w trybie `range` i `Popover`
 - **Przycisk "+ Dodaj konto"** otwierający modal `addAccount`
 - **Przycisk "+ Dodaj kolumnę"** z popoverem i kalendarzem (przygotowany do przyszłej implementacji)
@@ -105,13 +118,16 @@ Zaimplementowano:
 - Pełna integracja z `useDashboardStore`
 
 Dodatkowe zależności:
+
 - Zainstalowano `date-fns` dla formatowania dat
 - Zainstalowano komponenty UI: `calendar`, `popover`, `switch`
 
 ### 8. DataGrid - Siatka danych ✅
+
 **Plik:** `src/components/dashboard/DataGrid.tsx`
 
 Zaimplementowano:
+
 - Niestandardowa siatka z `div` i rolami ARIA (`grid`, `row`, `gridcell`)
 - **Sticky positioning:**
   - Pierwsza kolumna (nazwy kont) - sticky left
@@ -133,12 +149,15 @@ Zaimplementowano:
 - Obsługa stanów ładowania i braku danych
 
 Dodatkowe komponenty UI:
+
 - Zainstalowano `dropdown-menu` i `label`
 
 ### 9. Mockowanie danych ✅
+
 **Plik:** `src/lib/stores/useDashboardStore.ts`
 
 Dodano mockowane dane w `fetchData()`:
+
 - 3 przykładowe konta (2 aktywa, 1 pasywo)
 - 6 miesięcy danych historycznych (styczeń-czerwiec 2024)
 - Wartości wpisów z `cash_flow` i `gain_loss`
@@ -148,9 +167,11 @@ Dodano mockowane dane w `fetchData()`:
 - **TODO:** Zakomentowany kod z rzeczywistymi wywołaniami API do przywrócenia później
 
 ### 10. AddEditAccountModal ✅
+
 **Plik:** `src/components/dashboard/AddEditAccountModal.tsx`
 
 Zaimplementowano:
+
 - Modal z użyciem `Dialog` i `react-hook-form`
 - Walidacja z biblioteką `zod`:
   - Nazwa: minimum 3 znaki
@@ -169,9 +190,11 @@ Zaimplementowano:
 - Automatyczne reset formularza przy zamykaniu
 
 ### 11. EditValueModal ✅
+
 **Plik:** `src/components/dashboard/EditValueModal.tsx`
 
 Zaimplementowano:
+
 - Modal z trzema polami: wartość, wpłata/wypłata, zysk/strata
 - **Automatyczne przeliczanie wartości** z użyciem `useReducer`:
   - Formuła: `nowa_wartość = poprzednia_wartość + wpłata + zysk`
@@ -187,9 +210,11 @@ Zaimplementowano:
 - Obsługa błędów z rollback w store
 
 ### 12. ConfirmActionDialog ✅
+
 **Plik:** `src/components/dashboard/ConfirmActionDialog.tsx`
 
 Zaimplementowano:
+
 - Generyczny `AlertDialog` do potwierdzania akcji destrukcyjnych
 - Props przekazywane przez store:
   - `title` - tytuł dialogu
@@ -199,6 +224,7 @@ Zaimplementowano:
 - Podłączenie do `activeModals.confirmAction` w store
 
 ### 13. Integracja finalna ✅
+
 **Plik:** `src/components/dashboard/IntegratedDashboardPage.tsx`
 
 - Zintegrowano wszystkie trzy modale:
@@ -209,6 +235,7 @@ Zaimplementowano:
 - Build projektu zakończony sukcesem
 
 ### 14. Dodatkowe komponenty UI ✅
+
 - Ręcznie utworzono `form.tsx` (react-hook-form integration)
 - Ręcznie utworzono `alert-dialog.tsx` (confirmation dialogs)
 - Naprawiono import typu `FieldValues` w form.tsx
@@ -216,6 +243,7 @@ Zaimplementowano:
 ## Kolejne kroki
 
 ### 15. Implementacja endpointów API (Backend)
+
 - [ ] Zaktualizować import w `IntegratedDashboardPage.tsx`:
   ```tsx
   import KpiSection from "./KpiSection";
@@ -235,6 +263,7 @@ Zaimplementowano:
   ```
 
 ### 8. Implementacja DashboardToolbar (Krok 7 z planu)
+
 **Plik:** `src/components/dashboard/DashboardToolbar.tsx`
 
 - [ ] Zainstalować komponenty UI:
@@ -249,6 +278,7 @@ Zaimplementowano:
 - [ ] Zastąpić placeholder w `IntegratedDashboardPage`
 
 ### 9. Implementacja DataGrid (Krok 5 z planu)
+
 **Plik:** `src/components/dashboard/DataGrid.tsx`
 
 - [ ] Zaimplementować niestandardową siatkę z `div` i rolami ARIA
@@ -267,7 +297,9 @@ Zaimplementowano:
 - [ ] Zainstalować i zintegrować `dropdown-menu` dla akcji
 
 ### 10. Implementacja AddEditAccountModal (Krok 6 z planu)
+
 **Pliki:**
+
 - `src/components/dashboard/AddEditAccountModal.tsx`
 - Zainstalować: `react-hook-form`, `@hookform/resolvers`, `zod`
 
@@ -286,6 +318,7 @@ Zaimplementowano:
 - [ ] Sterowanie widocznością przez `activeModals.addAccount` / `activeModals.editAccount`
 
 ### 11. Implementacja EditValueModal (Krok 6 z planu)
+
 **Plik:** `src/components/dashboard/EditValueModal.tsx`
 
 - [ ] Zaimplementować formularz z trzema polami:
@@ -305,6 +338,7 @@ Zaimplementowano:
 - [ ] Sterowanie widocznością przez `activeModals.editValue`
 
 ### 12. Implementacja ConfirmActionDialog (Krok 6 z planu)
+
 **Plik:** `src/components/dashboard/ConfirmActionDialog.tsx`
 
 - [ ] Zainstalować `alert-dialog` z Shadcn UI
@@ -318,6 +352,7 @@ Zaimplementowano:
 - [ ] Sterowanie widocznością przez `activeModals.confirmAction`
 
 ### 13. Integracja interakcji (Krok 8 z planu)
+
 - [ ] Podłączyć otwieranie modali z `DataGrid`:
   - Kliknięcie komórki → `openModal('editValue', context)`
   - Menu "Edytuj" → `openModal('editAccount', { account })`
@@ -328,6 +363,7 @@ Zaimplementowano:
   - Przycisk "+ Dodaj kolumnę" → logika dodawania daty do zakresu
 
 ### 14. Testy i dopracowanie (Krok 9 z planu)
+
 - [ ] Przetestować wszystkie przepływy użytkownika
 - [ ] Sprawdzić obsługę błędów i stanów pustych
 - [ ] Zweryfikować responsywność na różnych urządzeniach
@@ -338,7 +374,9 @@ Zaimplementowano:
 ## Uwagi techniczne
 
 ### Brakujące endpointy API
+
 Obecnie w projekcie istnieje tylko endpoint `/api/accounts.ts`. Wymagane endpointy do zaimplementowania:
+
 - [ ] `GET /api/grid-data` - dane dla siatki i wykresu
 - [ ] `GET /api/dashboard/summary` - dane KPI
 - [ ] `POST /api/value-entries` - upsert wartości
@@ -347,11 +385,13 @@ Obecnie w projekcie istnieje tylko endpoint `/api/accounts.ts`. Wymagane endpoin
 - [ ] `DELETE /api/accounts/[id]` - usuwanie konta
 
 ### Zależności do zainstalowania w kolejnych krokach
+
 - `react-hook-form` - zarządzanie formularzami
 - `@hookform/resolvers` - integracja Zod z react-hook-form
 - `zod` - walidacja schematów
 
 ### Komponenty Shadcn UI do zainstalowania
+
 - `dialog` - dla modali
 - `alert-dialog` - dla potwierdzeń
 - `dropdown-menu` - dla menu akcji w siatce
@@ -367,6 +407,7 @@ Obecnie w projekcie istnieje tylko endpoint `/api/accounts.ts`. Wymagane endpoin
 **✅ Ukończono:** Kroki 1-14 z planu implementacji (100% Frontend)
 
 ### Zrealizowane komponenty:
+
 1. ✅ Struktura plików i zależności
 2. ✅ Zarządzanie stanem (useDashboardStore) z Zustand
 3. ✅ Layout główny (IntegratedDashboardPage) z obsługą błędów
@@ -383,6 +424,7 @@ Obecnie w projekcie istnieje tylko endpoint `/api/accounts.ts`. Wymagane endpoin
 14. ✅ Build projektu zakończony sukcesem
 
 ### Zainstalowane zależności:
+
 - `zustand` - zarządzanie stanem globalnym
 - `recharts` - biblioteka do wykresów
 - `lucide-react` - ikony
@@ -392,12 +434,14 @@ Obecnie w projekcie istnieje tylko endpoint `/api/accounts.ts`. Wymagane endpoin
 - `zod` - walidacja schematów
 
 ### Zainstalowane komponenty Shadcn UI:
+
 - `skeleton`, `alert`, `card`, `toggle-group`, `button`
 - `calendar`, `popover`, `switch`, `label`
 - `dropdown-menu`, `dialog`, `input`, `select`
 - `form` (ręcznie), `alert-dialog` (ręcznie)
 
 **⏳ Do ukończenia:** Backend i integracja z rzeczywistym API
+
 - ⏳ Implementacja endpointów API (GET /api/grid-data, GET /api/dashboard/summary, POST /api/value-entries, etc.)
 - ⏳ Podmiana mockowanych danych na rzeczywiste wywołania API
 - ⏳ Implementacja logiki archiwizacji i usuwania kont

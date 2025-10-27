@@ -196,14 +196,17 @@ flowchart TD
 ## Kluczowe zależności
 
 ### 1. Podział odpowiedzialności Astro vs React
+
 - **Astro (SSR)**: Layout, routing, weryfikacja sesji server-side, SEO
 - **React (Client)**: Formularze, walidacja client-side, interakcje użytkownika
 
 ### 2. Ochrona tras przez middleware
+
 - Trasy chronione (`/`, `/settings`) wymagają sesji → przekierowanie do `/login` jeśli brak
 - Trasy auth (`/login`, `/register`) przekierowują do `/` jeśli sesja aktywna
 
 ### 3. Przepływ autentykacji
+
 ```
 Rejestracja: RegisterForm → Supabase signUp → Email → Confirmed → Login → Dashboard
 Logowanie: LoginForm → Supabase signIn → Middleware (session) → Dashboard
@@ -212,12 +215,14 @@ Wylogowanie: Dashboard menu → API logout → Supabase signOut → Login
 ```
 
 ### 4. Walidacja dwupoziomowa
+
 - **Client-side**: react-hook-form + zod (szybki feedback, mniej requestów)
 - **Server-side**: Supabase Auth (ostateczna weryfikacja, bezpieczeństwo)
 
 ## Komponenty wymagające aktualizacji
 
 ### IntegratedDashboardPage.tsx
+
 - **Wymagana zmiana**: Dodanie menu użytkownika z opcjami:
   - Email zalogowanego użytkownika
   - Link do `/settings`
@@ -226,6 +231,7 @@ Wylogowanie: Dashboard menu → API logout → Supabase signOut → Login
 ## Nowe komponenty do implementacji
 
 ### Priorytet 1 (Core auth):
+
 1. `AuthLayout.astro`
 2. `client-browser.ts` i `client-server.ts`
 3. `auth.schemas.ts`
@@ -234,16 +240,19 @@ Wylogowanie: Dashboard menu → API logout → Supabase signOut → Login
 6. Aktualizacja `middleware/index.ts` (ochrona tras)
 
 ### Priorytet 2 (Recovery):
+
 7. `forgot-password.astro` + `ForgotPasswordForm.tsx`
 8. `reset-password.astro` + `ResetPasswordForm.tsx`
 9. `auth/check-email.astro`, `auth/check-email-reset.astro`
 10. `auth/confirmed.astro`
 
 ### Priorytet 3 (Account management):
+
 11. `settings.astro` + `SettingsLayout.astro`
 12. `UserSettings.tsx` + `DeleteAccountForm.tsx`
 13. `/api/auth/logout.ts` i `/api/auth/delete-account.ts`
 14. Aktualizacja `IntegratedDashboardPage.tsx` (menu użytkownika)
 
 ### Priorytet 4 (Edge cases):
+
 15. `auth/resend-activation.astro` + `ResendActivationForm.tsx`
