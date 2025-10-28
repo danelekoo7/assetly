@@ -1,1 +1,2 @@
 - Nie twórz żadnych plików ani nie edytuj istniejących bez mojej zgody. Chyba, że bezpośrednio o to poproszę.
+- Po wprowadzeniu zmian w kodzie, zawsze sprawdź je za pomocą linterów umieszczonych w package.json.

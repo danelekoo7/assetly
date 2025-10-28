@@ -74,7 +74,13 @@ export default function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="twoj@email.pl" disabled={isLoading} {...field} />
+                <Input
+                  type="email"
+                  placeholder="twoj@email.pl"
+                  disabled={isLoading}
+                  {...field}
+                  data-testid="email-input"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,7 +94,13 @@ export default function LoginForm() {
             <FormItem>
               <FormLabel>Hasło</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" disabled={isLoading} {...field} />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                  {...field}
+                  data-testid="password-input"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -101,7 +113,7 @@ export default function LoginForm() {
           </a>
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-button">
           {isLoading ? "Logowanie..." : "Zaloguj się"}
         </Button>
 
