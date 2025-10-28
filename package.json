@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "dev:debug": "node --inspect node_modules/astro/astro.js dev",
+    "dev:e2e": "astro dev --mode test",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -43,6 +44,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.487.0",
     "react": "^19.1.1",
     "react-day-picker": "^9.11.1",
