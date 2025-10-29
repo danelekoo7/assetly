@@ -5,7 +5,7 @@ export class LoginPage {
   constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto("/login");
+    await this.page.goto("/login", { waitUntil: "networkidle" });
   }
 
   async fillEmail(email: string) {
@@ -18,6 +18,7 @@ export class LoginPage {
 
   async clickLogin() {
     await this.page.getByTestId("login-button").click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async login(email: string, password: string) {
@@ -31,6 +32,7 @@ export class LoginPage {
   }
 
   async expectToBeRedirectedToDashboard() {
+    await this.page.waitForURL("/");
     await expect(this.page).toHaveURL("/");
   }
 

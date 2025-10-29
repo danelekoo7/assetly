@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { LoginPage } from "./page-objects/login.page";
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -33,6 +33,7 @@ test.describe("Login functionality", () => {
     await loginPage.login("invalid@example.com", "wrongpassword");
 
     // Assert
-    await expect(page.locator('[role="alert"]')).toContainText("Nieprawidłowy email lub hasło");
+    const locator = page.locator('[data-slot="alert-description"]');
+    await expect(locator).toContainText("Nieprawidłowy email lub hasło");
   });
 });
