@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "./page-objects/login.page";
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const E2E_USERNAME = process.env.E2E_USERNAME!;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const E2E_PASSWORD = process.env.E2E_PASSWORD!;
 
 test.describe("Login functionality", () => {
