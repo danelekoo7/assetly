@@ -8,6 +8,12 @@ const bodySchema = z.object({
 });
 
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
+  // --- FINAL DEBUGGING ATTEMPT ---
+  console.log("--- LOCALS AT LOGIN ENDPOINT ---");
+  console.log(JSON.stringify(locals, null, 2));
+  console.log("--- END LOCALS AT LOGIN ENDPOINT ---");
+  // ---
+
   try {
     const json = await request.json().catch(() => ({}));
     const parse = bodySchema.safeParse(json);
