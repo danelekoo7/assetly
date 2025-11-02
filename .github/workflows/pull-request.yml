@@ -50,6 +50,7 @@ jobs:
         with:
           name: vitest-coverage-report
           path: coverage/
+          retention-days: 30
 
   e2e-test:
     name: E2E Tests
