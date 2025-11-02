@@ -13,13 +13,6 @@ const PUBLIC_PATHS = [
 ];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  // --- DEBUGGING START ---
-  console.log("--- SUPABASE VARS CHECK ---");
-  console.log("SUPABASE_URL:", locals.runtime?.env?.SUPABASE_URL ? "SET" : "NOT SET");
-  console.log("SUPABASE_KEY:", locals.runtime?.env?.SUPABASE_KEY ? "SET" : "NOT SET");
-  console.log("--- END SUPABASE VARS CHECK ---");
-  // --- DEBUGGING END ---
-
   // Skip auth check for public paths
   if (PUBLIC_PATHS.includes(url.pathname)) {
     return next();
@@ -28,7 +21,8 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   const supabase = createSupabaseServerInstance({
     cookies,
     headers: request.headers,
-    env: locals.runtime?.env, // Pass Cloudflare runtime environment variables
+    supabaseUrl: locals.runtime?.env?.SUPABASE_URL,
+    supabaseKey: locals.runtime?.env?.SUPABASE_KEY,
   });
 
   // Always get user session first

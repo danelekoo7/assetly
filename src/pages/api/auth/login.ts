@@ -22,7 +22,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     const supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
-      env: locals.runtime?.env,
+      supabaseUrl: locals.runtime?.env?.SUPABASE_URL,
+      supabaseKey: locals.runtime?.env?.SUPABASE_KEY,
     });
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });

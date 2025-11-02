@@ -24,7 +24,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     const supabase = createSupabaseServerInstance({
       headers: request.headers,
       cookies,
-      env: locals.runtime?.env,
+      supabaseUrl: locals.runtime?.env?.SUPABASE_URL,
+      supabaseKey: locals.runtime?.env?.SUPABASE_KEY,
     });
 
     const emailRedirectTo = new URL("/login", request.url).toString();

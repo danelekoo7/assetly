@@ -20,12 +20,11 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
 export const createSupabaseServerInstance = (context: {
   headers: Headers;
   cookies: AstroCookies;
-  env?: Record<string, string>;
+  supabaseUrl?: string;
+  supabaseKey?: string;
 }) => {
-  // Use runtime environment variables in production (Cloudflare), fallback to build-time variables for local development.
-  const isProd = !!context.env;
-  const supabaseUrl = isProd ? context.env.SUPABASE_URL : import.meta.env.SUPABASE_URL;
-  const supabaseAnonKey = isProd ? context.env.SUPABASE_KEY : import.meta.env.SUPABASE_KEY;
+  const supabaseUrl = context.supabaseUrl || import.meta.env.SUPABASE_URL;
+  const supabaseAnonKey = context.supabaseKey || import.meta.env.SUPABASE_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(
