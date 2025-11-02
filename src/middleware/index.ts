@@ -13,6 +13,13 @@ const PUBLIC_PATHS = [
 ];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
+  // --- DEBUGGING START ---
+  console.log("--- SUPABASE VARS CHECK ---");
+  console.log("SUPABASE_URL:", locals.runtime?.env?.SUPABASE_URL ? "SET" : "NOT SET");
+  console.log("SUPABASE_KEY:", locals.runtime?.env?.SUPABASE_KEY ? "SET" : "NOT SET");
+  console.log("--- END SUPABASE VARS CHECK ---");
+  // --- DEBUGGING END ---
+
   // Skip auth check for public paths
   if (PUBLIC_PATHS.includes(url.pathname)) {
     return next();
