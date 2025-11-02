@@ -4,9 +4,6 @@ import type { AstroCookies } from "astro";
 
 import type { Database } from "../db/database.types.ts";
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
-
 /**
  * Default user ID for development/testing purposes.
  * Used to mock authenticated user when real authentication is not needed.
@@ -14,7 +11,26 @@ const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
 export const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 // Browser/client-side Supabase instance (do not use for auth cookie management)
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// For development, these can be set in .env file
+// For production (Cloudflare Pages), use createSupabaseServerInstance with runtime env
+let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
+
+export const getSupabaseClient = () => {
+  if (!supabaseClient) {
+    const supabaseUrl = import.meta.env.SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("SUPABASE_URL and SUPABASE_KEY must be defined in environment variables");
+    }
+
+    supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  }
+  return supabaseClient;
+};
+
+// Export for backward compatibility
+export { supabaseClient };
 
 export type SupabaseClient = typeof supabaseClient;
 
@@ -34,7 +50,23 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
   });
 }
 
-export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
+export const createSupabaseServerInstance = (context: {
+  headers: Headers;
+  cookies: AstroCookies;
+  env?: Record<string, string>;
+}) => {
+  // Get environment variables from runtime (Cloudflare Pages) or fallback to import.meta.env (dev)
+  const supabaseUrl = context.env?.SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const supabaseAnonKey = context.env?.SUPABASE_KEY || import.meta.env.SUPABASE_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      "SUPABASE_URL and SUPABASE_KEY must be defined. " +
+        "For Cloudflare Pages, set them in the dashboard under Settings → Environment variables. " +
+        "For local development, add them to your .env file."
+    );
+  }
+
   const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookieOptions,
     cookies: {
