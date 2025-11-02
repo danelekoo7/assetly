@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createSupabaseServerInstance } from "../../../db/supabase.server";
+import { createSupabaseServerInstance } from "../../../db/supabase.client";
 
 const bodySchema = z.object({
   email: z.string().email(),
