@@ -9,7 +9,7 @@ const bodySchema = z.object({
   password: z.string().min(8),
 });
 
-export const POST: APIRoute = async ({ request, cookies, locals }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const json = await request.json().catch(() => ({}));
     const parsed = bodySchema.safeParse(json);
@@ -21,11 +21,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 
     const { email, password } = parsed.data;
 
-    const supabase = createSupabaseServerInstance({
-      headers: request.headers,
-      cookies,
-      env: locals.runtime?.env,
-    });
+    const supabase = createSupabaseServerInstance({ headers: request.headers, cookies });
 
     const emailRedirectTo = new URL("/login", request.url).toString();
 
