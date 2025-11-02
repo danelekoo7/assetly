@@ -13,13 +13,6 @@ const PUBLIC_PATHS = [
 ];
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
-  // --- DEBUGGING START ---
-  // Log environment variables to check if they are available in the Cloudflare runtime
-  console.log("--- CLOUDFLARE RUNTIME ENV ---");
-  console.log(JSON.stringify(locals.runtime?.env, null, 2));
-  console.log("--- END CLOUDFLARE RUNTIME ENV ---");
-  // --- DEBUGGING END ---
-
   // Skip auth check for public paths
   if (PUBLIC_PATHS.includes(url.pathname)) {
     return next();

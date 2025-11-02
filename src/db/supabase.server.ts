@@ -22,9 +22,10 @@ export const createSupabaseServerInstance = (context: {
   cookies: AstroCookies;
   env?: Record<string, string>;
 }) => {
-  // Get environment variables from runtime (Cloudflare Pages) or fallback to import.meta.env (dev)
-  const supabaseUrl = context.env?.SUPABASE_URL || import.meta.env.SUPABASE_URL;
-  const supabaseAnonKey = context.env?.SUPABASE_KEY || import.meta.env.SUPABASE_KEY;
+  // Use runtime environment variables in production (Cloudflare), fallback to build-time variables for local development.
+  const isProd = !!context.env;
+  const supabaseUrl = isProd ? context.env.SUPABASE_URL : import.meta.env.SUPABASE_URL;
+  const supabaseAnonKey = isProd ? context.env.SUPABASE_KEY : import.meta.env.SUPABASE_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(
