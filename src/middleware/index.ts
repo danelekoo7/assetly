@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { createSupabaseServerInstance } from "../db/supabase.client";
+import { createSupabaseServerInstance } from "../db/supabase.server";
 
 // Public paths - Server-rendered pages and Auth API endpoints
 const PUBLIC_PATHS = [
