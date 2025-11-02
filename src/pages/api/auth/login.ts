@@ -7,7 +7,7 @@ const bodySchema = z.object({
   password: z.string().min(1),
 });
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
   try {
     const json = await request.json().catch(() => ({}));
     const parse = bodySchema.safeParse(json);
@@ -19,7 +19,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const { email, password } = parse.data;
 
-    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+    const supabase = createSupabaseServerInstance({
+      cookies,
+      headers: request.headers,
+      env: locals.runtime?.env,
+    });
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
