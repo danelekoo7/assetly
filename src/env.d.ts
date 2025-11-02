@@ -7,17 +7,6 @@ declare global {
   namespace App {
     interface Locals {
       supabase: SupabaseClient<Database>;
-      user?: {
-        id: string;
-        email: string | undefined;
-      };
-      runtime?: {
-        env: {
-          SUPABASE_URL: string;
-          SUPABASE_KEY: string;
-          [key: string]: string;
-        };
-      };
       session: Session | null;
     }
   }
