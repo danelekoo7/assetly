@@ -21,6 +21,7 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   const supabase = createSupabaseServerInstance({
     cookies,
     headers: request.headers,
+    env: locals.runtime?.env, // Pass Cloudflare runtime environment variables
   });
 
   // Always get user session first
