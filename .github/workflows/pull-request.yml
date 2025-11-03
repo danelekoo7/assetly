@@ -10,6 +10,9 @@ jobs:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node
 
@@ -21,6 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node
 
@@ -40,6 +46,9 @@ jobs:
     needs: lint
     environment: integration
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js Environment
         uses: ./.github/actions/setup-node
 
