@@ -139,6 +139,11 @@ supabase/
 
 ## Critical Development Guidelines
 
+### Git Workflow
+- **NEVER** run `git push` to remote repository - the user always does this manually
+- Create commits when requested, but NEVER ask if the user wants to push changes
+- After creating a commit, simply inform the user that changes are ready to push
+
 ### Supabase Usage
 - **ALWAYS** use `createSupabaseServerInstance()` from `src/db/supabase.server.ts` in API routes and server-side code
 - **NEVER** import `supabaseClient` from `src/db/supabase.client.ts` in server contexts
