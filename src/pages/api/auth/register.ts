@@ -2,14 +2,13 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createSupabaseServerInstance } from "../../../db/supabase.server";
 
 const bodySchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const json = await request.json().catch(() => ({}));
     const parsed = bodySchema.safeParse(json);
@@ -21,7 +20,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const { email, password } = parsed.data;
 
-    const supabase = createSupabaseServerInstance({ headers: request.headers, cookies });
+    const { supabase } = locals;
 
     const emailRedirectTo = new URL("/login", request.url).toString();
 
