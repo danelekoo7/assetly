@@ -78,7 +78,7 @@ export default function AddEditAccountModal() {
       } else {
         // Convert YYYY-MM-DD date to ISO 8601 datetime string
         // Set time to start of day (00:00:00) in local timezone
-        const dateTime = new Date(data.date + 'T00:00:00');
+        const dateTime = new Date(data.date + "T00:00:00");
 
         await addAccount({
           name: data.name,
