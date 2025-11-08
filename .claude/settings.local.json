@@ -6,7 +6,11 @@
       "Bash(git check-ignore:*)",
       "Bash(cat:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run lint:fix:*)"
     ],
     "deny": [],
     "ask": []

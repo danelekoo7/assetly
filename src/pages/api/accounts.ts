@@ -24,18 +24,26 @@ const archivedQuerySchema = z
  * GET /api/accounts
  *
  * Retrieves all accounts for the authenticated user.
- * In development mode, uses DEFAULT_USER_ID for mocked data.
  *
  * @query archived - Optional boolean parameter (default: false)
  *                   If true, includes archived accounts in the response
  *
  * @returns 200 - Array of AccountDto objects
  * @returns 400 - Invalid query parameter
+ * @returns 401 - User not authenticated
  * @returns 500 - Internal server error
  */
 export const GET: APIRoute = async ({ locals, url }) => {
-  // Note: Authentication check skipped in development mode
-  // RLS policies will filter data by DEFAULT_USER_ID
+  const { supabase, user } = locals;
+
+  // Verify that a user is authenticated.
+  const userId = user?.id;
+  if (!userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   // Validate and parse the 'archived' query parameter
   const archivedParam = url.searchParams.get("archived");
@@ -57,7 +65,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   const includeArchived = parseResult.data;
 
   // Fetch accounts from service
-  const { data, error } = await AccountService.getAccounts(locals.supabase, includeArchived);
+  const { data, error } = await AccountService.getAccounts(supabase, includeArchived);
 
   if (error) {
     // eslint-disable-next-line no-console
@@ -101,13 +109,10 @@ const CreateAccountSchema = z.object({
  * @returns 500 - Internal server error
  */
 export const POST: APIRoute = async ({ request, locals }) => {
-  const { supabase, session } = locals;
+  const { supabase, user } = locals;
 
-  // In development, allow using a default user ID if no session is available.
-  // In production, a valid session is always required.
-  const userId = session?.user?.id ?? (import.meta.env.DEV ? import.meta.env.DEFAULT_USER_ID : undefined);
-
-  // Verify that a user is authenticated or a fallback is available.
+  // Verify that a user is authenticated.
+  const userId = user?.id;
   if (!userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,

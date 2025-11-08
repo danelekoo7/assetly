@@ -23,7 +23,10 @@ const accountSchema = z.object({
   type: z.enum(["investment_asset", "cash_asset", "liability"], {
     required_error: "Wybierz typ konta",
   }),
-  initial_value: z.string().min(1, "Wartość początkowa jest wymagana"),
+  initial_value: z.coerce.number({
+    required_error: "Wartość początkowa jest wymagana",
+    invalid_type_error: "Wartość musi być liczbą",
+  }),
   date: z.string().min(1, "Data jest wymagana"),
 });
 
@@ -41,7 +44,7 @@ export default function AddEditAccountModal() {
     defaultValues: {
       name: "",
       type: "investment_asset",
-      initial_value: "",
+      initial_value: 0,
       date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD
     },
   });
@@ -53,14 +56,14 @@ export default function AddEditAccountModal() {
         form.reset({
           name: editContext.account.name,
           type: editContext.account.type,
-          initial_value: "",
+          initial_value: 0,
           date: new Date().toISOString().split("T")[0],
         });
       } else {
         form.reset({
           name: "",
           type: "investment_asset",
-          initial_value: "",
+          initial_value: 0,
           date: new Date().toISOString().split("T")[0],
         });
       }
@@ -73,11 +76,15 @@ export default function AddEditAccountModal() {
         // TODO: Implement updateAccount when API is ready
         closeModal("editAccount");
       } else {
+        // Convert YYYY-MM-DD date to ISO 8601 datetime string
+        // Set time to start of day (00:00:00) in local timezone
+        const dateTime = new Date(data.date + "T00:00:00");
+
         await addAccount({
           name: data.name,
           type: data.type as AccountType,
-          initial_value: parseFloat(data.initial_value),
-          date: data.date,
+          initial_value: data.initial_value,
+          date: dateTime.toISOString(),
         });
       }
     } catch (error) {
@@ -172,7 +179,16 @@ export default function AddEditAccountModal() {
                     <FormItem>
                       <FormLabel>Wartość początkowa</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

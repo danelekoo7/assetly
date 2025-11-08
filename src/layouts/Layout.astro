@@ -1,6 +1,5 @@
 ---
 import "../styles/global.css";
-import { createSupabaseServerInstance } from "../db/supabase.server";
 
 interface Props {
   title?: string;
@@ -8,15 +7,8 @@ interface Props {
 
 const { title = "10x Astro Starter" } = Astro.props;
 
-// Server-side check of current user session via Supabase
-const supabase = createSupabaseServerInstance({
-  headers: Astro.request.headers,
-  cookies: Astro.cookies,
-});
-const {
-  data: { user },
-} = await supabase.auth.getUser();
-const isAuthenticated = !!user;
+// Server-side check of current user session via locals (set by middleware)
+const isAuthenticated = !!Astro.locals.user;
 ---
 
 <!doctype html>
