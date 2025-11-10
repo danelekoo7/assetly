@@ -18,6 +18,7 @@ Jest to kluczowy endpoint dla głównej funkcjonalności aplikacji Assetly, umo�
 - **Request Body**: Brak (endpoint GET).
 
 **Przykładowe wywołania:**
+
 ```
 GET /api/grid-data
 GET /api/grid-data?from=2024-01-01&to=2024-12-31
@@ -30,6 +31,7 @@ GET /api/grid-data?from=2024-06-01&to=2024-06-30&archived=false
 Endpoint wykorzystuje następujące typy zdefiniowane w `src/types.ts`:
 
 - **`GridDataDto`**: Główna struktura odpowiedzi
+
   ```typescript
   export interface GridDataDto {
     dates: string[];
@@ -39,6 +41,7 @@ Endpoint wykorzystuje następujące typy zdefiniowane w `src/types.ts`:
   ```
 
 - **`GridAccountDto`**: Reprezentacja pojedynczego konta w gridzie
+
   ```typescript
   export type GridAccountDto = Pick<Account, "id" | "name" | "type"> & {
     entries: Record<string, GridEntryDto>;
@@ -46,6 +49,7 @@ Endpoint wykorzystuje następujące typy zdefiniowane w `src/types.ts`:
   ```
 
 - **`GridEntryDto`**: Wpis wartości dla konkretnej daty
+
   ```typescript
   export type GridEntryDto = Pick<ValueEntry, "value" | "cash_flow" | "gain_loss">;
   ```
@@ -58,6 +62,7 @@ Endpoint wykorzystuje następujące typy zdefiniowane w `src/types.ts`:
   ```
 
 Dodatkowo w warstwie serwisowej wykorzystane będą:
+
 - **`Account`**: Pełny typ wiersza z tabeli `accounts`
 - **`ValueEntry`**: Pełny typ wiersza z tabeli `value_entries`
 - **`AccountType`**: Enum typu konta ('investment_asset' | 'cash_asset' | 'liability')
@@ -95,6 +100,10 @@ Dodatkowo w warstwie serwisowej wykorzystane będą:
         "2023-10-28": { "net_worth": 20600 }
       }
     }
+    ```
+
+  ```
+
   ```
 
 - **Odpowiedzi błędów**:
@@ -235,33 +244,30 @@ Dodatkowo w warstwie serwisowej wykorzystane będą:
 
 ## 7. Obsługa błędów
 
-| Kod statusu                   | Scenariusz                              | Szczegóły                                                                                                                  |
-| ----------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **400 Bad Request**           | Nieprawidłowy format daty               | Parametr `from` lub `to` nie jest prawidłową datą. Odpowiedź zawiera szczegóły błędu z Zod.                               |
-| **400 Bad Request**           | Data `from` późniejsza niż `to`         | Logiczna niespójność: data początkowa jest późniejsza niż końcowa. Komunikat: "Data 'from' nie może być późniejsza niż 'to'." |
-| **401 Unauthorized**          | Brak uwierzytelnienia                   | Token JWT jest nieprawidłowy, wygasły lub nie został dostarczony. Obsługiwane przez middleware Astro.                     |
-| **500 Internal Server Error** | Błąd bazy danych                        | Nieprzewidziany błąd podczas zapytań do Supabase (np. timeout, utrata połączenia). Szczegóły logowane server-side.        |
-| **500 Internal Server Error** | Błąd formatowania danych                | Nieoczekiwany błąd podczas grupowania lub formatowania danych. Logowane server-side.                                      |
-| **500 Internal Server Error** | Inny błąd serwera                       | Wszelkie inne nieobsłużone wyjątki. Logowane server-side z pełnym stack trace.                                            |
+| Kod statusu                   | Scenariusz                      | Szczegóły                                                                                                                     |
+| ----------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **400 Bad Request**           | Nieprawidłowy format daty       | Parametr `from` lub `to` nie jest prawidłową datą. Odpowiedź zawiera szczegóły błędu z Zod.                                   |
+| **400 Bad Request**           | Data `from` późniejsza niż `to` | Logiczna niespójność: data początkowa jest późniejsza niż końcowa. Komunikat: "Data 'from' nie może być późniejsza niż 'to'." |
+| **401 Unauthorized**          | Brak uwierzytelnienia           | Token JWT jest nieprawidłowy, wygasły lub nie został dostarczony. Obsługiwane przez middleware Astro.                         |
+| **500 Internal Server Error** | Błąd bazy danych                | Nieprzewidziany błąd podczas zapytań do Supabase (np. timeout, utrata połączenia). Szczegóły logowane server-side.            |
+| **500 Internal Server Error** | Błąd formatowania danych        | Nieoczekiwany błąd podczas grupowania lub formatowania danych. Logowane server-side.                                          |
+| **500 Internal Server Error** | Inny błąd serwera               | Wszelkie inne nieobsłużone wyjątki. Logowane server-side z pełnym stack trace.                                                |
 
 **Przykład obsługi błędów w handlerze:**
 
 ```typescript
 try {
   const gridData = await GridDataService.getGridData(supabase, session.user.id, options);
-  return new Response(JSON.stringify(gridData), { 
+  return new Response(JSON.stringify(gridData), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" },
   });
 } catch (error) {
-  console.error('Error in GET /grid-data:', error);
-  return new Response(
-    JSON.stringify({ error: 'Nie udało się pobrać danych. Spróbuj ponownie później.' }), 
-    { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    }
-  );
+  console.error("Error in GET /grid-data:", error);
+  return new Response(JSON.stringify({ error: "Nie udało się pobrać danych. Spróbuj ponownie później." }), {
+    status: 500,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 ```
 
@@ -321,29 +327,32 @@ try {
 **Plik**: `src/lib/validation/grid-data.schemas.ts` (nowy plik)
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
-export const gridDataQuerySchema = z.object({
-  from: z.string().date().optional().or(z.string().datetime().optional()),
-  to: z.string().date().optional().or(z.string().datetime().optional()),
-  archived: z.coerce.boolean().optional().default(false),
-}).refine(
-  (data) => {
-    if (data.from && data.to) {
-      return new Date(data.from) <= new Date(data.to);
+export const gridDataQuerySchema = z
+  .object({
+    from: z.string().date().optional().or(z.string().datetime().optional()),
+    to: z.string().date().optional().or(z.string().datetime().optional()),
+    archived: z.coerce.boolean().optional().default(false),
+  })
+  .refine(
+    (data) => {
+      if (data.from && data.to) {
+        return new Date(data.from) <= new Date(data.to);
+      }
+      return true;
+    },
+    {
+      message: "Data 'from' nie może być późniejsza niż 'to'",
+      path: ["from"],
     }
-    return true;
-  },
-  {
-    message: "Data 'from' nie może być późniejsza niż 'to'",
-    path: ['from'],
-  }
-);
+  );
 
 export type GridDataQuery = z.infer<typeof gridDataQuerySchema>;
 ```
 
 **Walidacja**:
+
 - `from`: optional string z formatem daty (ISO 8601 lub YYYY-MM-DD)
 - `to`: optional string z formatem daty
 - `archived`: optional boolean (coerce z string "true"/"false" do boolean)
@@ -380,13 +389,10 @@ export class GridDataService {
 #### Krok 2.1: Pobierz konta użytkownika
 
 ```typescript
-let accountsQuery = supabase
-  .from('accounts')
-  .select('id, name, type')
-  .eq('user_id', userId); // Opcjonalnie - RLS i tak filtruje
+let accountsQuery = supabase.from("accounts").select("id, name, type").eq("user_id", userId); // Opcjonalnie - RLS i tak filtruje
 
 if (!options.showArchived) {
-  accountsQuery = accountsQuery.is('archived_at', null);
+  accountsQuery = accountsQuery.is("archived_at", null);
 }
 
 const { data: accounts, error: accountsError } = await accountsQuery;
@@ -408,20 +414,20 @@ if (!accounts || accounts.length === 0) {
 #### Krok 2.2: Pobierz value_entries
 
 ```typescript
-const accountIds = accounts.map(acc => acc.id);
+const accountIds = accounts.map((acc) => acc.id);
 
 let entriesQuery = supabase
-  .from('value_entries')
-  .select('account_id, date, value, cash_flow, gain_loss')
-  .in('account_id', accountIds)
-  .order('date', { ascending: true });
+  .from("value_entries")
+  .select("account_id, date, value, cash_flow, gain_loss")
+  .in("account_id", accountIds)
+  .order("date", { ascending: true });
 
 if (options.from) {
-  entriesQuery = entriesQuery.gte('date', options.from);
+  entriesQuery = entriesQuery.gte("date", options.from);
 }
 
 if (options.to) {
-  entriesQuery = entriesQuery.lte('date', options.to);
+  entriesQuery = entriesQuery.lte("date", options.to);
 }
 
 const { data: valueEntries, error: entriesError } = await entriesQuery;
@@ -435,8 +441,8 @@ if (entriesError) {
 
 ```typescript
 const dateSet = new Set<string>();
-valueEntries?.forEach(entry => {
-  const dateStr = new Date(entry.date).toISOString().split('T')[0]; // YYYY-MM-DD
+valueEntries?.forEach((entry) => {
+  const dateStr = new Date(entry.date).toISOString().split("T")[0]; // YYYY-MM-DD
   dateSet.add(dateStr);
 });
 
@@ -448,13 +454,13 @@ const dates = Array.from(dateSet).sort();
 ```typescript
 const entriesByAccountAndDate: Record<string, Record<string, GridEntryDto>> = {};
 
-valueEntries?.forEach(entry => {
-  const dateStr = new Date(entry.date).toISOString().split('T')[0];
-  
+valueEntries?.forEach((entry) => {
+  const dateStr = new Date(entry.date).toISOString().split("T")[0];
+
   if (!entriesByAccountAndDate[entry.account_id]) {
     entriesByAccountAndDate[entry.account_id] = {};
   }
-  
+
   entriesByAccountAndDate[entry.account_id][dateStr] = {
     value: entry.value,
     cash_flow: entry.cash_flow,
@@ -466,7 +472,7 @@ valueEntries?.forEach(entry => {
 #### Krok 2.5: Formatuj konta do GridAccountDto
 
 ```typescript
-const gridAccounts: GridAccountDto[] = accounts.map(account => ({
+const gridAccounts: GridAccountDto[] = accounts.map((account) => ({
   id: account.id,
   name: account.name,
   type: account.type,
@@ -479,20 +485,20 @@ const gridAccounts: GridAccountDto[] = accounts.map(account => ({
 ```typescript
 const summary: Record<string, GridSummaryDto> = {};
 
-dates.forEach(date => {
+dates.forEach((date) => {
   let netWorth = 0;
-  
-  gridAccounts.forEach(account => {
+
+  gridAccounts.forEach((account) => {
     const entry = account.entries[date];
     if (entry) {
-      if (account.type === 'liability') {
+      if (account.type === "liability") {
         netWorth -= entry.value; // Pasywa odejmujemy
       } else {
         netWorth += entry.value; // Aktywa dodajemy
       }
     }
   });
-  
+
   summary[date] = { net_worth: netWorth };
 });
 ```
@@ -516,9 +522,9 @@ return {
 **Struktura pliku**:
 
 ```typescript
-import type { APIContext } from 'astro';
-import { GridDataService } from '@/lib/services/grid-data.service';
-import { gridDataQuerySchema } from '@/lib/validation/grid-data.schemas';
+import type { APIContext } from "astro";
+import { GridDataService } from "@/lib/services/grid-data.service";
+import { gridDataQuerySchema } from "@/lib/validation/grid-data.schemas";
 
 export const prerender = false;
 
@@ -537,10 +543,10 @@ export async function GET({ url, locals }: APIContext) {
 const { supabase, session } = locals;
 
 if (!session) {
-  return new Response(
-    JSON.stringify({ error: 'Unauthorized' }),
-    { status: 401, headers: { 'Content-Type': 'application/json' } }
-  );
+  return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    status: 401,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 ```
 
@@ -553,11 +559,11 @@ const validationResult = gridDataQuerySchema.safeParse(searchParams);
 
 if (!validationResult.success) {
   return new Response(
-    JSON.stringify({ 
-      error: 'Nieprawidłowe parametry zapytania',
-      details: validationResult.error.flatten()
+    JSON.stringify({
+      error: "Nieprawidłowe parametry zapytania",
+      details: validationResult.error.flatten(),
     }),
-    { status: 400, headers: { 'Content-Type': 'application/json' } }
+    { status: 400, headers: { "Content-Type": "application/json" } }
   );
 }
 
@@ -568,32 +574,25 @@ const { from, to, archived } = validationResult.data;
 
 ```typescript
 try {
-  const gridData = await GridDataService.getGridData(
-    supabase,
-    session.user.id,
-    { from, to, showArchived: archived }
-  );
+  const gridData = await GridDataService.getGridData(supabase, session.user.id, { from, to, showArchived: archived });
+
+  return new Response(JSON.stringify(gridData), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "private, max-age=60", // Cache na 60s
+    },
+  });
+} catch (error) {
+  console.error("Error in GET /grid-data:", error);
 
   return new Response(
-    JSON.stringify(gridData),
-    { 
-      status: 200, 
-      headers: { 
-        'Content-Type': 'application/json',
-        'Cache-Control': 'private, max-age=60' // Cache na 60s
-      } 
-    }
-  );
-} catch (error) {
-  console.error('Error in GET /grid-data:', error);
-  
-  return new Response(
-    JSON.stringify({ 
-      error: 'Nie udało się pobrać danych. Spróbuj ponownie później.' 
+    JSON.stringify({
+      error: "Nie udało się pobrać danych. Spróbuj ponownie później.",
     }),
-    { 
-      status: 500, 
-      headers: { 'Content-Type': 'application/json' } 
+    {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
     }
   );
 }
@@ -622,28 +621,24 @@ try {
 **Przykładowy test**:
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { GridDataService } from '@/lib/services/grid-data.service';
+import { describe, it, expect, vi } from "vitest";
+import { GridDataService } from "@/lib/services/grid-data.service";
 
-describe('GridDataService.getGridData', () => {
-  it('should return grid data with correct structure', async () => {
+describe("GridDataService.getGridData", () => {
+  it("should return grid data with correct structure", async () => {
     const mockSupabase = createMockSupabase({
-      accounts: [
-        { id: '1', name: 'Account 1', type: 'cash_asset' },
-      ],
-      valueEntries: [
-        { account_id: '1', date: '2024-01-15', value: 1000, cash_flow: 0, gain_loss: 0 },
-      ],
+      accounts: [{ id: "1", name: "Account 1", type: "cash_asset" }],
+      valueEntries: [{ account_id: "1", date: "2024-01-15", value: 1000, cash_flow: 0, gain_loss: 0 }],
     });
 
-    const result = await GridDataService.getGridData(mockSupabase, 'user123', {});
+    const result = await GridDataService.getGridData(mockSupabase, "user123", {});
 
-    expect(result).toHaveProperty('dates');
-    expect(result).toHaveProperty('accounts');
-    expect(result).toHaveProperty('summary');
-    expect(result.dates).toEqual(['2024-01-15']);
+    expect(result).toHaveProperty("dates");
+    expect(result).toHaveProperty("accounts");
+    expect(result).toHaveProperty("summary");
+    expect(result.dates).toEqual(["2024-01-15"]);
     expect(result.accounts).toHaveLength(1);
-    expect(result.summary['2024-01-15'].net_worth).toBe(1000);
+    expect(result.summary["2024-01-15"].net_worth).toBe(1000);
   });
 });
 ```
@@ -683,39 +678,39 @@ fetchData: async () => {
 
   try {
     const { dateRange, showArchived } = get();
-    
+
     // Formatuj daty do YYYY-MM-DD
     const from = dateRange.from.toISOString().split('T')[0];
     const to = dateRange.to.toISOString().split('T')[0];
-    
+
     // Wywołanie API
     const params = new URLSearchParams({
       from,
       to,
       archived: showArchived.toString(),
     });
-    
+
     const response = await fetch(`/api/grid-data?${params}`);
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch grid data');
     }
-    
+
     const gridData: GridDataDto = await response.json();
-    
-    set({ 
-      gridData, 
-      isLoading: false 
+
+    set({
+      gridData,
+      isLoading: false
     });
-    
+
     // Opcjonalnie: pobierz również summary
     // await get().fetchSummary();
-    
+
   } catch (error) {
     console.error('Error fetching data:', error);
-    set({ 
+    set({
       error: error instanceof Error ? error : new Error('Unknown error'),
-      isLoading: false 
+      isLoading: false
     });
   }
 },
