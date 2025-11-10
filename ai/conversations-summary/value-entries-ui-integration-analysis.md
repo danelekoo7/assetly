@@ -5,23 +5,21 @@
 ## Stan obecny ✅
 
 **Co już działa:**
+
 - ✅ **Endpoint `POST /api/value-entries`** - w pełni zaimplementowany i przetestowany
   - Service: `ValueEntryService.upsertValueEntry()`
   - Walidacja: `upsertValueEntrySchema`
   - Automatyczne obliczanie `cash_flow` i `gain_loss` w zależności od typu konta
   - Obsługa błędów: `NotFoundError`, `ValidationError`
-  
 - ✅ **`EditValueModal` (src/components/dashboard/EditValueModal.tsx)** - modal do edycji wartości w komórkach
   - Formularz z trzema polami: wartość, wpłata/wypłata, zysk/strata
   - Automatyczne przeliczanie wartości z użyciem `useReducer`
   - Wyświetlanie kontekstu: nazwa konta, data, poprzednia wartość
   - Walidacja z `zod` i `react-hook-form`
-  
 - ✅ **`updateValueEntry()` w store (useDashboardStore.ts)** - akcja wysyłająca dane do API
   - Optymistyczna aktualizacja UI
   - Mechanizm rollback w przypadku błędu
   - Automatyczne odświeżanie danych po zapisie
-  
 - ✅ **Kliknięcie w komórkę siatki** - otwiera modal `EditValueModal`
   - `DataGridCell` obsługuje interakcje (klik, klawiatura)
   - Przekazuje kontekst do `openModal('editValue', ...)`
@@ -30,13 +28,15 @@
 
 ### 1. **Endpoint GET `/api/grid-data`** (PRIORYTET 1 🔴)
 
-**Problem:** 
+**Problem:**
+
 - Funkcja `fetchData()` w store tworzy puste `entries: {}` dla każdego konta
 - Wartości wprowadzone przez użytkownika nie są wyświetlane po odświeżeniu
 - Mock dane są używane tylko lokalnie
 
 **Rozwiązanie:**
 Zaimplementować endpoint, który:
+
 1. Pobiera wszystkie konta użytkownika z `accounts` table
 2. Pobiera wszystkie `value_entries` dla tych kont w danym zakresie dat
 3. Formatuje dane jako `GridDataDto`:
@@ -66,6 +66,7 @@ Zaimplementować endpoint, który:
    ```
 
 **Pliki do stworzenia:**
+
 - `src/lib/services/grid-data.service.ts` - logika biznesowa
 - `src/pages/api/grid-data.ts` - endpoint API
 - Query params: `?from=YYYY-MM-DD&to=YYYY-MM-DD&archived=true/false`
@@ -74,22 +75,26 @@ Zaimplementować endpoint, który:
 
 ### 2. **Logika dodawania kolumny** (PRIORYTET 2 🟡)
 
-**Problem:** 
+**Problem:**
+
 - W `DashboardToolbar.tsx` przycisk "Dodaj kolumnę" ma pustą funkcję `handleAddColumn()`
 - Brak możliwości dodania nowej daty do siatki z interfejsu użytkownika
 
 **Rozwiązanie:**
 Zaimplementować funkcję, która:
+
 1. Dla wybranej daty pobiera ostatnie wartości dla wszystkich aktywnych kont
 2. Tworzy nowe wpisy wartości (`POST /api/value-entries`) dla każdego konta na nową datę
 3. Opcjonalnie: stworzyć dedykowany endpoint `POST /api/value-entries/batch` dla wydajności
 4. Odświeża dane w store po pomyślnym zapisie
 
 **Pliki do modyfikacji:**
+
 - `src/lib/stores/useDashboardStore.ts` - dodać akcję `addColumn(date: Date)`
 - `src/components/dashboard/DashboardToolbar.tsx` - podłączyć `addColumn()` do `handleAddColumn()`
 
 **Przykładowa implementacja w store:**
+
 ```typescript
 addColumn: async (date: Date) => {
   const { gridData } = get();
@@ -99,35 +104,37 @@ addColumn: async (date: Date) => {
   for (const account of gridData.accounts) {
     // Znajdź ostatnią wartość
     const lastEntry = findLastEntry(account.entries);
-    
+
     // Utwórz nowy wpis
-    await fetch('/api/value-entries', {
-      method: 'POST',
+    await fetch("/api/value-entries", {
+      method: "POST",
       body: JSON.stringify({
         account_id: account.id,
         date: formatDate(date),
         value: lastEntry?.value ?? 0,
         cash_flow: 0,
-        gain_loss: 0
-      })
+        gain_loss: 0,
+      }),
     });
   }
-  
+
   // Odśwież dane
   await get().fetchData();
-}
+};
 ```
 
 ---
 
 ### 3. **Endpoint GET `/api/dashboard/summary`** (PRIORYTET 3 🟢, opcjonalnie)
 
-**Problem:** 
+**Problem:**
+
 - Store ustawia hardcoded `summaryData` z zerami
 - KPI na pulpicie nie pokazują rzeczywistych wartości
 
 **Rozwiązanie:**
 Zaimplementować endpoint obliczający:
+
 - `net_worth` = suma aktywów - suma pasywów (z ostatnich wpisów)
 - `total_assets` = suma wszystkich aktywów
 - `total_liabilities` = suma wszystkich pasywów
@@ -135,6 +142,7 @@ Zaimplementować endpoint obliczający:
 - `cumulative_gain_loss` = suma wszystkich `gain_loss` z wszystkich kont
 
 **Pliki do stworzenia:**
+
 - `src/lib/services/dashboard.service.ts`
 - `src/pages/api/dashboard/summary.ts`
 
@@ -145,6 +153,7 @@ Zaimplementować endpoint obliczający:
 ## Kolejność implementacji
 
 ### Faza 1: Backend - Pobieranie danych ⬅️ **TU ZACZYNAMY**
+
 ```
 1. Zaimplementować GridDataService.getGridData()
    └─ Pobieranie kont i value_entries z Supabase
@@ -158,6 +167,7 @@ Zaimplementować endpoint obliczający:
 ```
 
 ### Faza 2: Frontend - Połączenie z API
+
 ```
 3. Aktualizacja fetchData() w useDashboardStore
    └─ Usunąć mock data
@@ -166,6 +176,7 @@ Zaimplementować endpoint obliczający:
 ```
 
 ### Faza 3: Dodawanie kolumn
+
 ```
 4. Implementacja addColumn() w store
    └─ Logika tworzenia nowych wpisów dla wszystkich kont
@@ -178,6 +189,7 @@ Zaimplementować endpoint obliczający:
 ```
 
 ### Faza 4: KPI Dashboard (opcjonalnie)
+
 ```
 6. Zaimplementować DashboardService.getSummary()
 7. Utworzyć endpoint GET /api/dashboard/summary
@@ -189,6 +201,7 @@ Zaimplementować endpoint obliczający:
 ## Checklist implementacji
 
 ### Backend
+
 - [ ] Utworzyć `src/lib/services/grid-data.service.ts`
   - [ ] Metoda `getGridData(userId, from, to, showArchived)`
   - [ ] Zapytania do Supabase (accounts + value_entries)
@@ -204,6 +217,7 @@ Zaimplementować endpoint obliczający:
   - [ ] Przyjmuje array of `UpsertValueEntryCommand`
 
 ### Frontend - Store
+
 - [ ] Zaktualizować `fetchData()` w `useDashboardStore.ts`
   - [ ] Usunąć mock data
   - [ ] Dodać `fetch('/api/grid-data?from=...&to=...&archived=...')`
@@ -217,6 +231,7 @@ Zaimplementować endpoint obliczający:
   - [ ] Obsługa błędów z rollback
 
 ### Frontend - Komponenty
+
 - [ ] Zaktualizować `DashboardToolbar.tsx`
   - [ ] Podłączyć `addColumn` z store do `handleAddColumn()`
   - [ ] Dodać obsługę ładowania (disable button podczas zapisu)
@@ -226,6 +241,7 @@ Zaimplementować endpoint obliczający:
   - [ ] Lepsze komunikaty o błędach
 
 ### Testy
+
 - [ ] Testy jednostkowe dla `GridDataService`
 - [ ] Testy jednostkowe dla `addColumn()` w store
 - [ ] Testy E2E dla przepływu:
@@ -319,14 +335,16 @@ Zaimplementować endpoint obliczający:
 ## Uwagi techniczne
 
 ### Optymalizacja zapytań do bazy danych
+
 W `GridDataService.getGridData()` należy:
+
 1. Użyć JOIN między `accounts` i `value_entries`
 2. Filtrować po `user_id` (automatycznie przez RLS)
 3. Filtrować po zakresie dat (`date >= from AND date <= to`)
 4. Sortować `value_entries` po dacie rosnąco
 
 ```sql
-SELECT 
+SELECT
   a.id, a.name, a.type,
   ve.date, ve.value, ve.cash_flow, ve.gain_loss
 FROM accounts a
@@ -338,10 +356,12 @@ ORDER BY ve.date ASC
 ```
 
 ### Obsługa pustych stanów
+
 - Jeśli użytkownik ma konta, ale nie ma żadnych wpisów wartości → pokazać pusty grid z komunikatem
 - Jeśli użytkownik nie ma kont → pokazać empty state z przyciskiem "Dodaj pierwsze konto"
 
 ### Performance considerations
+
 - Dla dużych zakresów dat rozważyć paginację lub limitowanie
 - Dodać cache na poziomie przeglądarki (React Query lub SWR w przyszłości)
 - Rozważyć debouncing dla filtrów zakresu dat
@@ -351,7 +371,7 @@ ORDER BY ve.date ASC
 ## Status
 
 - ✅ **Backend dla zapisu wartości** - gotowy
-- ✅ **Frontend dla edycji wartości** - gotowy  
+- ✅ **Frontend dla edycji wartości** - gotowy
 - ❌ **Backend dla pobierania danych** - do implementacji
 - ❌ **Dodawanie kolumn** - do implementacji
 - ⚠️ **KPI Dashboard** - opcjonalnie

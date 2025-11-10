@@ -32,6 +32,7 @@ Punkt końcowy `POST /value-entries` to operacja **upsert** (update lub insert) 
 Implementacja wykorzystuje następujące typy zdefiniowane w `src/types.ts`:
 
 - **`UpsertValueEntryCommand`**: Command Model dla request body.
+
   ```typescript
   export interface UpsertValueEntryCommand {
     account_id: string;
@@ -43,6 +44,7 @@ Implementacja wykorzystuje następujące typy zdefiniowane w `src/types.ts`:
   ```
 
 - **`ValueEntryDto`**: DTO dla odpowiedzi zwracanej do klienta.
+
   ```typescript
   export type ValueEntryDto = Pick<ValueEntry, "id" | "account_id" | "date" | "value" | "cash_flow" | "gain_loss">;
   ```
@@ -53,6 +55,7 @@ Implementacja wykorzystuje następujące typy zdefiniowane w `src/types.ts`:
   ```
 
 Dodatkowo w warstwie serwisowej konieczne będzie użycie typów bazowych:
+
 - **`ValueEntry`**: Pełny typ wiersza z tabeli `value_entries`.
 - **`Account`**: Typ wiersza z tabeli `accounts` (do pobrania typu konta).
 
@@ -73,7 +76,7 @@ Dodatkowo w warstwie serwisowej konieczne będzie użycie typów bazowych:
     ```
 
 - **Odpowiedzi błędów**:
-  - **`400 Bad Request`**: 
+  - **`400 Bad Request`**:
     - Brakujące wymagane pola (`account_id`, `date`, `value`).
     - Nieprawidłowy format danych (np. `value` nie jest liczbą).
     - Niespójność danych: `previous_value + cash_flow + gain_loss ≠ value` (gdy użytkownik ręcznie podał wszystkie trzy wartości).
@@ -107,6 +110,7 @@ Dodatkowo w warstwie serwisowej konieczne będzie użycie typów bazowych:
 Logika automatycznego obliczania `cash_flow` i `gain_loss` działa według trzech scenariuszy:
 
 **Scenariusz 1: Podano tylko `value`** (`cash_flow` i `gain_loss` są `null` lub nie podane)
+
 - Jeśli `account.type === 'cash_asset'` lub `account.type === 'liability'`:
   - `cash_flow = value - previous_value`
   - `gain_loss = 0`
@@ -115,26 +119,29 @@ Logika automatycznego obliczania `cash_flow` i `gain_loss` działa według trzec
   - `gain_loss = value - previous_value`
 
 **Scenariusz 2: Podano `value` i `cash_flow`** (`gain_loss` jest `null` lub nie podane)
+
 - `gain_loss = value - previous_value - cash_flow`
 - Wartość `cash_flow` użyta bezpośrednio z command.
 
 **Scenariusz 3: Podano `value`, `cash_flow` i `gain_loss`** (wszystkie trzy pola wypełnione ręcznie)
+
 - **Walidacja spójności**: `previous_value + cash_flow + gain_loss` musi być równe `value`.
 - Jeśli walidacja nie przechodzi, rzuć `ValidationError` z komunikatem: "Dane niespójne: poprzednia wartość + wpłata + zysk/strata nie równa się nowej wartości."
 - Jeśli walidacja przechodzi, użyj wartości podanych przez użytkownika.
 
 **Obsługa wartości domyślnych:**
+
 - Jeśli `cash_flow` nie jest podane (undefined) lub jest `null`, ustaw jako `0` przed obliczeniami (w zależności od scenariusza).
 - Analogicznie dla `gain_loss`.
 
 ## 6. Względy bezpieczeństwa
 
 - **Uwierzytelnianie**: Wszystkie żądania wymagają prawidłowego JWT w nagłówku `Authorization`. Middleware Astro zapewnia weryfikację.
-- **Autoryzacja**: 
-  - Polityki Row-Level Security (RLS) na tabeli `value_entries` są **pośrednie** (poprzez relację z tabelą `accounts`). 
+- **Autoryzacja**:
+  - Polityki Row-Level Security (RLS) na tabeli `value_entries` są **pośrednie** (poprzez relację z tabelą `accounts`).
   - Serwis **musi jawnie** sprawdzić, czy konto o `account_id` należy do użytkownika przed wykonaniem operacji upsert, ponieważ polityki RLS na `value_entries` nie filtrują bezpośrednio po `user_id` (kolumna ta nie istnieje w tej tabeli).
   - Sprawdzenie: `SELECT user_id FROM accounts WHERE id = account_id` i porównanie z `session.user.id`.
-- **Walidacja danych wejściowych**: 
+- **Walidacja danych wejściowych**:
   - Schemat Zod weryfikuje typy, obecność wymaganych pól oraz format UUID dla `account_id`.
   - Walidacja ISO 8601 dla `date`.
   - Walidacja liczbowa dla `value`, `cash_flow`, `gain_loss` (muszą być liczbami lub null).
@@ -142,17 +149,18 @@ Logika automatycznego obliczania `cash_flow` i `gain_loss` działa według trzec
 
 ## 7. Obsługa błędów
 
-| Kod statusu | Scenariusz | Szczegóły |
-|-------------|-----------|-----------|
-| **400 Bad Request** | Walidacja Zod nie powiodła się | Brak wymaganych pól, nieprawidłowy format UUID, nieprawidłowy typ danych. Odpowiedź zawiera szczegóły błędów walidacji z Zod. |
-| **400 Bad Request** | Niespójność danych | Gdy użytkownik ręcznie podał wszystkie trzy wartości (`value`, `cash_flow`, `gain_loss`) i `previous_value + cash_flow + gain_loss ≠ value`. Komunikat: "Dane niespójne: poprzednia wartość + wpłata + zysk/strata nie równa się nowej wartości." |
-| **401 Unauthorized** | Brak uwierzytelnienia | Token JWT jest nieprawidłowy, wygasły lub nie został dostarczony. Obsługiwane przez middleware. |
-| **404 Not Found** | Konto nie istnieje | Konto o podanym `account_id` nie istnieje w bazie danych. |
-| **404 Not Found** | Brak autoryzacji | Konto istnieje, ale nie należy do zalogowanego użytkownika (wykryte przez sprawdzenie `user_id`). |
-| **500 Internal Server Error** | Błąd bazy danych | Nieprzewidziany błąd podczas wykonywania zapytania do Supabase (np. utrata połączenia, timeout). Szczegóły błędu logowane server-side. |
-| **500 Internal Server Error** | Inny błąd serwera | Wszelkie inne nieobsłużone wyjątki. Logowane server-side. |
+| Kod statusu                   | Scenariusz                     | Szczegóły                                                                                                                                                                                                                                         |
+| ----------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **400 Bad Request**           | Walidacja Zod nie powiodła się | Brak wymaganych pól, nieprawidłowy format UUID, nieprawidłowy typ danych. Odpowiedź zawiera szczegóły błędów walidacji z Zod.                                                                                                                     |
+| **400 Bad Request**           | Niespójność danych             | Gdy użytkownik ręcznie podał wszystkie trzy wartości (`value`, `cash_flow`, `gain_loss`) i `previous_value + cash_flow + gain_loss ≠ value`. Komunikat: "Dane niespójne: poprzednia wartość + wpłata + zysk/strata nie równa się nowej wartości." |
+| **401 Unauthorized**          | Brak uwierzytelnienia          | Token JWT jest nieprawidłowy, wygasły lub nie został dostarczony. Obsługiwane przez middleware.                                                                                                                                                   |
+| **404 Not Found**             | Konto nie istnieje             | Konto o podanym `account_id` nie istnieje w bazie danych.                                                                                                                                                                                         |
+| **404 Not Found**             | Brak autoryzacji               | Konto istnieje, ale nie należy do zalogowanego użytkownika (wykryte przez sprawdzenie `user_id`).                                                                                                                                                 |
+| **500 Internal Server Error** | Błąd bazy danych               | Nieprzewidziany błąd podczas wykonywania zapytania do Supabase (np. utrata połączenia, timeout). Szczegóły błędu logowane server-side.                                                                                                            |
+| **500 Internal Server Error** | Inny błąd serwera              | Wszelkie inne nieobsłużone wyjątki. Logowane server-side.                                                                                                                                                                                         |
 
 **Implementacja obsługi błędów w handlerze:**
+
 ```typescript
 try {
   const result = await ValueEntryService.upsertValueEntry(...);
@@ -171,12 +179,11 @@ try {
 
 ## 8. Wydajność
 
-- **Liczba zapytań do bazy danych**: 
+- **Liczba zapytań do bazy danych**:
   - 1 zapytanie: Pobranie konta i weryfikacja właściciela (SELECT na `accounts`).
   - 1 zapytanie: Pobranie poprzedniego wpisu wartości (SELECT na `value_entries` z ORDER BY date DESC LIMIT 1).
   - 1 zapytanie: Upsert wpisu wartości (INSERT ... ON CONFLICT).
   - **Łącznie: 3 zapytania** na jedno żądanie.
-  
 - **Optymalizacja zapytań**:
   - Istniejący indeks złożony `idx_value_entries_account_id_date` przyspiesza wyszukiwanie poprzedniej wartości.
   - Constraint `UNIQUE (account_id, date)` na `value_entries` zapewnia efektywny upsert.
@@ -186,7 +193,7 @@ try {
   - Przy dużej liczbie równoczesnych żądań od wielu użytkowników, operacje upsert mogą powodować krótkotrwałe blokady na poziomie wiersza w bazie danych. To jest akceptowalne dla MVP.
   - Jeśli w przyszłości będzie potrzeba bardziej złożonych obliczeń (np. agregacje dla wielu dat), rozważyć cache'owanie wyników.
 
-- **Brak transakcji**: 
+- **Brak transakcji**:
   - Operacja składa się z kilku zapytań, ale nie wymaga explicite transakcji, ponieważ każde zapytanie jest atomowe.
   - Jedyna operacja modyfikująca dane (upsert) jest pojedynczym wywołaniem.
 
@@ -207,51 +214,56 @@ try {
 
 3. **Implementacja logiki serwisowej** w `upsertValueEntry`:
    - **Krok 3.1**: Pobierz konto i zweryfikuj właściciela:
+
      ```typescript
      const { data: account, error: accountError } = await supabase
-       .from('accounts')
-       .select('id, type, user_id')
-       .eq('id', command.account_id)
+       .from("accounts")
+       .select("id, type, user_id")
+       .eq("id", command.account_id)
        .single();
-     
+
      if (accountError || !account || account.user_id !== userId) {
-       throw new NotFoundError('Account not found or access denied');
+       throw new NotFoundError("Account not found or access denied");
      }
      ```
-   
+
    - **Krok 3.2**: Pobierz poprzednią wartość wpisu:
+
      ```typescript
      const { data: previousEntry } = await supabase
-       .from('value_entries')
-       .select('value')
-       .eq('account_id', command.account_id)
-       .lt('date', command.date)
-       .order('date', { ascending: false })
+       .from("value_entries")
+       .select("value")
+       .eq("account_id", command.account_id)
+       .lt("date", command.date)
+       .order("date", { ascending: false })
        .limit(1)
        .maybeSingle();
-     
+
      const previousValue = previousEntry?.value ?? 0;
      ```
-   
+
    - **Krok 3.3**: Zaimplementuj logikę obliczeniową (3 scenariusze opisane w sekcji 5.1).
-   
    - **Krok 3.4**: Wykonaj upsert:
+
      ```typescript
      const { data: upsertedEntry, error: upsertError } = await supabase
-       .from('value_entries')
-       .upsert({
-         account_id: command.account_id,
-         date: command.date,
-         value: command.value,
-         cash_flow: calculatedCashFlow,
-         gain_loss: calculatedGainLoss
-       }, { onConflict: 'account_id,date' })
+       .from("value_entries")
+       .upsert(
+         {
+           account_id: command.account_id,
+           date: command.date,
+           value: command.value,
+           cash_flow: calculatedCashFlow,
+           gain_loss: calculatedGainLoss,
+         },
+         { onConflict: "account_id,date" }
+       )
        .select()
        .single();
-     
+
      if (upsertError) throw upsertError;
      ```
-   
+
    - **Krok 3.5**: Zwróć obiekt `ValueEntryDto` (mapowanie).
 
 4. **Utworzenie pliku endpointu API**:
@@ -271,18 +283,19 @@ try {
 
 7. **Utworzenie custom error types** (jeśli nie istnieją):
    - W `src/lib/errors.ts` dodaj:
+
      ```typescript
      export class NotFoundError extends Error {
        constructor(message: string) {
          super(message);
-         this.name = 'NotFoundError';
+         this.name = "NotFoundError";
        }
      }
-     
+
      export class ValidationError extends Error {
        constructor(message: string) {
          super(message);
-         this.name = 'ValidationError';
+         this.name = "ValidationError";
        }
      }
      ```
@@ -297,7 +310,6 @@ try {
      - Test braku poprzedniej wartości (previous_value = 0).
      - Test konta nie należącego do użytkownika (NotFoundError).
      - Test nieistniejącego konta (NotFoundError).
-   
    - **Testy integracyjne** (endpoint API):
      - Test pomyślnego utworzenia nowego wpisu (201 w specyfikacji, ale używamy 200 dla upsert).
      - Test pomyślnej aktualizacji istniejącego wpisu (upsert).
@@ -305,7 +317,6 @@ try {
      - Test błędu autoryzacji (401) - brak tokena.
      - Test błędu 404 - nieistniejące konto.
      - Test błędu 400 - niespójność danych.
-   
    - **Testy E2E** (Playwright, opcjonalne dla tego endpointu):
      - Symulacja edycji wartości komórki w siatce danych i sprawdzenie, czy zmiany zostały zapisane.
 

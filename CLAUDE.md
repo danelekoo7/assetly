@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Assetly is a web application for tracking net worth by manually managing assets and liabilities. Built with Astro 5 + React 19, it provides a spreadsheet-like interface for financial data entry with historical visualization.
 
 **Tech Stack:**
+
 - Astro 5 (server-side rendering, hybrid mode)
 - React 19 (interactive components only)
 - TypeScript 5
@@ -19,6 +20,7 @@ Assetly is a web application for tracking net worth by manually managing assets 
 ## Common Commands
 
 ### Development
+
 ```bash
 npm run dev              # Start dev server at localhost:3000
 npm run dev:debug        # Start with Node.js inspector
@@ -28,6 +30,7 @@ npm run preview          # Preview production build
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint             # Run ESLint
 npm run lint:fix         # Auto-fix ESLint issues
@@ -35,6 +38,7 @@ npm run format           # Format with Prettier
 ```
 
 ### Testing
+
 ```bash
 npm test                 # Run all tests (unit + e2e)
 npm run test:unit        # Run Vitest unit tests
@@ -46,14 +50,17 @@ npm run test:e2e:headed  # Run e2e with browser visible
 ```
 
 **Test File Locations:**
+
 - Unit tests: `src/**/*.test.ts`
 - E2E tests: `e2e/**/*.spec.ts`
 - Test setup: `src/test/setup.ts`
 
 ### Shadcn/ui Components
+
 ```bash
 npx shadcn@latest add [component-name]  # Add new UI component
 ```
+
 Components are installed to `src/components/ui/`. Use `npx shadcn@latest` (not the deprecated `npx shadcn-ui@latest`).
 
 ## Architecture
@@ -95,12 +102,14 @@ supabase/
 ### Key Architectural Patterns
 
 **1. Server-First Architecture**
+
 - Astro runs in `output: "server"` mode (SSR)
 - Use `.astro` components for static content
 - Use React (`.tsx`) only when interactivity is needed
 - NEVER use Next.js directives like `"use client"`
 
 **2. Authentication & Middleware**
+
 - Middleware (`src/middleware/index.ts`) checks authentication on all routes except PUBLIC_PATHS
 - Uses Supabase SSR with cookie-based sessions
 - User session available via `Astro.locals.user` (typed in `src/env.d.ts`)
@@ -108,6 +117,7 @@ supabase/
 - The old `supabaseClient` from `src/db/supabase.client.ts` is deprecated for server-side use
 
 **3. Type System**
+
 - Database types auto-generated in `src/db/database.types.ts`
 - Shared DTOs and Command Models in `src/types.ts`:
   - **DTOs**: Data sent from API to client (e.g., `AccountDto`, `GridDataDto`)
@@ -115,6 +125,7 @@ supabase/
 - Use DTOs to expose only necessary fields (e.g., omit `user_id`, `updated_at`)
 
 **4. API Endpoints**
+
 - Located in `src/pages/api/`
 - Export uppercase HTTP handlers: `GET`, `POST`, `PATCH`, `DELETE`
 - Always add `export const prerender = false`
@@ -123,16 +134,19 @@ supabase/
 - Access Supabase via `createSupabaseServerInstance({ headers, cookies })`
 
 **5. Database (Supabase)**
+
 - PostgreSQL with Row Level Security (RLS) enabled
 - Migrations in `supabase/migrations/` with naming: `YYYYMMDDHHmmss_description.sql`
 - RLS policies filter by `user_id` automatically
 - Currency hardcoded to `PLN` (multi-currency out of scope)
 
 **6. State Management**
+
 - Zustand for client-side state (e.g., `useDashboardStore.ts`)
 - Custom hooks in `src/hooks/` for component logic
 
 **7. Forms & Validation**
+
 - React Hook Form with Zod resolvers
 - Shadcn/ui form components with accessibility built-in
 - Validation schemas in `src/lib/validation/`
@@ -140,17 +154,20 @@ supabase/
 ## Critical Development Guidelines
 
 ### Git Workflow
+
 - **NEVER** run `git push` to remote repository - the user always does this manually
 - Create commits when requested, but NEVER ask if the user wants to push changes
 - After creating a commit, simply inform the user that changes are ready to push
 
 ### Supabase Usage
+
 - **ALWAYS** use `createSupabaseServerInstance()` from `src/db/supabase.server.ts` in API routes and server-side code
 - **NEVER** import `supabaseClient` from `src/db/supabase.client.ts` in server contexts
 - Use the `SupabaseClient` type from `src/db/supabase.client.ts`, NOT from `@supabase/supabase-js`
 - RLS policies automatically filter by `user_id` - don't add manual filters in queries
 
 ### Error Handling
+
 - Handle errors at the beginning of functions with early returns
 - Use guard clauses for preconditions
 - Place happy path last for readability
@@ -158,6 +175,7 @@ supabase/
 - Always provide user-friendly error messages
 
 ### Astro-Specific
+
 - Use View Transitions API (`transition:animate`) for smooth page transitions
 - API routes: uppercase handlers (`POST`, `GET`), add `export const prerender = false`
 - Extract API logic into services in `src/lib/services/`
@@ -165,6 +183,7 @@ supabase/
 - Environment variables via `import.meta.env` or `astro:env/server`
 
 ### React-Specific
+
 - Functional components with hooks only
 - Custom hooks in `src/hooks/` or `src/components/hooks/`
 - Use `React.memo()` for expensive components
@@ -173,6 +192,7 @@ supabase/
 - `useId()` for accessibility IDs
 
 ### Styling (Tailwind CSS 4)
+
 - Use `@layer` directive for organizing styles
 - Arbitrary values with square brackets: `w-[123px]`
 - Responsive variants: `sm:`, `md:`, `lg:`
@@ -181,6 +201,7 @@ supabase/
 - Path alias: `@/` points to `src/`
 
 ### Accessibility
+
 - Use ARIA landmarks (main, navigation)
 - Set `aria-expanded`, `aria-controls` for expandable content
 - Use `aria-live` for dynamic updates
@@ -188,6 +209,7 @@ supabase/
 - Avoid redundant ARIA (let semantic HTML do the work)
 
 ### Database Migrations
+
 - File naming: `YYYYMMDDHHmmss_description.sql` (UTC time)
 - All SQL in lowercase
 - Include header comment with purpose and affected tables
@@ -198,6 +220,7 @@ supabase/
 ## Project Scope
 
 **Included in MVP:**
+
 - Email/password auth with verification
 - Dashboard with KPIs (net worth, assets, liabilities)
 - Historical net worth chart
@@ -208,6 +231,7 @@ supabase/
 - PLN currency only
 
 **Explicitly Out of Scope:**
+
 - Multi-currency support
 - Automatic bank integrations
 - Native mobile apps
@@ -218,6 +242,7 @@ supabase/
 ## Environment Variables
 
 Required in `.env`:
+
 ```env
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_anon_key
