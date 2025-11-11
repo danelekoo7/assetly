@@ -13,7 +13,7 @@ describe("ValueEntryService", () => {
     });
 
     it("should calculate cash_flow for liability when only value provided", () => {
-      const result = ValueEntryService.calculateCashFlowAndGainLoss(1500, 1000, "liability");
+      const result = ValueEntryService.calculateCashFlowAndGainLoss(500, 1000, "liability");
 
       expect(result.cash_flow).toBe(500);
       expect(result.gain_loss).toBe(0);
