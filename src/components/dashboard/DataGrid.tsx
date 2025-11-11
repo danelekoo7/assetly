@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
 import type { GridDataDto, AccountType } from "@/types";
@@ -12,6 +13,14 @@ interface DataGridProps {
 
 export default function DataGrid({ gridData, isLoading }: DataGridProps) {
   const { openModal } = useDashboardStore();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to the right (newest dates) on mount and when data changes
+  useEffect(() => {
+    if (gridData && scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [gridData]);
 
   const handleCellClick = (accountId: string, date: string, accountType: AccountType, previousValue: number) => {
     openModal("editValue", {
@@ -44,7 +53,7 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border">
+    <div ref={scrollRef} className="overflow-x-auto rounded-lg border border-border">
       <div role="grid" className="min-w-full divide-y divide-border bg-card" aria-label="Siatka danych finansowych">
         <DataGridHeader dates={gridData.dates} />
 

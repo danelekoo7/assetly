@@ -24,7 +24,7 @@ export default function DataGridCell({ accountId, date, accountType, value, onCe
   return (
     <div
       role="gridcell"
-      className="cursor-pointer border-r border-border px-4 py-3 text-right transition-colors hover:bg-accent last:border-r-0"
+      className="w-[150px] flex-shrink-0 cursor-pointer border-r border-border bg-card px-4 py-3 text-right transition-colors hover:bg-accent last:border-r-0"
       onClick={handleInteraction}
       tabIndex={0}
       onKeyDown={handleKeyDown}

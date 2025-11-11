@@ -45,7 +45,7 @@ interface DashboardState {
   };
 
   // Actions
-  fetchData: () => Promise<void>;
+  fetchData: (skipCache?: boolean) => Promise<void>;
   setDateRange: (range: { from: Date; to: Date }) => void;
   setShowArchived: (show: boolean) => void;
   addAccount: (command: CreateAccountCommand) => Promise<void>;
@@ -84,14 +84,19 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   // Actions
-  fetchData: async () => {
+  fetchData: async (skipCache = false) => {
     set({ isLoading: true, error: null });
 
     try {
       const { showArchived } = get();
 
+      // Add cache-busting timestamp when skipCache is true
+      const url = skipCache
+        ? `/api/grid-data?archived=${showArchived}&_t=${Date.now()}`
+        : `/api/grid-data?archived=${showArchived}`;
+
       // Fetch grid data from the API (includes accounts, dates, entries)
-      const gridDataResponse = await fetch(`/api/grid-data?archived=${showArchived}`);
+      const gridDataResponse = await fetch(url);
 
       if (!gridDataResponse.ok) {
         // Log error to console but don't show error to user
@@ -197,7 +202,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     // Refresh data after successful creation
-    await get().fetchData();
+    await get().fetchData(true);
     get().closeModal("addAccount");
   },
 
@@ -214,7 +219,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     // Refresh data after successful update
-    await get().fetchData();
+    await get().fetchData(true);
     get().closeModal("editAccount");
   },
 
@@ -228,7 +233,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     // Refresh data after successful deletion
-    await get().fetchData();
+    await get().fetchData(true);
     get().closeModal("confirmAction");
   },
 
@@ -274,7 +279,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
       // Note: Summary data refresh removed until /api/dashboard/summary endpoint is implemented
       // For now, we'll refresh all data to get the latest state
-      await get().fetchData();
+      await get().fetchData(true);
 
       get().closeModal("editValue");
     } catch (error) {
@@ -289,6 +294,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
     // [1] Validation
     if (!gridData || gridData.accounts.length === 0) {
+      toast.error("Brak kont", {
+        description: "Dodaj najpierw konta, aby móc tworzyć wpisy wartości",
+      });
       throw new Error("Dodaj najpierw konta, aby móc tworzyć wpisy wartości");
     }
 
@@ -296,13 +304,19 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
     // Check if column already exists
     if (gridData.dates.includes(dateStr)) {
-      throw new Error(`Kolumna z datą ${format(date, "dd.MM.yyyy", { locale: pl })} już istnieje`);
+      toast.warning("Kolumna już istnieje", {
+        description: `Kolumna z datą ${format(date, "dd.MM.yyyy", { locale: pl })} już istnieje w siatce`,
+      });
+      return; // Don't throw error, just return early
     }
 
     // Check if date is not in the future
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (date > today) {
+      toast.error("Nieprawidłowa data", {
+        description: "Nie można dodać kolumny z datą w przyszłości",
+      });
       throw new Error("Nie można dodać kolumny z datą w przyszłości");
     }
 
@@ -364,7 +378,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       }
 
       // [5] Handle results
-      await get().fetchData(); // Refresh data regardless of partial errors
+      await get().fetchData(true); // Refresh data regardless of partial errors, skip cache
 
       if (errors.length === 0) {
         // Full success

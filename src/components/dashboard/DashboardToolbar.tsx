@@ -22,6 +22,19 @@ export default function DashboardToolbar() {
     }
   };
 
+  const handleOpenAddColumn = (open: boolean) => {
+    if (open) {
+      // When opening popover, set default date to today
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      setSelectedColumnDate(today);
+    } else {
+      // When closing popover, reset selected date
+      setSelectedColumnDate(undefined);
+    }
+    setIsAddColumnOpen(open);
+  };
+
   const handleAddColumn = async () => {
     if (selectedColumnDate) {
       try {
@@ -74,7 +87,7 @@ export default function DashboardToolbar() {
       </Button>
 
       {/* Add Column Button */}
-      <Popover open={isAddColumnOpen} onOpenChange={setIsAddColumnOpen}>
+      <Popover open={isAddColumnOpen} onOpenChange={handleOpenAddColumn}>
         <PopoverTrigger asChild>
           <Button variant="outline" disabled={isAddingColumn}>
             <Plus className="mr-2 h-4 w-4" />
@@ -82,23 +95,25 @@ export default function DashboardToolbar() {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={selectedColumnDate}
-            onSelect={(date) => {
-              setSelectedColumnDate(date);
-              if (date) {
-                handleAddColumn();
-              }
-            }}
-            locale={pl}
-            disabled={(date) => {
-              // Disable future dates
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              return date > today;
-            }}
-          />
+          <div>
+            <Calendar
+              mode="single"
+              selected={selectedColumnDate}
+              onSelect={setSelectedColumnDate}
+              locale={pl}
+              disabled={(date) => {
+                // Disable future dates
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return date > today;
+              }}
+            />
+            <div className="border-t p-3">
+              <Button onClick={handleAddColumn} disabled={!selectedColumnDate || isAddingColumn} className="w-full">
+                {isAddingColumn ? "Dodawanie..." : "OK"}
+              </Button>
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
 

@@ -21,11 +21,11 @@ export default function DataGridRow({ account, dates, onCellClick }: DataGridRow
   const { handleEditAccount, handleArchiveAccount, handleDeleteAccount } = useAccountActions();
 
   return (
-    <div role="row" className="grid grid-cols-[250px_repeat(auto-fit,_minmax(150px,_1fr))] gap-0 hover:bg-muted/30">
+    <div role="row" className="flex hover:bg-muted/30">
       {/* Account Name Cell (Sticky) */}
       <div
         role="gridcell"
-        className="sticky left-0 z-10 flex items-center justify-between border-r border-border bg-card px-4 py-3"
+        className="sticky left-0 z-10 w-[250px] flex-shrink-0 flex items-center justify-between border-r border-border bg-card px-4 py-3"
       >
         <div className="flex-1">
           <div className="font-medium text-foreground">{account.name}</div>
