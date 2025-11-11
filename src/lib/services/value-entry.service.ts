@@ -111,10 +111,12 @@ const ValueEntryService = {
   ): { cash_flow: number; gain_loss: number } {
     const hasCashFlow = cashFlowInput !== null && cashFlowInput !== undefined;
     const hasGainLoss = gainLossInput !== null && gainLossInput !== undefined;
+    const isLiability = accountType === "liability";
+    const cfMultiplier = isLiability ? -1 : 1;
 
     // Scenario 3: All three values provided → validate consistency
     if (hasCashFlow && hasGainLoss) {
-      const expectedValue = previousValue + cashFlowInput + gainLossInput;
+      const expectedValue = previousValue + cashFlowInput * cfMultiplier + gainLossInput;
       const tolerance = 0.0001; // Small tolerance for floating point comparison
 
       if (Math.abs(expectedValue - value) > tolerance) {
@@ -133,14 +135,14 @@ const ValueEntryService = {
     if (hasCashFlow) {
       return {
         cash_flow: cashFlowInput,
-        gain_loss: value - previousValue - cashFlowInput,
+        gain_loss: value - previousValue - cashFlowInput * cfMultiplier,
       };
     }
 
     // Scenario 1: Only value provided → calculate based on account type
     if (accountType === "cash_asset" || accountType === "liability") {
       return {
-        cash_flow: value - previousValue,
+        cash_flow: (value - previousValue) * cfMultiplier,
         gain_loss: 0,
       };
     }

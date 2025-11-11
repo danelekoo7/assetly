@@ -157,13 +157,18 @@ export default function EditValueModal() {
   useEffect(() => {
     if (!calcState.lastModified) return;
 
+    const isLiability = context?.accountType === "liability";
+    const cfMultiplier = isLiability ? -1 : 1;
+
     const val = parseFloat(calcState.value) || 0;
     const cf = parseFloat(calcState.cash_flow) || 0;
     const gl = parseFloat(calcState.gain_loss) || 0;
 
-    // Formula: new_value = previous_value + cash_flow + gain_loss
-    // Rearranged: gain_loss = new_value - previous_value - cash_flow
-    // Rearranged: cash_flow = new_value - previous_value - gain_loss
+    // Formula for assets: new_value = previous_value + cash_flow + gain_loss
+    // Formula for liabilities: new_value = previous_value - cash_flow + gain_loss
+    // Unified formula: new_value = previous_value + (cfMultiplier * cash_flow) + gain_loss
+    // Rearranged: gain_loss = new_value - previous_value - (cfMultiplier * cash_flow)
+    // Rearranged: cash_flow = (new_value - previous_value - gain_loss) * cfMultiplier
 
     if (calcState.lastModified === "value") {
       // If user hasn't manually modified cash_flow or gain_loss, auto-calculate based on account type
@@ -183,7 +188,7 @@ export default function EditValueModal() {
           }
         } else {
           // Cash asset or Liability: change = cash_flow (gain_loss = 0)
-          const newCashFlow = valueDifference.toFixed(2);
+          const newCashFlow = (valueDifference * cfMultiplier).toFixed(2);
           const newGainLoss = "0";
           if (calcState.cash_flow !== newCashFlow || calcState.gain_loss !== newGainLoss) {
             form.setValue("cash_flow", newCashFlow, { shouldValidate: false });
@@ -195,7 +200,7 @@ export default function EditValueModal() {
       }
       // If only cash_flow was modified by user, calculate gain_loss
       else if (calcState.userModifiedCashFlow && !calcState.userModifiedGainLoss) {
-        const calculatedGainLoss = val - previousValue - cf;
+        const calculatedGainLoss = val - previousValue - cf * cfMultiplier;
         const newGainLoss = calculatedGainLoss.toFixed(2);
         if (calcState.gain_loss !== newGainLoss) {
           form.setValue("gain_loss", newGainLoss, { shouldValidate: false });
@@ -204,7 +209,7 @@ export default function EditValueModal() {
       }
       // If only gain_loss was modified by user, calculate cash_flow
       else if (calcState.userModifiedGainLoss && !calcState.userModifiedCashFlow) {
-        const calculatedCashFlow = val - previousValue - gl;
+        const calculatedCashFlow = (val - previousValue - gl) * cfMultiplier;
         const newCashFlow = calculatedCashFlow.toFixed(2);
         if (calcState.cash_flow !== newCashFlow) {
           form.setValue("cash_flow", newCashFlow, { shouldValidate: false });
@@ -214,7 +219,7 @@ export default function EditValueModal() {
     } else if (calcState.lastModified === "cash_flow") {
       // Calculate gain_loss based on value and cash_flow
       if (calcState.value) {
-        const calculatedGainLoss = val - previousValue - cf;
+        const calculatedGainLoss = val - previousValue - cf * cfMultiplier;
         const newGainLoss = calculatedGainLoss.toFixed(2);
         if (calcState.gain_loss !== newGainLoss) {
           form.setValue("gain_loss", newGainLoss, { shouldValidate: false });
@@ -224,7 +229,7 @@ export default function EditValueModal() {
     } else if (calcState.lastModified === "gain_loss") {
       // Calculate cash_flow based on value and gain_loss
       if (calcState.value) {
-        const calculatedCashFlow = val - previousValue - gl;
+        const calculatedCashFlow = (val - previousValue - gl) * cfMultiplier;
         const newCashFlow = calculatedCashFlow.toFixed(2);
         if (calcState.cash_flow !== newCashFlow) {
           form.setValue("cash_flow", newCashFlow, { shouldValidate: false });

@@ -62,7 +62,7 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
   - Typ konta, który determinuje domyślne zachowanie przy edycji wartości:
     - **Aktywo inwestycyjne** - wartość zmienia się samoistnie w czasie (akcje, fundusze, kryptowaluty, nieruchomości). Zmiana wartości domyślnie = zysk/strata (wpłata = 0).
     - **Aktywo gotówkowe** - wartość stała, zmienia się tylko przez wpłaty/wypłaty (portfel, konto bankowe, gotówka w sejfie). Zmiana wartości domyślnie = wpłata/wypłata (zysk = 0).
-    - **Pasywo** - zobowiązanie (kredyt, pożyczka, dług). Zmiana wartości domyślnie = wpłata/wypłata (zysk = 0).
+    - **Pasywo** - zobowiązanie (kredyt, pożyczka, dług). Zmiana wartości domyślnie = wpłata/wypłata (zysk = 0). Zmniejszenie wartości pasywa (np. spłata części kredytu) jest interpretowane jako dodatni przepływ pieniężny (wpłata), ponieważ zwiększa to wartość netto użytkownika. Zwiększenie wartości pasywa (np. zaciągnięcie nowego długu) jest interpretowane jako ujemny przepływ (wypłata).
 - Typ konta wpływa na domyślne przypuszczenie systemu przy edycji:
   - Dla **Aktywów gotówkowych** i **Pasywów**: jeśli użytkownik poda tylko nową wartość, system zakłada, że cała zmiana to wpłata/wypłata (zysk = 0).
   - Dla **Aktywów inwestycyjnych**: jeśli użytkownik poda tylko nową wartość, system zakłada, że cała zmiana to zysk/strata (wpłata = 0).
@@ -212,7 +212,7 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
     2. "Wpłata/Wypłata" (opcjonalne).
     3. "Zysk/Strata" (opcjonalne).
   - System automatycznie oblicza wartości w zależności od typu konta:
-    - **Aktywo gotówkowe/Pasywo**: Jeśli podano tylko nową wartość, cała zmiana trafia do "Wpłata/Wypłata", "Zysk/Strata" = 0.
+    - **Aktywo gotówkowe/Pasywo**: Jeśli podano tylko nową wartość, cała zmiana trafia do "Wpłata/Wypłata", "Zysk/Strata" = 0. W przypadku pasywów, logika jest odwrotna: zmniejszenie wartości długu (np. z 1000 zł do 700 zł) jest traktowane jako dodatnia wpłata (+300 zł), ponieważ zwiększa to majątek netto.
     - **Aktywo inwestycyjne**: Jeśli podano tylko nową wartość, cała zmiana trafia do "Zysk/Strata", "Wpłata/Wypłata" = 0.
   - Gdy użytkownik wpisuje nową wartość i wpłatę, pole "Zysk/Strata" automatycznie się aktualizuje: zysk = nowa wartość - poprzednia wartość - wpłata.
   - Użytkownik może ręcznie edytować wszystkie pola niezależnie od typu konta.
