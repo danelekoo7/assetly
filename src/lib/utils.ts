@@ -17,7 +17,8 @@ export const formatCurrency = (value: number): string => {
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString("pl-PL", {
-    month: "short",
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   });
 };

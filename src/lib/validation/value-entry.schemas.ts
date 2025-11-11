@@ -6,7 +6,7 @@ import { z } from "zod";
  */
 export const upsertValueEntrySchema = z.object({
   account_id: z.string().uuid("Nieprawidłowy format UUID dla account_id"),
-  date: z.string().datetime("Nieprawidłowy format daty ISO 8601"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Nieprawidłowy format daty (oczekiwano YYYY-MM-DD)"),
   value: z.number({
     required_error: "Wartość jest wymagana",
     invalid_type_error: "Wartość musi być liczbą",

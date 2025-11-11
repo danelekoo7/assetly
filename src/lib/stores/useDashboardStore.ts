@@ -1,4 +1,7 @@
 import { create } from "zustand";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
+import { toast } from "sonner";
 import type {
   GridDataDto,
   DashboardSummaryDto,
@@ -7,6 +10,7 @@ import type {
   UpdateAccountCommand,
   AccountDto,
 } from "@/types";
+import { findLastEntry } from "@/lib/utils/grid-helpers";
 
 interface DashboardState {
   // Data
@@ -20,6 +24,8 @@ interface DashboardState {
   // UI State
   isLoading: boolean;
   error: Error | null;
+  isAddingColumn: boolean;
+  addColumnError: Error | null;
 
   // Modal States
   activeModals: {
@@ -46,6 +52,7 @@ interface DashboardState {
   updateAccount: (id: string, command: UpdateAccountCommand) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
   updateValueEntry: (command: UpsertValueEntryCommand) => Promise<void>;
+  addColumn: (date: Date) => Promise<void>;
   openModal: (modalName: keyof DashboardState["activeModals"], context?: unknown) => void;
   closeModal: (modalName: keyof DashboardState["activeModals"]) => void;
   resetStore: () => void;
@@ -67,6 +74,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   showArchived: false,
   isLoading: false,
   error: null,
+  isAddingColumn: false,
+  addColumnError: null,
   activeModals: {
     addAccount: false,
     editAccount: null,
@@ -81,40 +90,63 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     try {
       const { showArchived } = get();
 
-      // Fetch accounts from the real API
-      const accountsResponse = await fetch(`/api/accounts?archived=${showArchived}`);
+      // Fetch grid data from the API (includes accounts, dates, entries)
+      const gridDataResponse = await fetch(`/api/grid-data?archived=${showArchived}`);
 
-      // If request fails, show empty data instead of error
-      let accounts: AccountDto[] = [];
-
-      if (accountsResponse.ok) {
-        accounts = await accountsResponse.json();
-      } else {
+      if (!gridDataResponse.ok) {
         // Log error to console but don't show error to user
         // eslint-disable-next-line no-console
-        console.error("Failed to fetch accounts:", accountsResponse.status, accountsResponse.statusText);
+        console.error("Failed to fetch grid data:", gridDataResponse.status, gridDataResponse.statusText);
+
+        // Set empty data
+        const emptyGridData: GridDataDto = {
+          dates: [],
+          accounts: [],
+          summary: {},
+        };
+
+        const emptySummaryData: DashboardSummaryDto = {
+          net_worth: 0,
+          total_assets: 0,
+          total_liabilities: 0,
+          cumulative_cash_flow: 0,
+          cumulative_gain_loss: 0,
+        };
+
+        set({ gridData: emptyGridData, summaryData: emptySummaryData, isLoading: false, error: null });
+        return;
       }
 
-      // Transform accounts into GridDataDto format
-      // For now, we show accounts without historical data (empty entries)
-      const gridData: GridDataDto = {
-        dates: [], // No historical dates yet
-        accounts: accounts.map((account) => ({
-          id: account.id,
-          name: account.name,
-          type: account.type,
-          entries: {}, // No historical entries yet
-        })),
-        summary: {}, // No summary data yet
-      };
+      const gridData: GridDataDto = await gridDataResponse.json();
 
-      // Set default summary data
+      // Calculate summary data from grid data
+      const latestDate = gridData.dates[gridData.dates.length - 1];
+      let totalAssets = 0;
+      let totalLiabilities = 0;
+      let cumulativeCashFlow = 0;
+      let cumulativeGainLoss = 0;
+
+      if (latestDate) {
+        for (const account of gridData.accounts) {
+          const entry = account.entries[latestDate];
+          if (entry) {
+            if (account.type === "asset") {
+              totalAssets += entry.value;
+            } else {
+              totalLiabilities += entry.value;
+            }
+            cumulativeCashFlow += entry.cash_flow;
+            cumulativeGainLoss += entry.gain_loss;
+          }
+        }
+      }
+
       const summaryData: DashboardSummaryDto = {
-        net_worth: 0,
-        total_assets: 0,
-        total_liabilities: 0,
-        cumulative_cash_flow: 0,
-        cumulative_gain_loss: 0,
+        net_worth: totalAssets - totalLiabilities,
+        total_assets: totalAssets,
+        total_liabilities: totalLiabilities,
+        cumulative_cash_flow: cumulativeCashFlow,
+        cumulative_gain_loss: cumulativeGainLoss,
       };
 
       set({ gridData, summaryData, isLoading: false });
@@ -252,6 +284,120 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
   },
 
+  addColumn: async (date: Date) => {
+    const { gridData } = get();
+
+    // [1] Validation
+    if (!gridData || gridData.accounts.length === 0) {
+      throw new Error("Dodaj najpierw konta, aby móc tworzyć wpisy wartości");
+    }
+
+    const dateStr = format(date, "yyyy-MM-dd");
+
+    // Check if column already exists
+    if (gridData.dates.includes(dateStr)) {
+      throw new Error(`Kolumna z datą ${format(date, "dd.MM.yyyy", { locale: pl })} już istnieje`);
+    }
+
+    // Check if date is not in the future
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date > today) {
+      throw new Error("Nie można dodać kolumny z datą w przyszłości");
+    }
+
+    // [2] Set loading state
+    set({ isAddingColumn: true, addColumnError: null });
+
+    try {
+      // [3] Prepare data
+      const commands: UpsertValueEntryCommand[] = [];
+      const errors: { accountName: string; error: string }[] = [];
+
+      for (const account of gridData.accounts) {
+        // Find last entry for this account
+        const lastEntry = findLastEntry(account.entries, gridData.dates);
+
+        // Determine initial value
+        let value = 0;
+        const cash_flow = 0;
+        const gain_loss = 0;
+
+        if (lastEntry) {
+          value = lastEntry.entry.value;
+        }
+
+        commands.push({
+          account_id: account.id,
+          date: dateStr,
+          value,
+          cash_flow,
+          gain_loss,
+        });
+      }
+
+      // [4] Sequential POST requests
+      for (let i = 0; i < commands.length; i++) {
+        const command = commands[i];
+        const account = gridData.accounts[i];
+
+        try {
+          const response = await fetch("/api/value-entries", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(command),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            errors.push({
+              accountName: account.name,
+              error: error.message || "Nieznany błąd",
+            });
+          }
+        } catch (err) {
+          errors.push({
+            accountName: account.name,
+            error: err instanceof Error ? err.message : "Błąd sieciowy",
+          });
+        }
+      }
+
+      // [5] Handle results
+      await get().fetchData(); // Refresh data regardless of partial errors
+
+      if (errors.length === 0) {
+        // Full success
+        toast.success(`Pomyślnie dodano kolumnę ${format(date, "dd.MM.yyyy", { locale: pl })}`);
+        set({ isAddingColumn: false });
+      } else if (errors.length < commands.length) {
+        // Partial success
+        const errorMsg = `Częściowy błąd: ${errors.length}/${commands.length} kont nie zostało zaktualizowanych`;
+        toast.warning("Częściowo dodano kolumnę", {
+          description: `${commands.length - errors.length}/${commands.length} kont zaktualizowano pomyślnie`,
+        });
+        set({
+          isAddingColumn: false,
+          addColumnError: new Error(errorMsg),
+        });
+      } else {
+        // Complete failure
+        throw new Error("Nie udało się dodać kolumny dla żadnego konta");
+      }
+    } catch (error) {
+      // [6] Global error handler
+      const errorMsg = error instanceof Error ? error.message : "Wystąpił błąd podczas dodawania kolumny";
+      toast.error("Nie udało się dodać kolumny", {
+        description: errorMsg,
+      });
+      set({
+        isAddingColumn: false,
+        addColumnError: error instanceof Error ? error : new Error(errorMsg),
+      });
+      throw error;
+    }
+  },
+
   openModal: (modalName, context) => {
     set((state) => ({
       activeModals: {
@@ -278,6 +424,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       showArchived: false,
       isLoading: false,
       error: null,
+      isAddingColumn: false,
+      addColumnError: null,
       activeModals: {
         addAccount: false,
         editAccount: null,
