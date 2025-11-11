@@ -1170,16 +1170,16 @@ npm run test:unit -- --coverage           # Z coverage report
 ---
 
 **Dokument utworzony:** 11.11.2025, 17:44  
-**Ostatnia aktualizacja:** 11.11.2025, 18:26  
+**Ostatnia aktualizacja:** 11.11.2025, 19:11  
 **Autor:** Claude AI  
 **Branch:** feature/grid-data  
 **Committy przeanalizowane:** 7502b0c...2b86365 (8 głównych commitów)
 
 ---
 
-## 📈 Postęp Implementacji (Stan na 11.11.2025, 18:26)
+## 📈 Postęp Implementacji (Stan na 11.11.2025, 19:11)
 
-### ✅ Zaimplementowane Testy Jednostkowe (Faza 1)
+### ✅ Zaimplementowane Testy Jednostkowe (Faza 1) - 100% UKOŃCZONE
 
 **1. GridDataService** - `src/test/services/grid-data.service.test.ts`
 - ✅ Status: 13/13 testów przechodzi
@@ -1204,14 +1204,62 @@ npm run test:unit -- --coverage           # Z coverage report
 - Investment_asset (2 testy): gain_loss calculation
 - Validation Scenario 3 (3 testy): spójność danych, floating point tolerance
 
+---
+
+### ✅ Zaimplementowane Testy Jednostkowe (Faza 2) - 100% UKOŃCZONE
+
+**3. useDashboardStore.addColumn** - `src/test/stores/useDashboardStore.addColumn.test.ts`
+- ✅ Status: 15/15 testów przechodzi
+- ✅ Czas wykonania: ~67ms
+- ✅ Linter: 0 błędów
+- ✅ Data implementacji: 11.11.2025, 19:04
+
+**Pokrycie:**
+- Validation (4 testy): brak kont, data w przyszłości, duplikacja kolumny, dzisiejsza data
+- Creating entries (4 testy): tworzenie dla wszystkich kont, kopiowanie wartości, ustawienie na 0, wartość domyślna
+- Error handling (4 testy): partial errors, success toast, complete failure, cache busting
+- Loading state (3 testy): isAddingColumn=true, reset po sukcesie, reset po błędzie
+
+**4. useDashboardStore.fetchData** - `src/test/stores/useDashboardStore.fetchData.test.ts`
+- ✅ Status: 8/8 testów przechodzi
+- ✅ Czas wykonania: ~33ms
+- ✅ Linter: 0 błędów
+- ✅ Data implementacji: 11.11.2025, 19:08
+
+**Pokrycie:**
+- Basic functionality (4 testy): fetch z API, archived query param, cache-busting timestamp, calculate summary data
+- Error handling (2 testy): fetch failure (empty data), network errors gracefully
+- Loading state (2 testy): isLoading=true podczas fetch, isLoading=false po zakończeniu
+
+---
+
 ### 📊 Statystyki
 
 **Postęp ogólny:**
-- ✅ **29/67 testów jednostkowych zaimplementowanych (43%)**
-- ✅ **Faza 1 (Backend Unit Tests) ukończona w 100%**
-- ⏳ Faza 2 (Store Unit Tests) - do zrobienia (~21 testów)
-- ⏳ Faza 3-5 (E2E + Frontend) - do zrobienia (~38 testów)
+- ✅ **Faza 1 (Backend Unit Tests) - 29 testów - 100% UKOŃCZONE**
+- ✅ **Faza 2 (Store Unit Tests) - 23 testy - 100% UKOŃCZONE**
+- ✅ **RAZEM: 52 testy jednostkowe przechodzą (78% planu)**
+- ⏳ Faza 3 (E2E Critical Flows) - do zrobienia (14 testów)
+- ⏳ Faza 4 (Frontend Unit Tests) - do zrobienia (18 testów)
+- ⏳ Faza 5 (E2E Extended) - do zrobienia (12 testów)
 
-**Następne kroki:**
-- Faza 2: useDashboardStore.addColumn.test.ts (~13 testów)
-- Faza 2: useDashboardStore.fetchData.test.ts (~8 testów)
+**Wynik testów (ostatnie uruchomienie):**
+```bash
+✓ src/test/stores/useDashboardStore.fetchData.test.ts (8 tests) 33ms
+✓ src/test/stores/useDashboardStore.addColumn.test.ts (15 tests) 67ms
+
+Test Files  2 passed (2)
+Tests       23 passed (23)
+Duration    8.94s
+```
+
+**Następne kroki według priorytetu:**
+- ⏳ Faza 3: E2E Critical Flows (Priorytet 🔴 Wysoki)
+  - add-column-flow.spec.ts (7 testów)
+  - edit-value-flow.spec.ts (7 testów)
+- ⏳ Faza 4: Frontend Unit Tests (Priorytet 🟡 Średni)
+  - EditValueModal.test.tsx (12 testów)
+  - DashboardToolbar.test.tsx - rozszerzenie (6 testów)
+- ⏳ Faza 5: E2E Extended (Priorytet 🟡 Niski)
+  - data-grid.spec.ts (10 testów)
+  - full-user-journey.spec.ts (2 testy)
