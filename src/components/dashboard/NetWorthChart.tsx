@@ -31,7 +31,8 @@ const formatCurrency = (value: number): string => {
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString("pl-PL", {
-    month: "short",
+    day: "numeric",
+    month: "numeric",
     year: "numeric",
   });
 };
