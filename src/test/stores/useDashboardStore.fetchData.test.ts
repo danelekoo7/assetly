@@ -217,7 +217,7 @@ describe("useDashboardStore - fetchData", () => {
       );
 
       // Spy on console.error to verify it was called
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(vi.fn());
 
       // Act
       await store.fetchData();
@@ -234,11 +234,7 @@ describe("useDashboardStore - fetchData", () => {
       });
 
       // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Failed to fetch grid data:",
-        500,
-        "Internal Server Error"
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to fetch grid data:", 500, "Internal Server Error");
 
       // Verify error state is null (not set)
       expect(state.error).toBeNull();
@@ -254,7 +250,7 @@ describe("useDashboardStore - fetchData", () => {
       global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
 
       // Spy on console.error
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(vi.fn());
 
       // Act
       await store.fetchData();
