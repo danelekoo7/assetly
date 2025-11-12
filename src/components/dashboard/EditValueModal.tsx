@@ -250,6 +250,8 @@ export default function EditValueModal() {
         cash_flow: data.cash_flow ? parseFloat(data.cash_flow) : null,
         gain_loss: data.gain_loss ? parseFloat(data.gain_loss) : null,
       });
+      // Close modal after successful save
+      closeModal("editValue");
     } catch (error) {
       if (error instanceof Error) {
         form.setError("root", {
