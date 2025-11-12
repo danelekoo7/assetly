@@ -12,7 +12,7 @@ const mockGridDataDto: GridDataDto = {
     {
       id: "acc-1",
       name: "mBank",
-      type: "asset",
+      type: "cash_asset",
       entries: {
         "2024-01-01": { value: 1000, cash_flow: 0, gain_loss: 0 },
         "2024-02-01": { value: 1200, cash_flow: 200, gain_loss: 0 },
@@ -22,7 +22,7 @@ const mockGridDataDto: GridDataDto = {
     {
       id: "acc-2",
       name: "XTB",
-      type: "asset",
+      type: "investment_asset",
       entries: {
         "2024-01-01": { value: 10000, cash_flow: 0, gain_loss: 0 },
         "2024-02-01": { value: 10500, cash_flow: 0, gain_loss: 500 },
@@ -192,8 +192,8 @@ describe("useDashboardStore - fetchData", () => {
         // Cumulative cash_flow: mBank (300) + XTB (200) + Kredyt (-300) = 200
         expect(summary.cumulative_cash_flow).toBe(200);
 
-        // Cumulative gain_loss: mBank (0) + XTB (300) + Kredyt (0) = 300
-        expect(summary.cumulative_gain_loss).toBe(300);
+        // Cumulative gain_loss: mBank (0+0+0) + XTB (0+500+300) + Kredyt (0+0+0) = 800
+        expect(summary.cumulative_gain_loss).toBe(800);
       }
     });
   });
