@@ -3,6 +3,7 @@ import { useDashboardStore } from "@/lib/stores/useDashboardStore";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
+import { Toaster } from "@/components/ui/sonner";
 import KpiSection from "./KpiSection";
 import NetWorthChart from "./NetWorthChart";
 import DashboardToolbar from "./DashboardToolbar";
@@ -36,31 +37,34 @@ export default function IntegratedDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-7xl space-y-6">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Twoje centrum finansowe - zarządzaj kontami i śledź wartość netto</p>
+    <>
+      <Toaster position="top-right" richColors />
+      <div className="min-h-screen bg-background p-6">
+        <div className="mx-auto max-w-7xl space-y-6">
+          {/* Header */}
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">Twoje centrum finansowe - zarządzaj kontami i śledź wartość netto</p>
+          </div>
+
+          {/* Toolbar */}
+          <DashboardToolbar />
+
+          {/* KPI Section */}
+          <KpiSection summaryData={summaryData} isLoading={isLoading} />
+
+          {/* Chart Section */}
+          <NetWorthChart gridData={gridData} isLoading={isLoading} />
+
+          {/* Data Grid */}
+          <DataGrid gridData={gridData} isLoading={isLoading} />
+
+          {/* Modals */}
+          <AddEditAccountModal />
+          <EditValueModal />
+          <ConfirmActionDialog />
         </div>
-
-        {/* Toolbar */}
-        <DashboardToolbar />
-
-        {/* KPI Section */}
-        <KpiSection summaryData={summaryData} isLoading={isLoading} />
-
-        {/* Chart Section */}
-        <NetWorthChart gridData={gridData} isLoading={isLoading} />
-
-        {/* Data Grid */}
-        <DataGrid gridData={gridData} isLoading={isLoading} />
-
-        {/* Modals */}
-        <AddEditAccountModal />
-        <EditValueModal />
-        <ConfirmActionDialog />
       </div>
-    </div>
+    </>
   );
 }

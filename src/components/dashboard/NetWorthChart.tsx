@@ -133,7 +133,7 @@ export default function NetWorthChart({ gridData, isLoading }: NetWorthChartProp
               <Line
                 type="monotone"
                 dataKey="net_worth"
-                stroke="hsl(var(--primary))"
+                stroke="hsl(217 91% 60%)"
                 strokeWidth={2}
                 name="Wartość netto"
                 dot={false}
