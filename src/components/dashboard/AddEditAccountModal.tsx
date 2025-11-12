@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -14,7 +14,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
 import type { AccountType } from "@/types";
 
 // Validation schema
@@ -27,7 +32,6 @@ const accountSchema = z.object({
     required_error: "Wartość początkowa jest wymagana",
     invalid_type_error: "Wartość musi być liczbą",
   }),
-  date: z.string().min(1, "Data jest wymagana"),
 });
 
 type AccountFormData = z.infer<typeof accountSchema>;
@@ -39,32 +43,39 @@ export default function AddEditAccountModal() {
   const editContext = activeModals.editAccount;
   const isEditMode = !!editContext;
 
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
+
   const form = useForm<AccountFormData>({
     resolver: zodResolver(accountSchema),
     defaultValues: {
       name: "",
       type: "investment_asset",
       initial_value: 0,
-      date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD
     },
   });
 
   // Reset form when modal opens/closes or switches mode
   useEffect(() => {
     if (isOpen || isEditMode) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      setSelectedDate(today);
+
       if (isEditMode && editContext) {
         form.reset({
           name: editContext.account.name,
           type: editContext.account.type,
           initial_value: 0,
-          date: new Date().toISOString().split("T")[0],
         });
       } else {
         form.reset({
           name: "",
           type: "investment_asset",
           initial_value: 0,
-          date: new Date().toISOString().split("T")[0],
         });
       }
     }
@@ -76,15 +87,14 @@ export default function AddEditAccountModal() {
         // TODO: Implement updateAccount when API is ready
         closeModal("editAccount");
       } else {
-        // Convert YYYY-MM-DD date to ISO 8601 datetime string
-        // Set time to start of day (00:00:00) in local timezone
-        const dateTime = new Date(data.date + "T00:00:00");
+        // Format date as YYYY-MM-DD string to avoid timezone issues
+        const dateStr = format(selectedDate, "yyyy-MM-dd");
 
         await addAccount({
           name: data.name,
           type: data.type as AccountType,
           initial_value: data.initial_value,
-          date: dateTime.toISOString(),
+          date: dateStr + "T00:00:00Z", // Add time in UTC to prevent timezone shift
         });
       }
     } catch (error) {
@@ -195,19 +205,33 @@ export default function AddEditAccountModal() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data rozpoczęcia</FormLabel>
+                <FormItem>
+                  <FormLabel>Data rozpoczęcia</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Button variant="outline" className="w-full justify-start text-left font-normal">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PP", { locale: pl }) : <span>Wybierz datę</span>}
+                        </Button>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => date && setSelectedDate(date)}
+                        locale={pl}
+                        disabled={(date) => {
+                          // Disable future dates
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          return date > today;
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
               </>
             )}
 
