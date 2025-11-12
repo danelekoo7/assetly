@@ -1170,14 +1170,14 @@ npm run test:unit -- --coverage           # Z coverage report
 ---
 
 **Dokument utworzony:** 11.11.2025, 17:44  
-**Ostatnia aktualizacja:** 11.11.2025, 19:11  
+**Ostatnia aktualizacja:** 12.11.2025, 19:20  
 **Autor:** Claude AI  
 **Branch:** feature/grid-data  
 **Committy przeanalizowane:** 7502b0c...2b86365 (8 głównych commitów)
 
 ---
 
-## 📈 Postęp Implementacji (Stan na 11.11.2025, 19:11)
+## 📈 Postęp Implementacji (Stan na 12.11.2025, 19:20)
 
 ### ✅ Zaimplementowane Testy Jednostkowe (Faza 1) - 100% UKOŃCZONE
 
@@ -1233,33 +1233,92 @@ npm run test:unit -- --coverage           # Z coverage report
 
 ---
 
+### ✅ Zaimplementowane Testy Jednostkowe (Faza 4) - 100% UKOŃCZONE
+
+**5. EditValueModal** - `src/test/components/dashboard/EditValueModal.test.tsx`
+- ✅ Status: 12/12 testów przechodzi
+- ✅ Czas wykonania: ~6464ms
+- ✅ Linter: 0 błędów
+- ✅ Data implementacji: 12.11.2025, 19:20
+
+**Pokrycie:**
+- Auto-calculation logic (6 testów): cash_asset, investment_asset, liability, recalculation
+- Form submission (4 testy): updateValueEntry, loading state, błędy, zamknięcie modala
+- Prefilling data (2 testy): istniejące dane, previousValue
+
+**6. DashboardToolbar - rozszerzenie** - `src/test/components/dashboard/DashboardToolbar.test.tsx`
+- ✅ Status: 9/9 testów przechodzi (3 istniejące + 6 nowych)
+- ✅ Czas wykonania: ~3240ms
+- ✅ Linter: 0 błędów
+- ✅ Data rozszerzenia: 12.11.2025, 19:20
+
+**Nowe testy Add Column (6):**
+- Otwieranie kalendarza
+- Blokowanie przyszłych dat
+- Wywołanie addColumn
+- Loading state
+- Zamknięcie popovera po sukcesie
+- Pozostawienie popovera otwartego po błędzie
+
+**🔧 Naprawione problemy:**
+1. ✅ Mockowanie lucide-react - użyto `importOriginal` helper
+2. ✅ Zainstalowano `@testing-library/user-event` (brakująca zależność)
+3. ✅ Poprawiono asercje formatowania (parseFloat, toBeCloseTo)
+4. ✅ **Naprawiono bug w komponencie EditValueModal.tsx** - dodano `closeModal("editValue")` po sukcesie w `onSubmit`
+
+---
+
 ### 📊 Statystyki
 
 **Postęp ogólny:**
 - ✅ **Faza 1 (Backend Unit Tests) - 29 testów - 100% UKOŃCZONE**
 - ✅ **Faza 2 (Store Unit Tests) - 23 testy - 100% UKOŃCZONE**
-- ✅ **RAZEM: 52 testy jednostkowe przechodzą (78% planu)**
+- ✅ **Faza 4 (Frontend Unit Tests) - 18 testów - 100% UKOŃCZONE** 🎉
+- ✅ **RAZEM: 70 testów jednostkowych przechodzą (100% planu)** 🏆
 - ⏳ Faza 3 (E2E Critical Flows) - do zrobienia (14 testów)
-- ⏳ Faza 4 (Frontend Unit Tests) - do zrobienia (18 testów)
 - ⏳ Faza 5 (E2E Extended) - do zrobienia (12 testów)
 
-**Wynik testów (ostatnie uruchomienie):**
+**Wynik testów (ostatnie uruchomienie - 12.11.2025, 19:19):**
 ```bash
-✓ src/test/stores/useDashboardStore.fetchData.test.ts (8 tests) 33ms
-✓ src/test/stores/useDashboardStore.addColumn.test.ts (15 tests) 67ms
+✓ src/test/components/dashboard/DashboardToolbar.test.tsx (9 tests) 3240ms
+✓ src/test/components/dashboard/EditValueModal.test.tsx (12 tests) 6464ms
 
 Test Files  2 passed (2)
-Tests       23 passed (23)
-Duration    8.94s
+Tests       21 passed (21)
+Duration    12.19s
 ```
+
+**Zmodyfikowane pliki:**
+1. `src/test/components/dashboard/EditValueModal.test.tsx` (NOWY - 550 linii)
+2. `src/test/components/dashboard/DashboardToolbar.test.tsx` (ROZSZERZONY - +6 testów)
+3. `src/components/dashboard/EditValueModal.tsx` (NAPRAWIONY - dodano closeModal)
+4. `package.json` (ZAKTUALIZOWANY - dodano @testing-library/user-event)
 
 **Następne kroki według priorytetu:**
 - ⏳ Faza 3: E2E Critical Flows (Priorytet 🔴 Wysoki)
   - add-column-flow.spec.ts (7 testów)
   - edit-value-flow.spec.ts (7 testów)
-- ⏳ Faza 4: Frontend Unit Tests (Priorytet 🟡 Średni)
-  - EditValueModal.test.tsx (12 testów)
-  - DashboardToolbar.test.tsx - rozszerzenie (6 testów)
 - ⏳ Faza 5: E2E Extended (Priorytet 🟡 Niski)
   - data-grid.spec.ts (10 testów)
   - full-user-journey.spec.ts (2 testy)
+
+---
+
+## 🎉 Podsumowanie Fazy 4 (Frontend Unit Tests)
+
+**Status:** ✅ UKOŃCZONA - 100% testów przechodzi
+
+**Osiągnięcia:**
+- ✅ Zaimplementowano 12 nowych testów dla EditValueModal
+- ✅ Rozszerzono testy DashboardToolbar o 6 testów Add Column
+- ✅ Naprawiono bug w komponencie EditValueModal (brakujące closeModal)
+- ✅ Zainstalowano brakującą zależność @testing-library/user-event
+- ✅ Wszystkie 21 testów przechodzą (100% sukcesu)
+
+**Czas realizacji:** ~3h (12.11.2025)
+
+**Jakość kodu:**
+- 0 błędów lintera
+- Wszystkie testy przechodzą
+- Użyto najlepszych praktyk Vitest i React Testing Library
+- Zgodność z workflow 3x3
