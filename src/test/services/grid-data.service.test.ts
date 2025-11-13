@@ -206,8 +206,8 @@ describe("GridDataService", () => {
       // For 2024-02-01: mBank (1200) + XTB (10500) - Kredyt (450) = 11250
       expect(result.summary["2024-02-01"].net_worth).toBe(11250);
 
-      // For 2024-03-01: only mBank has entry (1300)
-      expect(result.summary["2024-03-01"].net_worth).toBe(1300);
+      // For 2024-03-01: mBank (1300) + XTB (10500, forward-filled) - Kredyt (450, forward-filled) = 11350
+      expect(result.summary["2024-03-01"].net_worth).toBe(11350);
     });
 
     it("should handle multiple account types in net_worth calculation", async () => {
@@ -336,6 +336,53 @@ describe("GridDataService", () => {
       // Verify dates are unique (should only have 2 dates, not 4)
       expect(result.dates).toHaveLength(2);
       expect(result.dates).toEqual(["2024-01-01", "2024-02-01"]);
+    });
+
+    it("should forward-fill values for accounts with earlier start dates", async () => {
+      // Scenario: User has "portfel" account starting 2025-01-01 with value 200
+      // Then adds "bank" account starting 2024-10-10 with value 5000
+      // For "bank" account on 2025-01-01, it should show 5000 (forward-filled), not null
+      const testAccounts = [
+        { id: "acc-portfel", name: "portfel", type: "cash_asset" as const, archived_at: null },
+        { id: "acc-bank", name: "bank", type: "cash_asset" as const, archived_at: null },
+      ];
+
+      const testEntries = [
+        // portfel: starts 2025-01-01
+        { account_id: "acc-portfel", date: "2025-01-01T00:00:00Z", value: 200, cash_flow: 200, gain_loss: 0 },
+        // bank: starts 2024-10-10 (earlier than portfel)
+        { account_id: "acc-bank", date: "2024-10-10T00:00:00Z", value: 5000, cash_flow: 5000, gain_loss: 0 },
+      ];
+
+      const { mockSupabase } = createMockSupabaseClient(testAccounts, testEntries);
+
+      const result = await GridDataService.getGridData(mockSupabase, userId);
+
+      // Verify dates
+      expect(result.dates).toEqual(["2024-10-10", "2025-01-01"]);
+
+      // Find accounts in result
+      const portfelAccount = result.accounts.find((acc) => acc.id === "acc-portfel");
+      const bankAccount = result.accounts.find((acc) => acc.id === "acc-bank");
+
+      expect(portfelAccount).toBeDefined();
+      expect(bankAccount).toBeDefined();
+
+      // For portfel account:
+      // - 2024-10-10: should be null (account didn't exist yet)
+      // - 2025-01-01: should be 200
+      expect(portfelAccount?.entries["2024-10-10"]).toBeUndefined();
+      expect(portfelAccount?.entries["2025-01-01"]?.value).toBe(200);
+
+      // For bank account:
+      // - 2024-10-10: should be 5000 (initial value)
+      // - 2025-01-01: should be 5000 (forward-filled from 2024-10-10)
+      expect(bankAccount?.entries["2024-10-10"]?.value).toBe(5000);
+      expect(bankAccount?.entries["2025-01-01"]?.value).toBe(5000);
+
+      // Verify net worth calculation includes forward-filled values
+      expect(result.summary["2024-10-10"].net_worth).toBe(5000); // only bank
+      expect(result.summary["2025-01-01"].net_worth).toBe(5200); // bank (5000) + portfel (200)
     });
 
     // =============================================================================================

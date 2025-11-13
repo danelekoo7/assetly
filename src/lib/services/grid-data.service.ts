@@ -107,13 +107,34 @@ const GridDataService = {
       };
     });
 
-    // Step 5: Format accounts to GridAccountDto
-    const gridAccounts: GridAccountDto[] = accounts.map((account) => ({
-      id: account.id,
-      name: account.name,
-      type: account.type,
-      entries: entriesByAccountAndDate[account.id] || {},
-    }));
+    // Step 5: Format accounts to GridAccountDto with forward-fill logic
+    const gridAccounts: GridAccountDto[] = accounts.map((account) => {
+      const accountEntries = entriesByAccountAndDate[account.id] || {};
+      const filledEntries: Record<string, GridEntryDto> = {};
+
+      // Forward-fill logic: for each date, use the entry if it exists,
+      // otherwise use the most recent previous entry
+      let lastKnownEntry: GridEntryDto | null = null;
+
+      dates.forEach((date) => {
+        if (accountEntries[date]) {
+          // Entry exists for this date
+          lastKnownEntry = accountEntries[date];
+          filledEntries[date] = accountEntries[date];
+        } else if (lastKnownEntry) {
+          // No entry for this date, but we have a previous entry - forward-fill
+          filledEntries[date] = { ...lastKnownEntry };
+        }
+        // If no entry and no previous entry, don't add anything (null will be shown)
+      });
+
+      return {
+        id: account.id,
+        name: account.name,
+        type: account.type,
+        entries: filledEntries,
+      };
+    });
 
     // Step 6: Calculate summary (net_worth) for each date
     const summary: Record<string, GridSummaryDto> = {};
