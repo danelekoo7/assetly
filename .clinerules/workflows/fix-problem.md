@@ -7,4 +7,6 @@ Poprawa błędu musi być zgodna z opisem produktu zawartym w pliku @/ai\prd.md
 
 Błąd należy poprawić zgodnie z @/.clinerules\workflow3x3.md 
 
-Na koniec uruchom lintery oraz testy automatyczne.
+Po poprawie błędu uruchom lintery oraz testy automatyczne.
+
+Kiedy zapoznasz się z tym dokumentem poproś mnie o opisanie problemu, którym będziemy się zajmować.

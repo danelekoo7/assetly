@@ -228,6 +228,7 @@ export default function AddEditAccountModal() {
                           today.setHours(0, 0, 0, 0);
                           return date > today;
                         }}
+                        fixedWeeks
                       />
                     </PopoverContent>
                   </Popover>
