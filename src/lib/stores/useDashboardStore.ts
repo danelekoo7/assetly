@@ -132,16 +132,26 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       let cumulativeGainLoss = 0;
 
       if (latestDate) {
+        // Calculate totals for latest date
         for (const account of gridData.accounts) {
           const entry = account.entries[latestDate];
           if (entry) {
-            if (account.type === "asset") {
+            if (account.type === "cash_asset" || account.type === "investment_asset") {
               totalAssets += entry.value;
-            } else {
+            } else if (account.type === "liability") {
               totalLiabilities += entry.value;
             }
-            cumulativeCashFlow += entry.cash_flow;
-            cumulativeGainLoss += entry.gain_loss;
+          }
+        }
+
+        // Calculate cumulative cash flow and gain/loss for all dates
+        for (const account of gridData.accounts) {
+          for (const date of gridData.dates) {
+            const entry = account.entries[date];
+            if (entry) {
+              cumulativeCashFlow += entry.cash_flow;
+              cumulativeGainLoss += entry.gain_loss;
+            }
           }
         }
       }

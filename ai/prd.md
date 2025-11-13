@@ -54,6 +54,8 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
 - Komórki edytowalne wizualnie sygnalizują możliwość edycji po najechaniu na nie kursorem (np. zmiana tła, ikona ołówka).
 - Pola do wprowadzania wartości akceptują tylko dane liczbowe. Wartości pasywów wprowadza się jako liczby dodatnie.
 - Tabela zawiera wiersz podsumowania na dole, który pokazuje sumę aktywów, pasywów oraz wartość netto dla każdej kolumny (daty).
+- **Automatyczne przepisywanie wartości (forward-fill)**: Gdy użytkownik dodaje nowe konto z datą początkową wcześniejszą niż istniejące kolumny w siatce, system automatycznie przepisuje wartość początkową konta dla wszystkich późniejszych dat, dla których nie istnieje wpis w bazie danych. Dzięki temu użytkownik widzi ciągłość wartości zamiast pustych komórek ("-"). Dla dat wcześniejszych niż data początkowa konta wyświetlane jest "-", ponieważ konto wtedy nie istniało.
+  - **Przykład**: Użytkownik ma konto "portfel" z datą początkową 01.01.2025 i wartością 200 zł. Następnie dodaje konto "bank" z datą początkową 10.10.2024 i wartością początkową 5000 zł. Dla konta "bank" i daty 01.01.2025 zostanie automatycznie wyświetlona wartość 5000 zł (przepisana z wartości początkowej), a nie "-". Natomiast dla konta "portfel" i daty 10.10.2024 będzie widoczne "-", ponieważ konto wtedy nie istniało.
 
 ### 3.4. Zarządzanie kontami finansowymi (Aktywa/Pasywa)
 
