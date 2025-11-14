@@ -38,7 +38,16 @@ vi.mock("@/lib/utils/grid-helpers", () => ({
 const mockGridDataEmpty: GridDataDto = {
   dates: [],
   accounts: [],
-  summary: {},
+  summary: {
+    by_date: {},
+    kpi: {
+      net_worth: 0,
+      total_assets: 0,
+      total_liabilities: 0,
+      cumulative_cash_flow: 0,
+      cumulative_gain_loss: 0,
+    },
+  },
 };
 
 const mockGridDataWithAccounts: GridDataDto = {
@@ -72,8 +81,17 @@ const mockGridDataWithAccounts: GridDataDto = {
     },
   ],
   summary: {
-    "2024-01-01": { net_worth: 6000 },
-    "2024-02-01": { net_worth: 6700 },
+    by_date: {
+      "2024-01-01": { net_worth: 6000 },
+      "2024-02-01": { net_worth: 6700 },
+    },
+    kpi: {
+      net_worth: 6700,
+      total_assets: 11700,
+      total_liabilities: 5000,
+      cumulative_cash_flow: 200,
+      cumulative_gain_loss: 500,
+    },
   },
 };
 
@@ -87,7 +105,16 @@ const mockGridDataWithAccountsNoEntries: GridDataDto = {
       entries: {},
     },
   ],
-  summary: {},
+  summary: {
+    by_date: {},
+    kpi: {
+      net_worth: 0,
+      total_assets: 0,
+      total_liabilities: 0,
+      cumulative_cash_flow: 0,
+      cumulative_gain_loss: 0,
+    },
+  },
 };
 
 // ================================================================================================
@@ -95,7 +122,8 @@ const mockGridDataWithAccountsNoEntries: GridDataDto = {
 // ================================================================================================
 
 function setupFetchMock(responses: { url: string; status: number; body?: unknown }[]) {
-  global.fetch = vi.fn((url: string) => {
+  global.fetch = vi.fn((input: string | URL | Request) => {
+    const url = input.toString();
     const matchingResponse = responses.find((r) => url.includes(r.url));
 
     if (matchingResponse) {
@@ -241,7 +269,7 @@ describe("useDashboardStore - addColumn", () => {
 
       // Verify each account got a POST request
       const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const valueEntryCalls = fetchCalls.filter((call) => call[0].includes("/api/value-entries"));
+      const valueEntryCalls = fetchCalls.filter((call) => call[0].toString().includes("/api/value-entries"));
       expect(valueEntryCalls).toHaveLength(3);
     });
 
@@ -262,7 +290,7 @@ describe("useDashboardStore - addColumn", () => {
 
       // Assert - verify POST body contains value from last entry
       const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const firstValueEntryCall = fetchCalls.find((call) => call[0].includes("/api/value-entries"));
+      const firstValueEntryCall = fetchCalls.find((call) => call[0].toString().includes("/api/value-entries"));
 
       if (firstValueEntryCall) {
         const requestBody = JSON.parse(firstValueEntryCall[1].body);
@@ -288,7 +316,7 @@ describe("useDashboardStore - addColumn", () => {
 
       // Assert - verify POST body contains cash_flow and gain_loss = 0
       const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const valueEntryCalls = fetchCalls.filter((call) => call[0].includes("/api/value-entries"));
+      const valueEntryCalls = fetchCalls.filter((call) => call[0].toString().includes("/api/value-entries"));
 
       for (const call of valueEntryCalls) {
         const requestBody = JSON.parse(call[1].body);
@@ -314,7 +342,7 @@ describe("useDashboardStore - addColumn", () => {
 
       // Assert - verify POST body contains value = 0
       const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const firstValueEntryCall = fetchCalls.find((call) => call[0].includes("/api/value-entries"));
+      const firstValueEntryCall = fetchCalls.find((call) => call[0].toString().includes("/api/value-entries"));
 
       if (firstValueEntryCall) {
         const requestBody = JSON.parse(firstValueEntryCall[1].body);
@@ -337,7 +365,8 @@ describe("useDashboardStore - addColumn", () => {
 
       // Mock: first 2 accounts succeed, third fails
       let callCount = 0;
-      global.fetch = vi.fn((url: string) => {
+      global.fetch = vi.fn((input: string | URL | Request) => {
+        const url = input.toString();
         if (url.includes("/api/value-entries")) {
           callCount++;
           if (callCount === 3) {
@@ -373,7 +402,7 @@ describe("useDashboardStore - addColumn", () => {
 
       // Verify fetchData was called (for refresh)
       const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const gridDataCalls = fetchCalls.filter((call) => call[0].includes("/api/grid-data"));
+      const gridDataCalls = fetchCalls.filter((call) => call[0].toString().includes("/api/grid-data"));
       expect(gridDataCalls.length).toBeGreaterThan(0);
 
       // Verify addColumnError was set
@@ -412,7 +441,8 @@ describe("useDashboardStore - addColumn", () => {
       const newDate = new Date("2024-03-01");
 
       // Mock all requests to fail
-      global.fetch = vi.fn((url: string) => {
+      global.fetch = vi.fn((input: string | URL | Request) => {
+        const url = input.toString();
         if (url.includes("/api/value-entries")) {
           return Promise.resolve({
             ok: false,
@@ -453,12 +483,12 @@ describe("useDashboardStore - addColumn", () => {
 
       // Assert - verify fetchData was called with cache-busting timestamp
       const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const gridDataCall = fetchCalls.find((call) => call[0].includes("/api/grid-data"));
+      const gridDataCall = fetchCalls.find((call) => call[0].toString().includes("/api/grid-data"));
 
       expect(gridDataCall).toBeTruthy();
       if (gridDataCall) {
         // Should include _t timestamp parameter for cache busting
-        expect(gridDataCall[0]).toContain("_t=");
+        expect(gridDataCall[0].toString()).toContain("_t=");
       }
     });
   });
@@ -476,10 +506,18 @@ describe("useDashboardStore - addColumn", () => {
       const newDate = new Date("2024-03-01");
 
       // Mock with delay to capture loading state
-      global.fetch = vi.fn(() => {
+      global.fetch = vi.fn((input: string | URL | Request) => {
         // Check state immediately when fetch is called
         const currentState = useDashboardStore.getState();
         expect(currentState.isAddingColumn).toBe(true);
+
+        if (input.toString().includes("/api/grid-data")) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: async () => mockGridDataWithAccounts,
+          } as Response);
+        }
 
         return Promise.resolve({
           ok: true,
@@ -522,7 +560,8 @@ describe("useDashboardStore - addColumn", () => {
       const newDate = new Date("2024-03-01");
 
       // Mock all to fail
-      global.fetch = vi.fn((url: string) => {
+      global.fetch = vi.fn((input: string | URL | Request) => {
+        const url = input.toString();
         if (url.includes("/api/value-entries")) {
           return Promise.resolve({
             ok: false,

@@ -41,16 +41,34 @@ const mockGridDataDto: GridDataDto = {
     },
   ],
   summary: {
-    "2024-01-01": { net_worth: 6000 },
-    "2024-02-01": { net_worth: 6900 },
-    "2024-03-01": { net_worth: 8000 },
+    by_date: {
+      "2024-01-01": { net_worth: 6000 },
+      "2024-02-01": { net_worth: 6900 },
+      "2024-03-01": { net_worth: 8000 },
+    },
+    kpi: {
+      net_worth: 8000,
+      total_assets: 12500,
+      total_liabilities: 4500,
+      cumulative_cash_flow: 200,
+      cumulative_gain_loss: 800,
+    },
   },
 };
 
 const emptyGridDataDto: GridDataDto = {
   dates: [],
   accounts: [],
-  summary: {},
+  summary: {
+    by_date: {},
+    kpi: {
+      net_worth: 0,
+      total_assets: 0,
+      total_liabilities: 0,
+      cumulative_cash_flow: 0,
+      cumulative_gain_loss: 0,
+    },
+  },
 };
 
 // ================================================================================================
@@ -159,7 +177,7 @@ describe("useDashboardStore - fetchData", () => {
       expect(urlWithoutTimestamp).not.toContain("_t=");
     });
 
-    it("should calculate summary data from grid data", async () => {
+    it("should set summaryData from gridData.summary.kpi", async () => {
       // Arrange
       const store = useDashboardStore.getState();
 
@@ -174,27 +192,9 @@ describe("useDashboardStore - fetchData", () => {
       // Act
       await store.fetchData();
 
-      // Assert - verify summaryData calculations for latest date (2024-03-01)
+      // Assert
       const state = useDashboardStore.getState();
-      const summary = state.summaryData;
-
-      expect(summary).toBeTruthy();
-      if (summary) {
-        // Latest date has: mBank (1500) + XTB (11000) - Kredyt (4500) = 8000
-        expect(summary.net_worth).toBe(8000);
-
-        // Total assets: mBank (1500) + XTB (11000) = 12500
-        expect(summary.total_assets).toBe(12500);
-
-        // Total liabilities: Kredyt (4500) = 4500
-        expect(summary.total_liabilities).toBe(4500);
-
-        // Cumulative cash_flow: mBank (300) + XTB (200) + Kredyt (-300) = 200
-        expect(summary.cumulative_cash_flow).toBe(200);
-
-        // Cumulative gain_loss: mBank (0+0+0) + XTB (0+500+300) + Kredyt (0+0+0) = 800
-        expect(summary.cumulative_gain_loss).toBe(800);
-      }
+      expect(state.summaryData).toEqual(mockGridDataDto.summary.kpi);
     });
   });
 

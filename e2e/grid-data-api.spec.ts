@@ -28,9 +28,12 @@ test.describe("GET /api/grid-data endpoint", () => {
     expect(data).toHaveProperty("dates");
     expect(data).toHaveProperty("accounts");
     expect(data).toHaveProperty("summary");
+    expect(data.summary).toHaveProperty("by_date");
+    expect(data.summary).toHaveProperty("kpi");
     expect(Array.isArray(data.dates)).toBe(true);
     expect(Array.isArray(data.accounts)).toBe(true);
     expect(typeof data.summary).toBe("object");
+    expect(typeof data.summary.kpi).toBe("object");
 
     // Assert: If data exists, verify detailed structure
     if (data.accounts.length > 0) {
@@ -53,7 +56,7 @@ test.describe("GET /api/grid-data endpoint", () => {
     // Assert: Verify net_worth calculation logic for each date
     // This tests the real business logic: assets - liabilities = net_worth
     data.dates.forEach((date: string) => {
-      if (data.summary[date]) {
+      if (data.summary.by_date[date]) {
         let calculatedNetWorth = 0;
 
         // Manually calculate net_worth to verify the service logic
@@ -71,9 +74,69 @@ test.describe("GET /api/grid-data endpoint", () => {
         });
 
         // Verify that the API's calculated net_worth matches our calculation
-        expect(data.summary[date].net_worth).toBeCloseTo(calculatedNetWorth, 2);
+        expect(data.summary.by_date[date].net_worth).toBeCloseTo(calculatedNetWorth, 2);
       }
     });
+  });
+
+  test("KPI net_worth should reflect last date values", async ({ page }) => {
+    // Act
+    const response = await page.request.get("/api/grid-data");
+    const data = await response.json();
+
+    if (data.dates.length === 0) {
+      // If no data, KPI net_worth should be 0
+      expect(data.summary.kpi.net_worth).toBe(0);
+      return;
+    }
+
+    // Arrange
+    const lastDate = data.dates[data.dates.length - 1];
+    let calculatedNetWorth = 0;
+
+    data.accounts.forEach((account: { type: string; entries: Record<string, { value: number }> }) => {
+      const entry = account.entries[lastDate];
+      if (entry) {
+        if (account.type === "liability") {
+          calculatedNetWorth -= entry.value;
+        } else {
+          calculatedNetWorth += entry.value;
+        }
+      }
+    });
+
+    // Assert
+    expect(data.summary.kpi.net_worth).toBeCloseTo(calculatedNetWorth, 2);
+    expect(data.summary.by_date[lastDate].net_worth).toBeCloseTo(data.summary.kpi.net_worth, 2);
+  });
+
+  test("Cumulative KPI metrics should sum all entries as per service logic", async ({ page }) => {
+    // Act
+    const response = await page.request.get("/api/grid-data");
+    const data = await response.json();
+
+    if (data.dates.length === 0) {
+      expect(data.summary.kpi.cumulative_cash_flow).toBe(0);
+      expect(data.summary.kpi.cumulative_gain_loss).toBe(0);
+      return;
+    }
+
+    // Arrange: Replicate the exact logic from the service
+    let calculatedCashFlow = 0;
+    let calculatedGainLoss = 0;
+    data.dates.forEach((date: string) => {
+      data.accounts.forEach((account: { entries: Record<string, { cash_flow: number; gain_loss: number }> }) => {
+        const entry = account.entries[date];
+        if (entry) {
+          calculatedCashFlow += entry.cash_flow || 0;
+          calculatedGainLoss += entry.gain_loss || 0;
+        }
+      });
+    });
+
+    // Assert
+    expect(data.summary.kpi.cumulative_cash_flow).toBeCloseTo(calculatedCashFlow, 2);
+    expect(data.summary.kpi.cumulative_gain_loss).toBeCloseTo(calculatedGainLoss, 2);
   });
 
   test("should validate date parameters correctly", async ({ page }) => {

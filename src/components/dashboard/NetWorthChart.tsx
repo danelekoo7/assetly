@@ -68,7 +68,7 @@ export default function NetWorthChart({ gridData, isLoading }: NetWorthChartProp
 
   // Prepare chart data
   const chartData: ChartDataPoint[] = gridData.dates.map((date) => {
-    const summary = gridData.summary[date];
+    const summary = gridData.summary.by_date[date];
 
     // Calculate cumulative values up to this date
     let cumulativeCashFlow = 0;

@@ -96,7 +96,13 @@ const mockValueEntries = [
 
 function createMockSupabaseClient(
   accountsData: typeof mockAccounts = mockAccounts,
-  entriesData: typeof mockValueEntries = mockValueEntries
+  entriesData: {
+    account_id: string;
+    date: string;
+    value: number;
+    cash_flow: number | null;
+    gain_loss: number | null;
+  }[] = mockValueEntries
 ) {
   const mockQuery = {
     select: vi.fn().mockReturnThis(),
@@ -169,6 +175,8 @@ describe("GridDataService", () => {
       expect(result).toHaveProperty("dates");
       expect(result).toHaveProperty("accounts");
       expect(result).toHaveProperty("summary");
+      expect(result.summary).toHaveProperty("by_date");
+      expect(result.summary).toHaveProperty("kpi");
 
       // Verify dates are present and sorted
       expect(result.dates).toHaveLength(3);
@@ -190,9 +198,9 @@ describe("GridDataService", () => {
       expect(firstAccount.entries["2024-01-01"]).toHaveProperty("gain_loss");
 
       // Verify summary exists for each date
-      expect(result.summary["2024-01-01"]).toHaveProperty("net_worth");
-      expect(result.summary["2024-02-01"]).toHaveProperty("net_worth");
-      expect(result.summary["2024-03-01"]).toHaveProperty("net_worth");
+      expect(result.summary.by_date["2024-01-01"]).toHaveProperty("net_worth");
+      expect(result.summary.by_date["2024-02-01"]).toHaveProperty("net_worth");
+      expect(result.summary.by_date["2024-03-01"]).toHaveProperty("net_worth");
     });
 
     it("should calculate summary net_worth correctly", async () => {
@@ -201,13 +209,13 @@ describe("GridDataService", () => {
       const result = await GridDataService.getGridData(mockSupabase, userId);
 
       // For 2024-01-01: mBank (1000) + XTB (10000) - Kredyt (500) = 10500
-      expect(result.summary["2024-01-01"].net_worth).toBe(10500);
+      expect(result.summary.by_date["2024-01-01"].net_worth).toBe(10500);
 
       // For 2024-02-01: mBank (1200) + XTB (10500) - Kredyt (450) = 11250
-      expect(result.summary["2024-02-01"].net_worth).toBe(11250);
+      expect(result.summary.by_date["2024-02-01"].net_worth).toBe(11250);
 
       // For 2024-03-01: mBank (1300) + XTB (10500, forward-filled) - Kredyt (450, forward-filled) = 11350
-      expect(result.summary["2024-03-01"].net_worth).toBe(11350);
+      expect(result.summary.by_date["2024-03-01"].net_worth).toBe(11350);
     });
 
     it("should handle multiple account types in net_worth calculation", async () => {
@@ -230,7 +238,7 @@ describe("GridDataService", () => {
       const result = await GridDataService.getGridData(mockSupabase, userId);
 
       // Expected: 1000 + 2000 + 5000 - 500 = 7500
-      expect(result.summary["2024-01-01"].net_worth).toBe(7500);
+      expect(result.summary.by_date["2024-01-01"].net_worth).toBe(7500);
     });
 
     it("should sort dates chronologically", async () => {
@@ -299,7 +307,16 @@ describe("GridDataService", () => {
       // Verify empty structure
       expect(result.dates).toEqual([]);
       expect(result.accounts).toEqual([]);
-      expect(result.summary).toEqual({});
+      expect(result.summary).toEqual({
+        by_date: {},
+        kpi: {
+          net_worth: 0,
+          total_assets: 0,
+          total_liabilities: 0,
+          cumulative_cash_flow: 0,
+          cumulative_gain_loss: 0,
+        },
+      });
     });
 
     it("should return accounts with empty entries when no value_entries exist", async () => {
@@ -318,7 +335,8 @@ describe("GridDataService", () => {
       expect(result.accounts[0].entries).toEqual({});
 
       // Verify summary is empty
-      expect(result.summary).toEqual({});
+      expect(result.summary.by_date).toEqual({});
+      expect(result.summary.kpi).toBeDefined();
     });
 
     it("should extract unique dates from entries", async () => {
@@ -381,8 +399,84 @@ describe("GridDataService", () => {
       expect(bankAccount?.entries["2025-01-01"]?.value).toBe(5000);
 
       // Verify net worth calculation includes forward-filled values
-      expect(result.summary["2024-10-10"].net_worth).toBe(5000); // only bank
-      expect(result.summary["2025-01-01"].net_worth).toBe(5200); // bank (5000) + portfel (200)
+      expect(result.summary.by_date["2024-10-10"].net_worth).toBe(5000); // only bank
+      expect(result.summary.by_date["2025-01-01"].net_worth).toBe(5200); // bank (5000) + portfel (200)
+    });
+
+    // =============================================================================================
+    // KPI CALCULATION TESTS
+    // =============================================================================================
+    describe("KPI calculations", () => {
+      it("should calculate total_assets from last date entries", async () => {
+        const { mockSupabase } = createMockSupabaseClient();
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        // Last date is 2024-03-01. Assets: mBank (1300) + XTB (10500, f-filled) = 11800
+        expect(result.summary.kpi.total_assets).toBe(11800);
+      });
+
+      it("should calculate total_liabilities from last date entries", async () => {
+        const { mockSupabase } = createMockSupabaseClient();
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        // Last date is 2024-03-01. Liabilities: Kredyt (450, f-filled) = 450
+        expect(result.summary.kpi.total_liabilities).toBe(450);
+      });
+
+      it("should calculate net_worth as assets - liabilities", async () => {
+        const { mockSupabase } = createMockSupabaseClient();
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        // 11800 (assets) - 450 (liabilities) = 11350
+        expect(result.summary.kpi.net_worth).toBe(11350);
+      });
+
+      it("should calculate cumulative_cash_flow as sum of all entries", async () => {
+        const { mockSupabase } = createMockSupabaseClient();
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        // Service logic sums forward-filled entries.
+        // Jan: 0, Feb: 200-50=150, Mar: 100-50=50. Total: 0+150+50=200
+        expect(result.summary.kpi.cumulative_cash_flow).toBe(200);
+      });
+
+      it("should calculate cumulative_gain_loss as sum of all entries", async () => {
+        const { mockSupabase } = createMockSupabaseClient();
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        // Service logic sums forward-filled entries.
+        // Jan: 0, Feb: 500, Mar: 500. Total: 0+500+500=1000
+        expect(result.summary.kpi.cumulative_gain_loss).toBe(1000);
+      });
+
+      it("should return zero KPI when no dates exist", async () => {
+        const { mockSupabase } = createMockSupabaseClient([mockAccounts[0]], []);
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        expect(result.summary.kpi).toEqual({
+          net_worth: 0,
+          total_assets: 0,
+          total_liabilities: 0,
+          cumulative_cash_flow: 0,
+          cumulative_gain_loss: 0,
+        });
+      });
+
+      it("should handle null cash_flow and gain_loss gracefully", async () => {
+        const customEntries = [
+          { account_id: "acc-cash-1", date: "2024-01-01", value: 1000, cash_flow: 100, gain_loss: null },
+          { account_id: "acc-investment-1", date: "2024-01-01", value: 5000, cash_flow: null, gain_loss: 50 },
+        ];
+        const { mockSupabase } = createMockSupabaseClient(mockAccounts, customEntries);
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        expect(result.summary.kpi.cumulative_cash_flow).toBe(100);
+        expect(result.summary.kpi.cumulative_gain_loss).toBe(50);
+      });
+
+      it("should use only last date for assets/liabilities calculation", async () => {
+        const { mockSupabase } = createMockSupabaseClient();
+        const result = await GridDataService.getGridData(mockSupabase, userId);
+        // Last date is 2024-03-01.
+        // Assets: mBank (1300) + XTB (10500, f-filled) = 11800
+        // Liabilities: Kredyt (450, f-filled) = 450
+        expect(result.summary.kpi.total_assets).toBe(11800);
+        expect(result.summary.kpi.total_liabilities).toBe(450);
+        expect(result.summary.kpi.net_worth).toBe(11350);
+      });
     });
 
     // =============================================================================================

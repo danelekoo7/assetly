@@ -19,7 +19,7 @@ export default function DataGridSummaryRow({ gridData }: DataGridSummaryRowProps
       </div>
       <div className="flex">
         {gridData.dates.map((date) => {
-          const summary = gridData.summary[date];
+          const summary = gridData.summary.by_date[date];
           const netWorth = summary?.net_worth ?? 0;
 
           return (

@@ -60,8 +60,13 @@ export interface GridDataDto {
   dates: string[];
   /** An array of accounts, each with its value entries mapped by date. */
   accounts: GridAccountDto[];
-  /** An object containing net worth summaries for each date. */
-  summary: Record<string, GridSummaryDto>; // Key is date string (YYYY-MM-DD)
+  /** An object containing net worth summaries for each date and aggregated KPIs. */
+  summary: {
+    /** Net worth for each date, used for the chart. */
+    by_date: Record<string, GridSummaryDto>; // Key is date string (YYYY-MM-DD)
+    /** Aggregated key performance indicators for the selected date range. */
+    kpi: GridKpiDto;
+  };
 }
 
 /**
@@ -87,6 +92,23 @@ export type GridEntryDto = Pick<ValueEntry, "value" | "cash_flow" | "gain_loss">
  */
 export interface GridSummaryDto {
   net_worth: number;
+}
+
+/**
+ * DTO for Key Performance Indicators (KPIs) for the dashboard.
+ * These are calculated for the selected date range.
+ */
+export interface GridKpiDto {
+  /** Net worth as of the last date in the range. */
+  net_worth: number;
+  /** Total assets as of the last date in the range. */
+  total_assets: number;
+  /** Total liabilities as of the last date in the range. */
+  total_liabilities: number;
+  /** Sum of all cash flows within the date range. */
+  cumulative_cash_flow: number;
+  /** Sum of all gains and losses within the date range. */
+  cumulative_gain_loss: number;
 }
 
 /**
