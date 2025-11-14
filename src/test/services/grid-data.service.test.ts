@@ -96,7 +96,13 @@ const mockValueEntries = [
 
 function createMockSupabaseClient(
   accountsData: typeof mockAccounts = mockAccounts,
-  entriesData: typeof mockValueEntries = mockValueEntries
+  entriesData: {
+    account_id: string;
+    date: string;
+    value: number;
+    cash_flow: number | null;
+    gain_loss: number | null;
+  }[] = mockValueEntries
 ) {
   const mockQuery = {
     select: vi.fn().mockReturnThis(),
@@ -455,7 +461,7 @@ describe("GridDataService", () => {
           { account_id: "acc-cash-1", date: "2024-01-01", value: 1000, cash_flow: 100, gain_loss: null },
           { account_id: "acc-investment-1", date: "2024-01-01", value: 5000, cash_flow: null, gain_loss: 50 },
         ];
-        const { mockSupabase } = createMockSupabaseClient(mockAccounts, customEntries as any);
+        const { mockSupabase } = createMockSupabaseClient(mockAccounts, customEntries);
         const result = await GridDataService.getGridData(mockSupabase, userId);
         expect(result.summary.kpi.cumulative_cash_flow).toBe(100);
         expect(result.summary.kpi.cumulative_gain_loss).toBe(50);

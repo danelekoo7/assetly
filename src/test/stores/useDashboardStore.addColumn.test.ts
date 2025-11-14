@@ -155,7 +155,7 @@ describe("useDashboardStore - addColumn", () => {
     vi.clearAllMocks();
 
     // Setup default fetch mock for all tests
-    global.fetch = vi.fn() as any;
+    global.fetch = vi.fn();
   });
 
   afterEach(() => {
