@@ -269,9 +269,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     });
 
     if (!response.ok) {
-      throw new Error("Failed to delete account");
+      const error = await response.json().catch(() => ({ message: "Nie udało się usunąć konta." }));
+      toast.error("Błąd usuwania konta", {
+        description: error.message,
+      });
+      throw new Error(error.message);
     }
 
+    toast.success("Konto zostało pomyślnie usunięte.");
     // Refresh data after successful deletion
     await get().fetchData(true);
     get().closeModal("confirmAction");

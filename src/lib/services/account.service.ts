@@ -153,6 +153,32 @@ const AccountService = {
 
     return updatedAccount;
   },
+
+  /**
+   * Deletes an account for the authenticated user.
+   * Thanks to `ON DELETE CASCADE` in the database, this also deletes all associated value entries.
+   *
+   * @param supabase - The Supabase client instance.
+   * @param userId - The ID of the authenticated user.
+   * @param accountId - The ID of the account to delete.
+   * @throws {NotFoundError} If the account does not exist or does not belong to the user.
+   * @throws {Error} If any other database error occurs.
+   */
+  async deleteAccount(supabase: SupabaseClient<Database>, userId: string, accountId: string) {
+    const { error, count } = await supabase
+      .from("accounts")
+      .delete({ count: "exact" })
+      .eq("id", accountId)
+      .eq("user_id", userId);
+
+    if (error) {
+      throw error;
+    }
+
+    if (count === 0) {
+      throw new NotFoundError("Account not found or you do not have permission to delete it.");
+    }
+  },
 };
 
 export default AccountService;

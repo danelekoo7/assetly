@@ -58,3 +58,34 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ message: "An unexpected error occurred." }), { status: 500 });
   }
 };
+
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  const { supabase, session } = locals;
+
+  if (!session) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
+  }
+
+  try {
+    // 1. Validate URL parameter
+    const { id: accountId } = accountIdSchema.parse(params);
+
+    // 2. Call the service to delete the account
+    await AccountService.deleteAccount(supabase, session.user.id, accountId);
+
+    // 3. Return successful response
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    // 4. Handle errors
+    if (error instanceof ZodError) {
+      return new Response(JSON.stringify({ message: "Invalid account ID", errors: error.flatten() }), {
+        status: 400,
+      });
+    }
+    if (error instanceof NotFoundError) {
+      return new Response(JSON.stringify({ message: error.message }), { status: 404 });
+    }
+
+    return new Response(JSON.stringify({ message: "An unexpected error occurred." }), { status: 500 });
+  }
+};
