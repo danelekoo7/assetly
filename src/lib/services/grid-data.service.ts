@@ -35,7 +35,7 @@ const GridDataService = {
     options: GetGridDataOptions = {}
   ): Promise<GridDataDto> {
     // Step 1: Fetch user's accounts
-    let accountsQuery = supabase.from("accounts").select("id, name, type");
+    let accountsQuery = supabase.from("accounts").select("id, name, type, archived_at");
 
     // Filter archived accounts if showArchived is false
     if (!options.showArchived) {
@@ -141,6 +141,7 @@ const GridDataService = {
         id: account.id,
         name: account.name,
         type: account.type,
+        archived_at: account.archived_at,
         entries: filledEntries,
       };
     });

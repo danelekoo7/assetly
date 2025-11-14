@@ -6,10 +6,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Archive, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Archive, Trash2, ArchiveRestore } from "lucide-react";
 import { useAccountActions } from "@/hooks/useAccountActions";
 import DataGridCell from "./DataGridCell";
-import type { GridAccountDto, AccountType } from "@/types";
+import type { GridAccountDto, AccountType, AccountDto } from "@/types";
 import { getAccountRowClasses } from "@/lib/utils";
 
 interface DataGridRowProps {
@@ -19,11 +19,21 @@ interface DataGridRowProps {
 }
 
 export default function DataGridRow({ account, dates, onCellClick }: DataGridRowProps) {
-  const { handleEditAccount, handleArchiveAccount, handleDeleteAccount } = useAccountActions();
+  const { handleEditAccount, handleArchiveAccount, handleRestoreAccount, handleDeleteAccount } = useAccountActions();
   const rowColorClasses = getAccountRowClasses(account.type);
 
+  // Create a synthetic AccountDto for the edit modal, as GridAccountDto has a different shape.
+  const accountDto: AccountDto = {
+    id: account.id,
+    name: account.name,
+    type: account.type,
+    archived_at: account.archived_at,
+    currency: "PLN", // Placeholder, not used in edit modal
+    created_at: new Date().toISOString(), // Placeholder, not used in edit modal
+  };
+
   return (
-    <div role="row" className={`flex hover:opacity-90 ${rowColorClasses}`}>
+    <div role="row" className={`flex hover:opacity-90 ${rowColorClasses} ${account.archived_at ? "opacity-50" : ""}`}>
       {/* Account Name Cell (Sticky) */}
       <div
         role="gridcell"
@@ -41,14 +51,21 @@ export default function DataGridRow({ account, dates, onCellClick }: DataGridRow
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEditAccount(account)}>
+            <DropdownMenuItem onClick={() => handleEditAccount(accountDto)}>
               <Pencil className="mr-2 h-4 w-4" />
               Edytuj
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleArchiveAccount(account.id, account.name)}>
-              <Archive className="mr-2 h-4 w-4" />
-              Archiwizuj
-            </DropdownMenuItem>
+            {account.archived_at ? (
+              <DropdownMenuItem onClick={() => handleRestoreAccount(account.id, account.name)}>
+                <ArchiveRestore className="mr-2 h-4 w-4" />
+                Przywróć
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => handleArchiveAccount(account.id, account.name)}>
+                <Archive className="mr-2 h-4 w-4" />
+                Archiwizuj
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => handleDeleteAccount(account.id, account.name)}

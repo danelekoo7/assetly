@@ -49,7 +49,9 @@ interface DashboardState {
   setDateRange: (range: { from: Date; to: Date }) => void;
   setShowArchived: (show: boolean) => void;
   addAccount: (command: CreateAccountCommand) => Promise<void>;
-  updateAccount: (id: string, command: UpdateAccountCommand) => Promise<void>;
+  updateAccountName: (id: string, name: string) => Promise<void>;
+  archiveAccount: (id: string) => Promise<void>;
+  restoreAccount: (id: string) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
   updateValueEntry: (command: UpsertValueEntryCommand) => Promise<void>;
   addColumn: (date: Date) => Promise<void>;
@@ -197,7 +199,34 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     get().closeModal("addAccount");
   },
 
-  updateAccount: async (id, command) => {
+  updateAccountName: async (id: string, name: string) => {
+    const response = await fetch(`/api/accounts/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      if (response.status === 409) {
+        toast.error("Nazwa konta jest już w użyciu", {
+          description: "Proszę wybrać inną nazwę.",
+        });
+      } else {
+        toast.error("Błąd aktualizacji nazwy", {
+          description: errorData.message || "Nie udało się zaktualizować nazwy konta.",
+        });
+      }
+      throw new Error(errorData.message || "Failed to update account name");
+    }
+
+    toast.success("Nazwa konta została pomyślnie zaktualizowana.");
+    await get().fetchData(true);
+    get().closeModal("editAccount");
+  },
+
+  archiveAccount: async (id: string) => {
+    const command: UpdateAccountCommand = { archived_at: new Date().toISOString() };
     const response = await fetch(`/api/accounts/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -206,12 +235,32 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "Failed to update account");
+      toast.error("Błąd archiwizacji konta", { description: error.message });
+      throw new Error(error.message || "Failed to archive account");
     }
 
-    // Refresh data after successful update
+    toast.success("Konto zostało zarchiwizowane.");
     await get().fetchData(true);
-    get().closeModal("editAccount");
+    get().closeModal("confirmAction");
+  },
+
+  restoreAccount: async (id: string) => {
+    const command: UpdateAccountCommand = { archived_at: null };
+    const response = await fetch(`/api/accounts/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(command),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      toast.error("Błąd przywracania konta", { description: error.message });
+      throw new Error(error.message || "Failed to restore account");
+    }
+
+    toast.success("Konto zostało przywrócone.");
+    await get().fetchData(true);
+    get().closeModal("confirmAction");
   },
 
   deleteAccount: async (id) => {

@@ -34,10 +34,12 @@ const accountSchema = z.object({
   }),
 });
 
+const editAccountSchema = accountSchema.pick({ name: true });
+
 type AccountFormData = z.infer<typeof accountSchema>;
 
 export default function AddEditAccountModal() {
-  const { activeModals, closeModal, addAccount } = useDashboardStore();
+  const { activeModals, closeModal, addAccount, updateAccountName } = useDashboardStore();
 
   const isOpen = activeModals.addAccount;
   const editContext = activeModals.editAccount;
@@ -50,7 +52,7 @@ export default function AddEditAccountModal() {
   });
 
   const form = useForm<AccountFormData>({
-    resolver: zodResolver(accountSchema),
+    resolver: zodResolver(isEditMode ? editAccountSchema : accountSchema),
     defaultValues: {
       name: "",
       type: "investment_asset",
@@ -83,9 +85,8 @@ export default function AddEditAccountModal() {
 
   const onSubmit = async (data: AccountFormData) => {
     try {
-      if (isEditMode) {
-        // TODO: Implement updateAccount when API is ready
-        closeModal("editAccount");
+      if (isEditMode && editContext) {
+        await updateAccountName(editContext.account.id, data.name);
       } else {
         // Format date as YYYY-MM-DD string to avoid timezone issues
         const dateStr = format(selectedDate, "yyyy-MM-dd");
@@ -100,7 +101,9 @@ export default function AddEditAccountModal() {
     } catch (error) {
       // Handle specific error cases
       if (error instanceof Error) {
-        if (error.message.includes("już istnieje")) {
+        // The store action for updateAccountName already shows a toast for 409
+        // We just need to set the form error state
+        if (error.message.includes("Conflict")) {
           form.setError("name", {
             type: "manual",
             message: "Konto o tej nazwie już istnieje",

@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/db/database.types";
-import type { AccountDto, CreateAccountCommand } from "@/types";
-import { ConflictError } from "@/lib/errors";
+import type { AccountDto, CreateAccountCommand, UpdateAccountCommand } from "@/types";
+import { ConflictError, NotFoundError } from "@/lib/errors";
 
 const PG_UNIQUE_VIOLATION_ERROR_CODE = "23505";
 
@@ -108,6 +108,50 @@ const AccountService = {
     // Step 4: Success. Both inserts were successful.
     // Return the data of the newly created account.
     return newAccount;
+  },
+
+  /**
+   * Partially updates an existing account for the authenticated user.
+   *
+   * @param supabase - The Supabase client instance.
+   * @param userId - The ID of the authenticated user.
+   * @param accountId - The ID of the account to update.
+   * @param command - The command object with the fields to update.
+   * @returns The updated account data.
+   * @throws {NotFoundError} If the account does not exist or does not belong to the user.
+   * @throws {ConflictError} If the new name conflicts with an existing account name for the user.
+   * @throws {Error} If any other database error occurs.
+   */
+  async updateAccount(
+    supabase: SupabaseClient<Database>,
+    userId: string,
+    accountId: string,
+    command: UpdateAccountCommand
+  ) {
+    const { data: updatedAccount, error } = await supabase
+      .from("accounts")
+      .update(command)
+      .eq("id", accountId)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      // Handle unique constraint violation for the account name
+      if (error.code === PG_UNIQUE_VIOLATION_ERROR_CODE) {
+        throw new ConflictError("An account with this name already exists.");
+      }
+      // For other errors, re-throw to be handled by the API layer.
+      throw error;
+    }
+
+    // If no data is returned and there's no error, it means the account was not found
+    // for the given user_id and accountId combination.
+    if (!updatedAccount) {
+      throw new NotFoundError("Account not found or you do not have permission to update it.");
+    }
+
+    return updatedAccount;
   },
 };
 
