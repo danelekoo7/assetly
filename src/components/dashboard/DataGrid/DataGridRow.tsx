@@ -10,6 +10,7 @@ import { MoreHorizontal, Pencil, Archive, Trash2 } from "lucide-react";
 import { useAccountActions } from "@/hooks/useAccountActions";
 import DataGridCell from "./DataGridCell";
 import type { GridAccountDto, AccountType } from "@/types";
+import { getAccountRowClasses } from "@/lib/utils";
 
 interface DataGridRowProps {
   account: GridAccountDto;
@@ -19,13 +20,14 @@ interface DataGridRowProps {
 
 export default function DataGridRow({ account, dates, onCellClick }: DataGridRowProps) {
   const { handleEditAccount, handleArchiveAccount, handleDeleteAccount } = useAccountActions();
+  const rowColorClasses = getAccountRowClasses(account.type);
 
   return (
-    <div role="row" className="flex hover:bg-muted/30">
+    <div role="row" className={`flex hover:opacity-90 ${rowColorClasses}`}>
       {/* Account Name Cell (Sticky) */}
       <div
         role="gridcell"
-        className="sticky left-0 z-10 w-[250px] flex-shrink-0 flex items-center justify-between border-r border-border bg-card px-4 py-3"
+        className={`sticky left-0 z-10 w-[250px] flex-shrink-0 flex items-center justify-between border-r border-border px-4 py-3 ${rowColorClasses}`}
       >
         <div className="flex-1">
           <div className="font-medium text-foreground">{account.name}</div>
