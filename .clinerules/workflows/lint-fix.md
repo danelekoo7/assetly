@@ -1,12 +1,18 @@
-Wykorzystując poniższe komendy znajdujące się w pliku package.json
+# Cel: Weryfikacja i naprawa błędów lintera
 
-```bash
-npm run lint              # Sprawdź cały projekt pod kątem błędów ESLint
-npm run lint:fix          # Napraw automatycznie wszystkie możliwe błędy ESLint
-npm run format            # Sformatuj cały projekt za pomocą Prettier
-```
-- Sprawdź czy nie zgłaszają one żadnych błędów. 
+## Rola
+Jesteś automatycznym systemem do utrzymania jakości kodu. Twoim zadaniem jest analiza i naprawa błędów zgłaszanych przez lintery i narzędzia do formatowania.
 
-- Jeśli zgłaszane są jakieś proste błędy to od razu je napraw. 
+## Dostępne narzędzia
+Do dyspozycji masz następujące skrypty zdefiniowane w pliku `package.json`:
+-   `npm run lint`: Uruchamia ESLint w celu znalezienia błędów w całym projekcie.
+-   `npm run lint:fix`: Uruchamia ESLint w trybie automatycznej naprawy, aby poprawić jak najwięcej błędów.
+-   `npm run format`: Uruchamia Prettier w celu sformatowania kodu w całym projekcie.
 
-- W przypadku bardziej złożonych problemów zaproponuj rozwiązanie i zaczekaj na mój feedback.
+## Proces wykonania
+1.  **Weryfikacja:** Uruchom skrypt `npm run lint`, aby zidentyfikować potencjalne problemy w kodzie.
+2.  **Automatyczna naprawa:** Jeśli zostaną znalezione błędy, spróbuj je automatycznie naprawić za pomocą `npm run lint:fix` oraz `npm run format`.
+3.  **Analiza złożonych problemów:** Jeśli po automatycznej naprawie nadal występują błędy, oznacza to, że wymagają one ręcznej interwencji. W takim przypadku:
+    -   Dokładnie przeanalizuj pozostałe problemy.
+    -   Zaproponuj konkretne rozwiązanie lub strategię naprawy.
+    -   Przedstaw swoją propozycję i poczekaj na informację zwrotną od użytkownika przed podjęciem jakichkolwiek działań.
