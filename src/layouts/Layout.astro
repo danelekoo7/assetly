@@ -1,5 +1,7 @@
 ---
 import "../styles/global.css";
+import { UserMenu } from "../components/dashboard/UserMenu";
+import { Toaster } from "../components/ui/sonner";
 
 interface Props {
   title?: string;
@@ -9,6 +11,7 @@ const { title = "Assetly" } = Astro.props;
 
 // Server-side check of current user session via locals (set by middleware)
 const isAuthenticated = !!Astro.locals.user;
+const userEmail = Astro.locals.user?.email;
 ---
 
 <!doctype html>
@@ -28,14 +31,7 @@ const isAuthenticated = !!Astro.locals.user;
       <nav class="flex items-center gap-2">
         {
           isAuthenticated ? (
-            <form method="POST" action="/api/auth/logout">
-              <button
-                type="submit"
-                class="inline-flex items-center rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground no-underline hover:bg-gray-50 dark:bg-background dark:hover:bg-muted"
-              >
-                Wyloguj
-              </button>
-            </form>
+            <UserMenu userEmail={userEmail} client:load />
           ) : (
             <a
               href="/login"
@@ -51,5 +47,6 @@ const isAuthenticated = !!Astro.locals.user;
     <main class="p-4">
       <slot />
     </main>
+    <Toaster client:load />
   </body>
 </html>
