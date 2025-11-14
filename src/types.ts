@@ -75,7 +75,7 @@ export interface GridDataDto {
  * @see Account
  * @see GridEntryDto
  */
-export type GridAccountDto = Pick<Account, "id" | "name" | "type"> & {
+export type GridAccountDto = Pick<Account, "id" | "name" | "type" | "archived_at"> & {
   /** A dictionary of value entries, keyed by date string (YYYY-MM-DD). */
   entries: Record<string, GridEntryDto>;
 };
