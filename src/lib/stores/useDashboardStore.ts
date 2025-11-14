@@ -107,7 +107,16 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         const emptyGridData: GridDataDto = {
           dates: [],
           accounts: [],
-          summary: {},
+          summary: {
+            by_date: {},
+            kpi: {
+              net_worth: 0,
+              total_assets: 0,
+              total_liabilities: 0,
+              cumulative_cash_flow: 0,
+              cumulative_gain_loss: 0,
+            },
+          },
         };
 
         const emptySummaryData: DashboardSummaryDto = {
@@ -124,45 +133,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
       const gridData: GridDataDto = await gridDataResponse.json();
 
-      // Calculate summary data from grid data
-      const latestDate = gridData.dates[gridData.dates.length - 1];
-      let totalAssets = 0;
-      let totalLiabilities = 0;
-      let cumulativeCashFlow = 0;
-      let cumulativeGainLoss = 0;
-
-      if (latestDate) {
-        // Calculate totals for latest date
-        for (const account of gridData.accounts) {
-          const entry = account.entries[latestDate];
-          if (entry) {
-            if (account.type === "cash_asset" || account.type === "investment_asset") {
-              totalAssets += entry.value;
-            } else if (account.type === "liability") {
-              totalLiabilities += entry.value;
-            }
-          }
-        }
-
-        // Calculate cumulative cash flow and gain/loss for all dates
-        for (const account of gridData.accounts) {
-          for (const date of gridData.dates) {
-            const entry = account.entries[date];
-            if (entry) {
-              cumulativeCashFlow += entry.cash_flow;
-              cumulativeGainLoss += entry.gain_loss;
-            }
-          }
-        }
-      }
-
-      const summaryData: DashboardSummaryDto = {
-        net_worth: totalAssets - totalLiabilities,
-        total_assets: totalAssets,
-        total_liabilities: totalLiabilities,
-        cumulative_cash_flow: cumulativeCashFlow,
-        cumulative_gain_loss: cumulativeGainLoss,
-      };
+      // KPIs are now calculated in the API response
+      const summaryData: DashboardSummaryDto = gridData.summary.kpi;
 
       set({ gridData, summaryData, isLoading: false });
     } catch (error) {
@@ -174,7 +146,16 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       const emptyGridData: GridDataDto = {
         dates: [],
         accounts: [],
-        summary: {},
+        summary: {
+          by_date: {},
+          kpi: {
+            net_worth: 0,
+            total_assets: 0,
+            total_liabilities: 0,
+            cumulative_cash_flow: 0,
+            cumulative_gain_loss: 0,
+          },
+        },
       };
 
       const emptySummaryData: DashboardSummaryDto = {

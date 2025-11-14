@@ -780,3 +780,22 @@ Authorization: Bearer {{jwt_token}}
 4. **Cache serverless**: Dodać Redis lub inny cache dla często powtarzających się zapytań
 5. **Compression**: Upewnić się, że serwer wysyła gzip/brotli compression
 6. **GraphQL**: Rozważyć GraphQL dla bardziej elastycznych zapytań w przyszłości
+
+---
+
+## Historia zmian
+
+### 14.11.2025 - Rozszerzenie o KPI (commit 870b787)
+
+**Zmiana:** Dodanie obiektu `kpi` do pola `summary` w odpowiedzi.
+
+**Uzasadnienie:**
+- Integracja KPI z endpointem `/grid-data` zapewnia spójność danych
+- Eliminacja potrzeby osobnego endpointu `/dashboard/summary`
+- Uproszczenie logiki frontendowej
+
+**Breaking change:**
+- Struktura `summary` zmieniła się z `Record<string, GridSummaryDto>` na `{ by_date: ..., kpi: ... }`
+- Wymaga aktualizacji frontendu (komponenty korzystające z `gridData.summary`)
+
+**Szczegóły implementacji:** Zobacz `ai/small-plans/008_update-grid-data-endpoint-with-kpi.md`

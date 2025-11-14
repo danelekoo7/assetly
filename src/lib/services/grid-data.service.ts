@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
-import type { GridDataDto, GridAccountDto, GridEntryDto, GridSummaryDto } from "@/types";
+import type { GridDataDto, GridAccountDto, GridEntryDto, GridSummaryDto, GridKpiDto } from "@/types";
 
 /**
  * Options for fetching grid data.
@@ -53,7 +53,16 @@ const GridDataService = {
       return {
         dates: [],
         accounts: [],
-        summary: {},
+        summary: {
+          by_date: {},
+          kpi: {
+            net_worth: 0,
+            total_assets: 0,
+            total_liabilities: 0,
+            cumulative_cash_flow: 0,
+            cumulative_gain_loss: 0,
+          },
+        },
       };
     }
 
@@ -137,7 +146,7 @@ const GridDataService = {
     });
 
     // Step 6: Calculate summary (net_worth) for each date
-    const summary: Record<string, GridSummaryDto> = {};
+    const summaryByDate: Record<string, GridSummaryDto> = {};
 
     dates.forEach((date) => {
       let netWorth = 0;
@@ -146,23 +155,68 @@ const GridDataService = {
         const entry = account.entries[date];
         if (entry) {
           if (account.type === "liability") {
-            // Subtract liabilities from net worth
-            netWorth -= entry.value;
+            netWorth -= entry.value; // Pasywa odejmujemy
           } else {
-            // Add assets (cash_asset, investment_asset) to net worth
-            netWorth += entry.value;
+            netWorth += entry.value; // Aktywa dodajemy
           }
         }
       });
 
-      summary[date] = { net_worth: netWorth };
+      summaryByDate[date] = { net_worth: netWorth };
     });
 
-    // Step 7: Return GridDataDto
+    // Step 7: Calculate KPI
+    let total_assets = 0;
+    let total_liabilities = 0;
+    let cumulative_cash_flow = 0;
+    let cumulative_gain_loss = 0;
+
+    // Find the last date in the range
+    const lastDate = dates.length > 0 ? dates[dates.length - 1] : null;
+
+    if (lastDate) {
+      // Calculate total_assets and total_liabilities based on the last date
+      gridAccounts.forEach((account) => {
+        const lastEntry = account.entries[lastDate];
+        if (lastEntry) {
+          if (account.type === "liability") {
+            total_liabilities += lastEntry.value;
+          } else {
+            // cash_asset or investment_asset
+            total_assets += lastEntry.value;
+          }
+        }
+      });
+    }
+
+    // Calculate cumulative_cash_flow and cumulative_gain_loss
+    // Sum of all entries in the date range (for all accounts)
+    dates.forEach((date) => {
+      gridAccounts.forEach((account) => {
+        const entry = account.entries[date];
+        if (entry) {
+          cumulative_cash_flow += entry.cash_flow ?? 0;
+          cumulative_gain_loss += entry.gain_loss ?? 0;
+        }
+      });
+    });
+
+    const kpi: GridKpiDto = {
+      net_worth: total_assets - total_liabilities,
+      total_assets,
+      total_liabilities,
+      cumulative_cash_flow,
+      cumulative_gain_loss,
+    };
+
+    // Step 8: Return updated GridDataDto
     return {
       dates,
       accounts: gridAccounts,
-      summary,
+      summary: {
+        by_date: summaryByDate,
+        kpi,
+      },
     };
   },
 };
