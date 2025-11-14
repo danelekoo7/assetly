@@ -225,13 +225,20 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
   - Po zapisaniu, wszystkie sumy (pulpit, wiersz podsumowania) oraz wykres są aktualizowane z uwzględnieniem podziału na wpłaty i zyski.
 
 - ID: US-010
-- Tytuł: Przeglądanie pulpitu z podziałem na wpłaty i zyski
-- Opis: Jako użytkownik, chcę po zalogowaniu widzieć na pulpicie moją aktualną wartość netto oraz podział pokazujący, ile z tej wartości pochodzi z wpłat/wypłat, a ile z zysków/strat inwestycyjnych.
+- Tytuł: Przeglądanie pulpitu z podziałem na wpłaty i zyski dla wybranego okresu
+- Opis: Jako użytkownik, chcę po zalogowaniu widzieć na pulpicie kluczowe wskaźniki finansowe (KPI) dla wybranego przeze mnie okresu czasu, aby móc porównywać różne okresy (np. poszczególne lata, kwartały).
 - Kryteria akceptacji:
   - Pulpit jest domyślnym widokiem po zalogowaniu.
-  - Wyświetlana wartość netto jest poprawnie obliczona (suma aktywów - suma pasywów) dla ostatniej daty.
-  - Pulpit pokazuje osobno skumulowaną wartość wpłat/wypłat i skumulowaną wartość zysków/strat z inwestycji dla wszystkich kont.
-  - Wykres liniowy poprawnie renderuje dane historyczne wartości netto.
+  - KPI są obliczane dla **wybranego zakresu dat** widocznego w siatce danych:
+    - **Wartość netto**: Stan na **koniec wybranego okresu** (ostatnia data w zakresie) = suma aktywów - suma pasywów
+    - **Suma aktywów**: Stan na **koniec wybranego okresu** (ostatnia data w zakresie)
+    - **Suma pasywów**: Stan na **koniec wybranego okresu** (ostatnia data w zakresie)
+    - **Skumulowane wpłaty/wypłaty**: **Suma wszystkich przepływów** w wybranym okresie
+    - **Skumulowane zyski/straty**: **Suma wszystkich zysków/strat** w wybranym okresie
+  - Zmiana zakresu dat w siatce automatycznie aktualizuje wszystkie KPI.
+  - KPI są zawsze zsynchronizowane z danymi widocznymi w siatce, co zapewnia spójność widoku.
+  - Ta synchronizacja pozwala użytkownikowi na porównywanie różnych okresów - np. zmiana zakresu na rok 2023 pokaże KPI dla 2023, zmiana na 2024 pokaże KPI dla 2024.
+  - Wykres liniowy poprawnie renderuje dane historyczne wartości netto dla wybranego okresu.
   - Wykres może opcjonalnie pokazywać podział na wartość pochodzącą z wpłat/wypłat i wartość wypracowaną przez inwestycje.
   - Oś X wykresu reprezentuje czas (daty), a oś Y reprezentuje wartość netto.
 
