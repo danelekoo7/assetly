@@ -64,8 +64,7 @@ export function DeleteAccountModal() {
 
         setIsDeleting(false);
       }
-    } catch (error) {
-      console.error("Error deleting account:", error);
+    } catch {
       toast.error("Wystąpił błąd podczas usuwania konta");
       setIsDeleting(false);
     }

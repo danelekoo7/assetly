@@ -74,7 +74,6 @@ export const DELETE: APIRoute = async ({ request, cookies, locals }) => {
     const { error: deleteError } = await supabase.rpc("delete_current_user");
 
     if (deleteError) {
-      console.error("Error deleting user:", deleteError);
       return new Response(JSON.stringify({ error: "Nie udało się usunąć konta" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -83,8 +82,7 @@ export const DELETE: APIRoute = async ({ request, cookies, locals }) => {
 
     // Success - user has been deleted
     return new Response(null, { status: 204 });
-  } catch (error) {
-    console.error("Unexpected error in DELETE /api/user/profile:", error);
+  } catch {
     return new Response(JSON.stringify({ error: "Wewnętrzny błąd serwera" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
