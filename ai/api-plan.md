@@ -169,6 +169,7 @@ These endpoints are designed to provide data in a format optimized for specific 
   - `to` (date-string, optional): End date for the data range.
   - `archived` (boolean, optional): Set to `true` to include archived accounts. Defaults to `false`.
 - **Success Response**: `200 OK`
+
   ```json
   {
     "dates": ["2023-10-27", "2023-10-28"],
@@ -207,13 +208,13 @@ These endpoints are designed to provide data in a format optimized for specific 
     }
   }
   ```
-  
+
   **Summary field explanation**:
   - `by_date`: Net worth calculated for each date in the range (used for chart rendering)
   - `kpi`: Aggregated key performance indicators for the selected date range:
     - `net_worth`, `total_assets`, `total_liabilities`: Values as of the **last date** in the range (end-of-period state)
     - `cumulative_cash_flow`, `cumulative_gain_loss`: **Sum of all entries** within the date range (period-specific metrics)
-  
+
   This design allows users to compare different time periods (e.g., year-over-year) by changing the date range, with KPIs always synchronized to the selected period.
 
 - **Error Responses**: `401 Unauthorized`

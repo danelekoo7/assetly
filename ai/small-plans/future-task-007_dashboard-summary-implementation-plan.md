@@ -10,8 +10,8 @@ Jest to kluczowy endpoint dla sekcji KPI na pulpicie, wyświetlający użytkowni
 
 - **Metoda HTTP**: `GET`
 - **Struktura URL**: `/api/dashboard/summary`
-- **Parametry**: 
-  - **Wymagane**: 
+- **Parametry**:
+  - **Wymagane**:
     - `from` (string, format: YYYY-MM-DD) - Data początkowa zakresu
     - `to` (string, format: YYYY-MM-DD) - Data końcowa zakresu
   - **Opcjonalne**: Brak
@@ -25,6 +25,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Uwagi**:
+
 - Endpoint przyjmuje zakres dat jako parametry query string
 - Skumulowane wartości (cumulative_cash_flow, cumulative_gain_loss) dotyczą wybranego okresu
 - Aktualne wartości (total_assets, total_liabilities) bazują na najnowszym wpisie w zakresie dat
@@ -38,9 +39,9 @@ Endpoint wykorzystuje następujący typ zdefiniowany w `src/types.ts`:
 
   ```typescript
   export interface DashboardSummaryDto {
-    net_worth: number;           // Wartość netto = aktywa - pasywa
-    total_assets: number;        // Suma wszystkich aktywów
-    total_liabilities: number;   // Suma wszystkich pasywów
+    net_worth: number; // Wartość netto = aktywa - pasywa
+    total_assets: number; // Suma wszystkich aktywów
+    total_liabilities: number; // Suma wszystkich pasywów
     cumulative_cash_flow: number; // Skumulowane przepływy pieniężne
     cumulative_gain_loss: number; // Skumulowane zyski/straty
   }
@@ -85,7 +86,7 @@ Dodatkowo w warstwie serwisowej wykorzystane będą:
    - Selekcjonuje kolumny: `id`, `type`
 
    **Krok 5.2: Pobieranie value_entries - podwójne zapytanie**
-   
+
    **5.2a: Pobieranie najnowszych value_entries (dla total_assets i total_liabilities)**
    - Dla każdego pobranego konta wykonuje zapytanie do `value_entries`:
      - Filtruje po `account_id`
@@ -93,7 +94,7 @@ Dodatkowo w warstwie serwisowej wykorzystane będą:
      - Pobiera tylko pierwszy rekord (LIMIT 1) - czyli najnowszy wpis
    - Selekcjonuje: `account_id`, `value`
    - Te dane służą do obliczenia aktualnego stanu aktywów i pasywów
-   
+
    **5.2b: Pobieranie value_entries w zakresie dat (dla cumulative_cash_flow i cumulative_gain_loss)**
    - Wykonuje zapytanie do `value_entries`:
      - Filtruje po `account_id IN (lista_id_kont)`
@@ -107,21 +108,18 @@ Dodatkowo w warstwie serwisowej wykorzystane będą:
      - `total_liabilities = 0`
      - `cumulative_cash_flow = 0`
      - `cumulative_gain_loss = 0`
-   
    - **Obliczanie total_assets i total_liabilities** (z najnowszych wpisów):
      - Dla każdego konta z najnowszym wpisem:
        - Jeśli `type === 'liability'`:
          - `total_liabilities += value`
        - Jeśli `type === 'cash_asset'` lub `type === 'investment_asset'`:
          - `total_assets += value`
-   
    - **Obliczanie cumulative_cash_flow i cumulative_gain_loss** (z wpisów w wybranym okresie):
      - Dla każdego wpisu wartości w zakresie dat (from-to):
        - `cumulative_cash_flow += cash_flow`
        - `cumulative_gain_loss += gain_loss`
-   
    - Oblicza `net_worth = total_assets - total_liabilities`
-   
+
    **UWAGA KRYTYCZNA**: Skumulowane wartości reprezentują sumę przepływów i zysków/strat dla WYBRANEGO OKRESU (parametry from/to), zgodnie z wymaganiami PRD (US-010) i potrzebami UX - użytkownik wybiera zakres dat na pulpicie (np. ostatnie 3 miesiące, rok), a skumulowane wartości dotyczą tego okresu. To zwiększa wydajność i daje użytkownikowi kontrolę nad analizowanym okresem.
 
    **Krok 5.4: Zwracanie danych**
@@ -215,12 +213,12 @@ Dodatkowo w warstwie serwisowej wykorzystane będą:
 
 ## 7. Obsługa błędów
 
-| Kod statusu                   | Scenariusz                     | Szczegóły                                                                                     |
-| ----------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
-| **401 Unauthorized**          | Brak uwierzytelnienia          | Token JWT jest nieprawidłowy, wygasły lub nie został dostarczony. Obsługiwane przez middleware Astro. |
-| **500 Internal Server Error** | Błąd bazy danych               | Nieprzewidziany błąd podczas zapytań do Supabase (np. timeout, utrata połączenia). Szczegóły logowane server-side. |
-| **500 Internal Server Error** | Błąd obliczania metryk         | Nieoczekiwany błąd podczas agregacji danych (np. null values, type errors). Logowane server-side. |
-| **500 Internal Server Error** | Inny błąd serwera              | Wszelkie inne nieobsłużone wyjątki. Logowane server-side z pełnym stack trace.                |
+| Kod statusu                   | Scenariusz             | Szczegóły                                                                                                          |
+| ----------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **401 Unauthorized**          | Brak uwierzytelnienia  | Token JWT jest nieprawidłowy, wygasły lub nie został dostarczony. Obsługiwane przez middleware Astro.              |
+| **500 Internal Server Error** | Błąd bazy danych       | Nieprzewidziany błąd podczas zapytań do Supabase (np. timeout, utrata połączenia). Szczegóły logowane server-side. |
+| **500 Internal Server Error** | Błąd obliczania metryk | Nieoczekiwany błąd podczas agregacji danych (np. null values, type errors). Logowane server-side.                  |
+| **500 Internal Server Error** | Inny błąd serwera      | Wszelkie inne nieobsłużone wyjątki. Logowane server-side z pełnym stack trace.                                     |
 
 **Przypadki brzegowe do obsłużenia:**
 
@@ -233,21 +231,21 @@ Dodatkowo w warstwie serwisowej wykorzystane będą:
 ```typescript
 try {
   const summary = await DashboardSummaryService.getSummary(supabase, session.user.id);
-  
+
   return new Response(JSON.stringify(summary), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
 } catch (error) {
   console.error("Error in GET /dashboard/summary:", error);
-  
+
   return new Response(
-    JSON.stringify({ 
-      error: "Nie udało się pobrać podsumowania. Spróbuj ponownie później." 
+    JSON.stringify({
+      error: "Nie udało się pobrać podsumowania. Spróbuj ponownie później.",
     }),
-    { 
-      status: 500, 
-      headers: { "Content-Type": "application/json" } 
+    {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
     }
   );
 }
@@ -258,15 +256,17 @@ try {
 ### 8.1. Liczba zapytań do bazy danych
 
 **Podejście naiwne** (N+1 query problem):
+
 - **Zapytanie 1**: Pobieranie aktywnych kont użytkownika (1 query)
 - **Zapytanie 2-N**: Dla każdego konta pobieranie najnowszego value_entry (N queries)
 - **Łącznie**: 1 + N zapytań (gdzie N = liczba kont)
 
 **Podejście zoptymalizowane** (zalecane):
+
 - **Zapytanie 1**: Pobieranie aktywnych kont (1 query)
 - **Zapytanie 2**: Jedno zapytanie z podzapytaniem lub użycie PostgreSQL DISTINCT ON:
   ```sql
-  SELECT DISTINCT ON (account_id) 
+  SELECT DISTINCT ON (account_id)
     account_id, value, cash_flow, gain_loss
   FROM value_entries
   WHERE account_id IN (...)
@@ -301,10 +301,10 @@ try {
 - **Stały rozmiar**: ~150 bytes JSON (niezipowany)
   ```json
   {
-    "net_worth": 20600.50,
-    "total_assets": 25000.00,
-    "total_liabilities": 4399.50,
-    "cumulative_cash_flow": 1500.00,
+    "net_worth": 20600.5,
+    "total_assets": 25000.0,
+    "total_liabilities": 4399.5,
+    "cumulative_cash_flow": 1500.0,
     "cumulative_gain_loss": 350.25
   }
   ```
@@ -396,12 +396,12 @@ const latestEntries = await Promise.all(
       .order("date", { ascending: false })
       .limit(1)
       .single();
-    
+
     if (error && error.code !== "PGRST116") {
       // PGRST116 = no rows returned (konto bez entries)
       throw error;
     }
-    
+
     return data;
   })
 );
@@ -425,6 +425,7 @@ if (rangeEntriesError) {
 ```
 
 **Uwaga**: Potrzebujemy dwóch osobnych zapytań:
+
 1. Najnowsze wpisy (LIMIT 1 per konto) - dla aktualnych wartości aktywów/pasywów (total_assets, total_liabilities)
 2. Wpisy w zakresie dat (from-to) - dla skumulowanych sum cash_flow i gain_loss (cumulative_cash_flow, cumulative_gain_loss)
 
@@ -437,16 +438,14 @@ let cumulative_cash_flow = 0;
 let cumulative_gain_loss = 0;
 
 // Mapuj account ID do typu dla łatwego dostępu
-const accountTypeMap = new Map(
-  accounts.map((acc) => [acc.id, acc.type])
-);
+const accountTypeMap = new Map(accounts.map((acc) => [acc.id, acc.type]));
 
 // Oblicz total_assets i total_liabilities z najnowszych wpisów
 latestEntries.forEach((entry) => {
   if (!entry) return; // Konto bez entries
-  
+
   const accountType = accountTypeMap.get(entry.account_id);
-  
+
   if (accountType === "liability") {
     total_liabilities += entry.value;
   } else {
@@ -505,13 +504,10 @@ export async function GET({ locals }: APIContext) {
 const { supabase, session } = locals;
 
 if (!session) {
-  return new Response(
-    JSON.stringify({ error: "Unauthorized" }), 
-    {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    }
-  );
+  return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    status: 401,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 ```
 
@@ -521,13 +517,14 @@ if (!session) {
 import { z } from "zod";
 
 // Schema walidacji dla parametrów query string
-const querySchema = z.object({
-  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (expected YYYY-MM-DD)"),
-  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (expected YYYY-MM-DD)"),
-}).refine(
-  (data) => new Date(data.from) <= new Date(data.to),
-  { message: "from date must be before or equal to to date" }
-);
+const querySchema = z
+  .object({
+    from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (expected YYYY-MM-DD)"),
+    to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (expected YYYY-MM-DD)"),
+  })
+  .refine((data) => new Date(data.from) <= new Date(data.to), {
+    message: "from date must be before or equal to to date",
+  });
 
 const url = new URL(request.url);
 const fromParam = url.searchParams.get("from");
@@ -541,9 +538,9 @@ const validationResult = querySchema.safeParse({
 
 if (!validationResult.success) {
   return new Response(
-    JSON.stringify({ 
-      error: "Invalid query parameters", 
-      details: validationResult.error.format() 
+    JSON.stringify({
+      error: "Invalid query parameters",
+      details: validationResult.error.format(),
     }),
     {
       status: 400,
@@ -559,12 +556,7 @@ const { from, to } = validationResult.data;
 
 ```typescript
 try {
-  const summary = await DashboardSummaryService.getSummary(
-    supabase, 
-    session.user.id,
-    from,
-    to
-  );
+  const summary = await DashboardSummaryService.getSummary(supabase, session.user.id, from, to);
 
   return new Response(JSON.stringify(summary), {
     status: 200,
@@ -629,10 +621,7 @@ describe("DashboardSummaryService.getSummary", () => {
       ],
     });
 
-    const result = await DashboardSummaryService.getSummary(
-      mockSupabase, 
-      "user123"
-    );
+    const result = await DashboardSummaryService.getSummary(mockSupabase, "user123");
 
     expect(result.total_assets).toBe(20000); // 5000 + 15000
     expect(result.total_liabilities).toBe(3000);
@@ -647,10 +636,7 @@ describe("DashboardSummaryService.getSummary", () => {
       latestEntries: [],
     });
 
-    const result = await DashboardSummaryService.getSummary(
-      mockSupabase, 
-      "user123"
-    );
+    const result = await DashboardSummaryService.getSummary(mockSupabase, "user123");
 
     expect(result).toEqual({
       net_worth: 0,
@@ -781,12 +767,12 @@ BEGIN
       ve.gain_loss
     FROM accounts a
     LEFT JOIN value_entries ve ON ve.account_id = a.id
-    WHERE a.user_id = p_user_id 
+    WHERE a.user_id = p_user_id
       AND a.archived_at IS NULL
     ORDER BY ve.account_id, ve.date DESC
   )
   SELECT
-    COALESCE(SUM(CASE WHEN type != 'liability' THEN value ELSE 0 END), 0) - 
+    COALESCE(SUM(CASE WHEN type != 'liability' THEN value ELSE 0 END), 0) -
     COALESCE(SUM(CASE WHEN type = 'liability' THEN value ELSE 0 END), 0) as net_worth,
     COALESCE(SUM(CASE WHEN type != 'liability' THEN value ELSE 0 END), 0) as total_assets,
     COALESCE(SUM(CASE WHEN type = 'liability' THEN value ELSE 0 END), 0) as total_liabilities,
@@ -804,9 +790,7 @@ GRANT EXECUTE ON FUNCTION get_dashboard_summary(UUID) TO authenticated;
 
 ```typescript
 // Zamiast wielu zapytań, wywołaj funkcję
-const { data, error } = await supabase
-  .rpc("get_dashboard_summary", { p_user_id: userId })
-  .single();
+const { data, error } = await supabase.rpc("get_dashboard_summary", { p_user_id: userId }).single();
 
 if (error) {
   throw new Error(`Failed to get dashboard summary: ${error.message}`);
@@ -816,6 +800,7 @@ return data as DashboardSummaryDto;
 ```
 
 **Korzyści**:
+
 - Jedno zapytanie zamiast N+1
 - Obliczenia po stronie bazy danych (szybsze)
 - Mniejszy transfer danych
@@ -866,12 +851,12 @@ return data as DashboardSummaryDto;
 
 ## Różnice w porównaniu do GET /grid-data
 
-| Aspekt                  | GET /grid-data                           | GET /dashboard/summary               |
-| ----------------------- | ---------------------------------------- | ------------------------------------ |
-| **Zakres danych**       | Wszystkie value_entries w zakresie dat   | Najnowsze value_entries + entries w zakresie dat dla cumulative |
-| **Parametry**           | `from`, `to`, `archived`                 | `from`, `to`                         |
-| **Rozmiar odpowiedzi**  | ~10KB (zależnie od zakresu)              | ~150 bytes (stały)                   |
-| **Złożoność obliczeniowa** | O(D × N) gdzie D=daty, N=konta        | O(N) gdzie N=liczba kont             |
-| **Przypadek użycia**    | Renderowanie siatki i wykresu            | Wyświetlanie KPI na pulpicie         |
-| **Częstotliwość wywołań** | Przy zmianie zakresu dat lub filtrów  | Przy każdym załadowaniu dashboardu i zmianie zakresu dat |
-| **Cache'owalność**      | Niska (często się zmienia przez filtry)  | Średnia (zmienia się przy zmianie zakresu dat) |
+| Aspekt                     | GET /grid-data                          | GET /dashboard/summary                                          |
+| -------------------------- | --------------------------------------- | --------------------------------------------------------------- |
+| **Zakres danych**          | Wszystkie value_entries w zakresie dat  | Najnowsze value_entries + entries w zakresie dat dla cumulative |
+| **Parametry**              | `from`, `to`, `archived`                | `from`, `to`                                                    |
+| **Rozmiar odpowiedzi**     | ~10KB (zależnie od zakresu)             | ~150 bytes (stały)                                              |
+| **Złożoność obliczeniowa** | O(D × N) gdzie D=daty, N=konta          | O(N) gdzie N=liczba kont                                        |
+| **Przypadek użycia**       | Renderowanie siatki i wykresu           | Wyświetlanie KPI na pulpicie                                    |
+| **Częstotliwość wywołań**  | Przy zmianie zakresu dat lub filtrów    | Przy każdym załadowaniu dashboardu i zmianie zakresu dat        |
+| **Cache'owalność**         | Niska (często się zmienia przez filtry) | Średnia (zmienia się przy zmianie zakresu dat)                  |

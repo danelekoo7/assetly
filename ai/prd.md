@@ -304,7 +304,7 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
 - Opis: Jako użytkownik, chcę mieć łatwy dostęp do sposobu przekazania mojej opinii lub zgłoszenia problemu, aby pomóc w rozwoju aplikacji.
 - Kryteria akceptacji:
   - W stopce aplikacji stale widoczne są dwa elementy: link "Przekaż opinię" i element kontaktowy.
-  - Link "Przekaż opinię" otwiera zewnętrzną ankietę (Google Forms) w nowej karcie przeglądarki (target="_blank", rel="noopener noreferrer").
+  - Link "Przekaż opinię" otwiera zewnętrzną ankietę (Google Forms) w nowej karcie przeglądarki (target="\_blank", rel="noopener noreferrer").
   - Element kontaktowy wyświetla widoczny tekst "Kontakt:" oraz adres e-mail (assetly.mail@gmail.com) z możliwością łatwego zaznaczenia i skopiowania.
   - Stopka jest widoczna na wszystkich stronach aplikacji, w tym na stronach autentykacji (logowanie, rejestracja), aby umożliwić kontakt nawet użytkownikom z problemami z dostępem.
   - Stopka jest w pełni responsywna: na urządzeniach mobilnych elementy układają się w kolumnę, na desktopie w wiersz z separatorem wizualnym.

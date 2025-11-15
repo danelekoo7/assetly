@@ -48,12 +48,12 @@ Dla tej operacji nie są wymagane żadne dedykowane typy DTO (Data Transfer Obje
 
 ## 7. Obsługa błędów
 
-| Kod statusu | Scenariusz | Szczegóły |
-| :--- | :--- | :--- |
-| `400 Bad Request` | Błąd walidacji | Parametr `id` w URL nie jest poprawnym UUID. |
-| `401 Unauthorized` | Brak uwierzytelnienia | Brak, nieważny lub wygasły token JWT. |
-| `404 Not Found` | Zasób nie istnieje | Konto o podanym `id` nie istnieje lub nie należy do uwierzytelnionego użytkownika. |
-| `500 Internal Server Error` | Błąd serwera | Błąd połączenia z bazą danych lub inny nieoczekiwany wyjątek. |
+| Kod statusu                 | Scenariusz            | Szczegóły                                                                          |
+| :-------------------------- | :-------------------- | :--------------------------------------------------------------------------------- |
+| `400 Bad Request`           | Błąd walidacji        | Parametr `id` w URL nie jest poprawnym UUID.                                       |
+| `401 Unauthorized`          | Brak uwierzytelnienia | Brak, nieważny lub wygasły token JWT.                                              |
+| `404 Not Found`             | Zasób nie istnieje    | Konto o podanym `id` nie istnieje lub nie należy do uwierzytelnionego użytkownika. |
+| `500 Internal Server Error` | Błąd serwera          | Błąd połączenia z bazą danych lub inny nieoczekiwany wyjątek.                      |
 
 ## 8. Rozważania dotyczące wydajności
 
@@ -92,12 +92,12 @@ Dla tej operacji nie są wymagane żadne dedykowane typy DTO (Data Transfer Obje
 
 4.  **Testowanie**:
     - **Testy jednostkowe (serwis)**:
-        - Test pomyślnego usunięcia konta (oczekiwany brak błędu).
-        - Test próby usunięcia nieistniejącego konta (oczekiwany `NotFoundError`).
-        - Test próby usunięcia konta innego użytkownika (mock `count=0`, oczekiwany `NotFoundError`).
+      - Test pomyślnego usunięcia konta (oczekiwany brak błędu).
+      - Test próby usunięcia nieistniejącego konta (oczekiwany `NotFoundError`).
+      - Test próby usunięcia konta innego użytkownika (mock `count=0`, oczekiwany `NotFoundError`).
     - **Testy integracyjne (endpoint)**:
-        - Test `204 No Content` dla poprawnego żądania usunięcia własnego konta.
-        - Test `400 Bad Request` dla nieprawidłowego formatu `id`.
-        - Test `401 Unauthorized` bez tokena.
-        - Test `404 Not Found` dla nieistniejącego `id`.
-        - Test `404 Not Found` dla `id` konta należącego do innego użytkownika.
+      - Test `204 No Content` dla poprawnego żądania usunięcia własnego konta.
+      - Test `400 Bad Request` dla nieprawidłowego formatu `id`.
+      - Test `401 Unauthorized` bez tokena.
+      - Test `404 Not Found` dla nieistniejącego `id`.
+      - Test `404 Not Found` dla `id` konta należącego do innego użytkownika.

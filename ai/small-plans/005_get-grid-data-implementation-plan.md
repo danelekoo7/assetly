@@ -790,11 +790,13 @@ Authorization: Bearer {{jwt_token}}
 **Zmiana:** Dodanie obiektu `kpi` do pola `summary` w odpowiedzi.
 
 **Uzasadnienie:**
+
 - Integracja KPI z endpointem `/grid-data` zapewnia spójność danych
 - Eliminacja potrzeby osobnego endpointu `/dashboard/summary`
 - Uproszczenie logiki frontendowej
 
 **Breaking change:**
+
 - Struktura `summary` zmieniła się z `Record<string, GridSummaryDto>` na `{ by_date: ..., kpi: ... }`
 - Wymaga aktualizacji frontendu (komponenty korzystające z `gridData.summary`)
 
