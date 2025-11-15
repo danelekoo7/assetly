@@ -1,17 +1,38 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { toast } from "sonner";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
-import type { GridDataDto, AccountType } from "@/types";
+import type { GridDataDto, AccountType, GridAccountDto } from "@/types";
 import DataGridHeader from "./DataGrid/DataGridHeader";
-import DataGridRow from "./DataGrid/DataGridRow";
 import DataGridSummaryRow from "./DataGrid/DataGridSummaryRow";
+import SortableDataGridRow from "./DataGrid/SortableDataGridRow";
 
 interface DataGridProps {
   gridData: GridDataDto | null;
 }
 
 export default function DataGrid({ gridData }: DataGridProps) {
-  const { openModal } = useDashboardStore();
+  const { openModal, updateGridDataOptimistic } = useDashboardStore();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [accounts, setAccounts] = useState<GridAccountDto[]>(gridData?.accounts ?? []);
+
+  useEffect(() => {
+    setAccounts(gridData?.accounts ?? []);
+  }, [gridData?.accounts]);
 
   // Auto-scroll to the right (newest dates) on mount and when data changes
   useEffect(() => {
@@ -19,6 +40,56 @@ export default function DataGrid({ gridData }: DataGridProps) {
       scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     }
   }, [gridData]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = accounts.findIndex((acc) => acc.id === active.id);
+      const newIndex = accounts.findIndex((acc) => acc.id === over.id);
+
+      const newAccountsOrder = arrayMove(accounts, oldIndex, newIndex);
+      setAccounts(newAccountsOrder);
+
+      // Optimistic update in Zustand store
+      if (gridData) {
+        updateGridDataOptimistic({ ...gridData, accounts: newAccountsOrder });
+      }
+
+      // Call API to save the new order
+      try {
+        const response = await fetch("/api/accounts/reorder", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accountIds: newAccountsOrder.map((acc) => acc.id) }),
+        });
+
+        if (!response.ok) {
+          // Revert on failure
+          await response.text();
+          setAccounts(gridData?.accounts ?? []);
+          if (gridData) {
+            updateGridDataOptimistic({ ...gridData, accounts: gridData.accounts });
+          }
+          toast.error("Nie udało się zapisać nowej kolejności kont.");
+        }
+      } catch {
+        // Revert on error
+        setAccounts(gridData?.accounts ?? []);
+        if (gridData) {
+          updateGridDataOptimistic({ ...gridData, accounts: gridData.accounts });
+        }
+        toast.error("Wystąpił błąd podczas zmiany kolejności kont.");
+      }
+    }
+  };
 
   const handleCellClick = (accountId: string, date: string, accountType: AccountType) => {
     if (!gridData) return;
@@ -58,11 +129,18 @@ export default function DataGrid({ gridData }: DataGridProps) {
     <div ref={scrollRef} className="overflow-x-auto rounded-lg border border-border">
       <div role="grid" className="min-w-full divide-y divide-border bg-card" aria-label="Siatka danych finansowych">
         <DataGridHeader dates={gridData.dates} />
-
-        {gridData.accounts.map((account) => (
-          <DataGridRow key={account.id} account={account} dates={gridData.dates} onCellClick={handleCellClick} />
-        ))}
-
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={accounts.map((acc) => acc.id)} strategy={verticalListSortingStrategy}>
+            {accounts.map((account) => (
+              <SortableDataGridRow
+                key={account.id}
+                account={account}
+                dates={gridData.dates}
+                onCellClick={handleCellClick}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
         <DataGridSummaryRow gridData={gridData} />
       </div>
     </div>

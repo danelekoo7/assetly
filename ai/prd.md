@@ -73,6 +73,7 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
 - Użytkownik może zarchiwizować konto. Zarchiwizowane konto jest wyszarzone i ukryte z domyślnego widoku tabeli, ale jego historyczne dane nadal są uwzględniane na wykresie wartości netto. Operacja wymaga potwierdzenia w oknie dialogowym.
 - Użytkownik może trwale usunąć konto. Usunięcie konta powoduje skasowanie całej jego historii wartości i jest operacją nieodwracalną. Operacja wymaga potwierdzenia w oknie dialogowym.
 - Użytkownik może zmienić typ istniejącego konta pomiędzy "Aktywo inwestycyjne" a "Aktywo gotówkowe". Zmiana typu nie wpływa na historyczne wpisy, a jedynie na domyślne zachowanie aplikacji przy tworzeniu nowych wpisów w przyszłości.
+- Użytkownik może zmieniać kolejność kont w tabeli za pomocą przeciągania i upuszczania (drag-and-drop). Zmieniona kolejność jest zapisywana i staje się domyślnym widokiem dla użytkownika.
 
 ### 3.5. Stany puste i onboarding
 
@@ -194,6 +195,14 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
   - Po potwierdzeniu, konto i wszystkie powiązane z nim historyczne wartości są trwale usuwane z bazy danych.
   - Pulpit, wykres i podsumowania są natychmiast aktualizowane.
 
+- ID: US-018
+- Tytuł: Zmiana kolejności kont
+- Opis: Jako użytkownik, chcę móc dowolnie sortować moje konta, aby dostosować widok do moich preferencji.
+- Kryteria akceptacji:
+  - Użytkownik może przeciągać i upuszczać wiersze w tabeli, aby zmienić ich kolejność.
+  - Po zmianie kolejności, nowa pozycja jest automatycznie zapisywana w tle.
+  - Przy następnym załadowaniu aplikacji, konta są wyświetlane w ostatnio zapisanej kolejności.
+
 ### Zarządzanie danymi i wizualizacja
 
 - ID: US-008
@@ -304,7 +313,7 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
 - Opis: Jako użytkownik, chcę mieć łatwy dostęp do sposobu przekazania mojej opinii lub zgłoszenia problemu, aby pomóc w rozwoju aplikacji.
 - Kryteria akceptacji:
   - W stopce aplikacji stale widoczne są dwa elementy: link "Przekaż opinię" i element kontaktowy.
-  - Link "Przekaż opinię" otwiera zewnętrzną ankietę (Google Forms) w nowej karcie przeglądarki (target="_blank", rel="noopener noreferrer").
+  - Link "Przekaż opinię" otwiera zewnętrzną ankietę (Google Forms) w nowej karcie przeglądarki (target="\_blank", rel="noopener noreferrer").
   - Element kontaktowy wyświetla widoczny tekst "Kontakt:" oraz adres e-mail (assetly.mail@gmail.com) z możliwością łatwego zaznaczenia i skopiowania.
   - Stopka jest widoczna na wszystkich stronach aplikacji, w tym na stronach autentykacji (logowanie, rejestracja), aby umożliwić kontakt nawet użytkownikom z problemami z dostępem.
   - Stopka jest w pełni responsywna: na urządzeniach mobilnych elementy układają się w kolumnę, na desktopie w wiersz z separatorem wizualnym.

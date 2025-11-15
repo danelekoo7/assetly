@@ -72,13 +72,13 @@ Implementacja będzie opierać się na następujących typach zdefiniowanych w `
 
 ## 7. Obsługa błędów
 
-| Kod statusu | Scenariusz | Szczegóły |
-| :--- | :--- | :--- |
-| `400 Bad Request` | Błąd walidacji | - `id` w URL nie jest poprawnym UUID.<br>- Ciało żądania jest puste.<br>- `name` jest pustym stringiem.<br>- `archived_at` nie jest poprawną datą ISO 8601 lub `null`. |
-| `401 Unauthorized` | Brak uwierzytelnienia | Brak, nieważny lub wygasły token JWT. |
-| `404 Not Found` | Zasób nie istnieje | Konto o podanym `id` nie istnieje lub nie należy do uwierzytelnionego użytkownika. |
-| `409 Conflict` | Konflikt nazwy | Użytkownik próbuje zmienić nazwę konta na taką, która już istnieje w jego puli kont. |
-| `500 Internal Server Error` | Błąd serwera | Błąd połączenia z bazą danych lub inny nieoczekiwany wyjątek. |
+| Kod statusu                 | Scenariusz            | Szczegóły                                                                                                                                                              |
+| :-------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `400 Bad Request`           | Błąd walidacji        | - `id` w URL nie jest poprawnym UUID.<br>- Ciało żądania jest puste.<br>- `name` jest pustym stringiem.<br>- `archived_at` nie jest poprawną datą ISO 8601 lub `null`. |
+| `401 Unauthorized`          | Brak uwierzytelnienia | Brak, nieważny lub wygasły token JWT.                                                                                                                                  |
+| `404 Not Found`             | Zasób nie istnieje    | Konto o podanym `id` nie istnieje lub nie należy do uwierzytelnionego użytkownika.                                                                                     |
+| `409 Conflict`              | Konflikt nazwy        | Użytkownik próbuje zmienić nazwę konta na taką, która już istnieje w jego puli kont.                                                                                   |
+| `500 Internal Server Error` | Błąd serwera          | Błąd połączenia z bazą danych lub inny nieoczekiwany wyjątek.                                                                                                          |
 
 ## 8. Rozważania dotyczące wydajności
 
@@ -113,14 +113,14 @@ Implementacja będzie opierać się na następujących typach zdefiniowanych w `
 
 5.  **Testowanie**:
     - **Testy jednostkowe (serwis)**:
-        - Test pomyślnej aktualizacji nazwy.
-        - Test pomyślnej archiwizacji (`archived_at` z datą).
-        - Test pomyślnego przywrócenia (`archived_at` jako `null`).
-        - Test próby aktualizacji nieistniejącego konta (oczekiwany `NotFoundError`).
-        - Test próby zmiany nazwy na istniejącą (oczekiwany `ConflictError`).
+      - Test pomyślnej aktualizacji nazwy.
+      - Test pomyślnej archiwizacji (`archived_at` z datą).
+      - Test pomyślnego przywrócenia (`archived_at` jako `null`).
+      - Test próby aktualizacji nieistniejącego konta (oczekiwany `NotFoundError`).
+      - Test próby zmiany nazwy na istniejącą (oczekiwany `ConflictError`).
     - **Testy integracyjne (endpoint)**:
-        - Test `200 OK` dla poprawnego żądania.
-        - Test `400 Bad Request` dla nieprawidłowego `id` i ciała żądania.
-        - Test `401 Unauthorized` bez tokena.
-        - Test `404 Not Found` dla nieistniejącego `id`.
-        - Test `409 Conflict` dla duplikatu nazwy.
+      - Test `200 OK` dla poprawnego żądania.
+      - Test `400 Bad Request` dla nieprawidłowego `id` i ciała żądania.
+      - Test `401 Unauthorized` bez tokena.
+      - Test `404 Not Found` dla nieistniejącego `id`.
+      - Test `409 Conflict` dla duplikatu nazwy.

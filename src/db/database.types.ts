@@ -25,6 +25,7 @@ export interface Database {
           archived_at: string | null;
           created_at: string;
           currency: string;
+          display_order: number;
           id: string;
           name: string;
           type: Database["public"]["Enums"]["account_type"];
@@ -35,6 +36,7 @@ export interface Database {
           archived_at?: string | null;
           created_at?: string;
           currency?: string;
+          display_order: number;
           id?: string;
           name: string;
           type: Database["public"]["Enums"]["account_type"];
@@ -45,6 +47,7 @@ export interface Database {
           archived_at?: string | null;
           created_at?: string;
           currency?: string;
+          display_order?: number;
           id?: string;
           name?: string;
           type?: Database["public"]["Enums"]["account_type"];

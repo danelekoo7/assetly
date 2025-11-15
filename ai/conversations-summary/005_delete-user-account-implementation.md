@@ -17,10 +17,10 @@ Zaimplementowanie funkcjonalności pozwalającej użytkownikowi na trwałe usuni
 ### Wybór podejścia do usuwania użytkownika
 
 **Rozważane opcje:**
+
 1. **Service Role Key + `supabase.auth.admin.deleteUser()`**
    - ✅ Proste API
    - ❌ Wymaga przechowywania service role key (ryzyko bezpieczeństwa)
-   
 2. **RPC + Funkcja SQL z SECURITY DEFINER** ⭐ **WYBRANA**
    - ✅ Bezpieczniejsze (brak service role key w aplikacji)
    - ✅ Logika w bazie danych (single source of truth)
@@ -29,9 +29,11 @@ Zaimplementowanie funkcjonalności pozwalającej użytkownikowi na trwałe usuni
 ### Strategia CASCADE DELETE
 
 Wykorzystanie istniejącej struktury bazy danych z `ON DELETE CASCADE`:
+
 ```
 auth.users → accounts → value_entries
 ```
+
 Usunięcie użytkownika automatycznie usuwa wszystkie powiązane dane.
 
 ---
@@ -43,6 +45,7 @@ Usunięcie użytkownika automatycznie usuwa wszystkie powiązane dane.
 **Plik:** `supabase/migrations/20251114192000_add_delete_user_function.sql`
 
 Utworzono funkcję PostgreSQL:
+
 ```sql
 CREATE OR REPLACE FUNCTION delete_current_user()
 RETURNS void
@@ -54,7 +57,7 @@ BEGIN
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'not authenticated';
   END IF;
-  
+
   DELETE FROM auth.users WHERE id = auth.uid();
 END;
 $$;
@@ -64,6 +67,7 @@ REVOKE EXECUTE ON FUNCTION delete_current_user() FROM anon;
 ```
 
 **Bezpieczeństwo:**
+
 - `SECURITY DEFINER` - podnosi uprawnienia do usunięcia z `auth.users`
 - Sprawdzenie `auth.uid()` - tylko zalogowany użytkownik
 - Tylko swoje konto - `WHERE id = auth.uid()`
@@ -75,10 +79,7 @@ REVOKE EXECUTE ON FUNCTION delete_current_user() FROM anon;
 
 ```typescript
 export const deleteUserAccountSchema = z.object({
-  password: z
-    .string()
-    .min(1, "Hasło jest wymagane")
-    .min(6, "Hasło musi mieć co najmniej 6 znaków"),
+  password: z.string().min(1, "Hasło jest wymagane").min(6, "Hasło musi mieć co najmniej 6 znaków"),
 });
 ```
 
@@ -89,12 +90,14 @@ export const deleteUserAccountSchema = z.object({
 **Endpoint:** `DELETE /api/user/profile`
 
 **Przepływ:**
+
 1. Walidacja hasła (Zod schema)
 2. Weryfikacja hasła (`supabase.auth.signInWithPassword()`)
 3. Wywołanie funkcji RPC (`supabase.rpc('delete_current_user')`)
 4. Zwrot 204 No Content przy sukcesie
 
 **Komunikaty błędów (po polsku):**
+
 - 400: "Nieprawidłowe dane"
 - 401: "Nieprawidłowe hasło"
 - 500: "Nie udało się usunąć konta" / "Wewnętrzny błąd serwera"
@@ -126,6 +129,7 @@ export const deleteUserAccountSchema = z.object({
 **Plik:** `src/components/dashboard/DeleteAccountModal.tsx`
 
 **Funkcjonalności:**
+
 - `AlertDialog` z wyraźnym ostrzeżeniem o nieodwracalności
 - Lista konsekwencji (usunięcie kont, historii, ustawień)
 - Pole input na hasło (type="password")
@@ -136,6 +140,7 @@ export const deleteUserAccountSchema = z.object({
 - Reset hasła po zamknięciu modala
 
 **Toast notifications:**
+
 - ✅ Sukces → redirect do `/account-deleted`
 - ❌ Błąd → komunikat po polsku
 
@@ -144,6 +149,7 @@ export const deleteUserAccountSchema = z.object({
 **Plik:** `src/components/dashboard/UserMenu.tsx`
 
 Komponent React z dropdown menu:
+
 - Wyświetlanie email użytkownika
 - Link "Ustawienia" → `/settings`
 - Przycisk "Wyloguj" (form POST do `/api/auth/logout`)
@@ -158,6 +164,7 @@ Komponent React z dropdown menu:
 **Plik:** `src/layouts/Layout.astro`
 
 **Zmiany:**
+
 1. Import `UserMenu` i `Toaster`
 2. Zamiana prostego przycisku "Wyloguj" na komponent `UserMenu` (z `client:load`)
 3. Dodanie `<Toaster client:load />` przed zamknięciem `</body>`
@@ -167,6 +174,7 @@ Komponent React z dropdown menu:
 **Plik:** `src/middleware/index.ts`
 
 **Zmiana:**
+
 - Dodano `/account-deleted` do `PUBLIC_PATHS`
 
 ---
@@ -206,11 +214,13 @@ Komponent React z dropdown menu:
 ## 7. Utworzone pliki
 
 ### Backend (3 pliki):
+
 1. `supabase/migrations/20251114192000_add_delete_user_function.sql` - Funkcja SQL
 2. `src/lib/validation/user.schemas.ts` - Schema Zod
 3. `src/pages/api/user/profile.ts` - Endpoint DELETE
 
 ### Frontend (4 pliki):
+
 4. `src/pages/account-deleted.astro` - Strona potwierdzenia
 5. `src/pages/settings.astro` - Strona ustawień
 6. `src/components/dashboard/DeleteAccountModal.tsx` - Modal
@@ -228,6 +238,7 @@ Komponent React z dropdown menu:
 ## 9. Testy manualne
 
 **Przepływ pomyślnego usunięcia:**
+
 1. ✅ Zalogowanie na konto
 2. ✅ Kliknięcie "Konto" → "Ustawienia"
 3. ✅ Kliknięcie "Usuń konto"
@@ -236,6 +247,7 @@ Komponent React z dropdown menu:
 6. ✅ Dane użytkownika usunięte z bazy (wraz z accounts i value_entries)
 
 **Testy walidacji:**
+
 1. ✅ Błędne hasło → Toast: "Nieprawidłowe hasło"
 2. ✅ Puste hasło → Przycisk nieaktywny
 
@@ -260,6 +272,7 @@ Komponent React z dropdown menu:
 ### Wymaganie US-011: ✅ ZREALIZOWANE
 
 **Kryteria akceptacji:**
+
 - ✅ W ustawieniach konta znajduje się opcja "Usuń konto"
 - ✅ Po kliknięciu pojawia się okno modalne z prośbą o potwierdzenie poprzez wpisanie hasła
 - ✅ Po poprawnym podaniu hasła i potwierdzeniu, wszystkie dane użytkownika są trwale usuwane
@@ -272,20 +285,24 @@ Komponent React z dropdown menu:
 Implementacja była realizowana zgodnie z zasadą workflow 3x3:
 
 ### Etap 1 (Backend - 3 kroki):
+
 1. ✅ Migracja SQL
 2. ✅ Schema walidacji
 3. ✅ Endpoint API
 
 ### Etap 2 (Frontend - 3 kroki):
+
 4. ✅ Strona potwierdzenia
 5. ✅ Strona ustawień
 6. ✅ Modal usuwania
 
 ### Etap 3 (Integracja - 2 kroki):
+
 7. ✅ Menu użytkownika
 8. ✅ Middleware
 
 ### Dodatkowe kroki (naprawy):
+
 9. ✅ Naprawa DropdownMenu
 10. ✅ Dodanie Toaster
 11. ✅ Linter fixes

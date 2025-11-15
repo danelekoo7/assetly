@@ -9,6 +9,7 @@
 ## 1. Przegląd Funkcjonalności
 
 Celem jest rozbudowa interfejsu o następujące możliwości:
+
 1.  **Edycja nazwy konta**: Użytkownik może zmienić nazwę istniejącego konta.
 2.  **Archiwizacja konta**: Użytkownik może zarchiwizować konto, ukrywając je z domyślnego widoku.
 3.  **Przeglądanie zarchiwizowanych kont**: Użytkownik może wyświetlić listę zarchiwizowanych kont.
@@ -98,26 +99,26 @@ Wszystkie operacje będą wspierane przez istniejący endpoint `PATCH /api/accou
 
 ## 4. Checklist implementacji
 
--   **Stan (`useDashboardStore`)**
-    -   [ ] Dodać stan `showArchived: boolean`.
-    -   [ ] Dodać akcję `setShowArchived`.
-    -   [ ] Zmodyfikować `fetchData`, aby uwzględniała `showArchived`.
-    -   [ ] Dodać akcję `updateAccountName`.
-    -   [ ] Dodać akcję `archiveAccount`.
-    -   [ ] Dodać akcję `restoreAccount`.
+- **Stan (`useDashboardStore`)**
+  - [ ] Dodać stan `showArchived: boolean`.
+  - [ ] Dodać akcję `setShowArchived`.
+  - [ ] Zmodyfikować `fetchData`, aby uwzględniała `showArchived`.
+  - [ ] Dodać akcję `updateAccountName`.
+  - [ ] Dodać akcję `archiveAccount`.
+  - [ ] Dodać akcję `restoreAccount`.
 
--   **Komponenty UI**
-    -   [ ] Dodać `Switch` "Pokaż zarchiwizowane" w `DashboardToolbar.tsx`.
-    -   [ ] Zaimplementować logikę warunkową dla przycisku "Archiwizuj"/"Przywróć" w `useAccountActions.ts`.
-    -   [ ] Dodać wizualne wyróżnienie dla zarchiwizowanych wierszy w `DataGridRow.tsx`.
-    -   [ ] Dostosować `AddEditAccountModal.tsx` do trybu edycji (blokowanie pól, obsługa zapisu).
-    -   [ ] Zintegrować `ConfirmActionDialog` z akcjami archiwizacji i przywracania.
+- **Komponenty UI**
+  - [ ] Dodać `Switch` "Pokaż zarchiwizowane" w `DashboardToolbar.tsx`.
+  - [ ] Zaimplementować logikę warunkową dla przycisku "Archiwizuj"/"Przywróć" w `useAccountActions.ts`.
+  - [ ] Dodać wizualne wyróżnienie dla zarchiwizowanych wierszy w `DataGridRow.tsx`.
+  - [ ] Dostosować `AddEditAccountModal.tsx` do trybu edycji (blokowanie pól, obsługa zapisu).
+  - [ ] Zintegrować `ConfirmActionDialog` z akcjami archiwizacji i przywracania.
 
--   **Feedback dla użytkownika**
-    -   [ ] Dodać powiadomienia "toast" (Sonner) dla wszystkich operacji (sukces, błąd).
-    -   [ ] Dodać obsługę i wyświetlanie błędu konfliktu nazwy (409) w modalu edycji.
+- **Feedback dla użytkownika**
+  - [ ] Dodać powiadomienia "toast" (Sonner) dla wszystkich operacji (sukces, błąd).
+  - [ ] Dodać obsługę i wyświetlanie błędu konfliktu nazwy (409) w modalu edycji.
 
--   **Testy**
-    -   [ ] Zaktualizować istniejące testy E2E, aby uwzględniały nowe akcje.
-    -   [ ] Dodać nowe testy E2E dla przepływu archiwizacji i przywracania konta.
-    -   [ ] Dodać testy jednostkowe dla nowych akcji w `useDashboardStore`.
+- **Testy**
+  - [ ] Zaktualizować istniejące testy E2E, aby uwzględniały nowe akcje.
+  - [ ] Dodać nowe testy E2E dla przepływu archiwizacji i przywracania konta.
+  - [ ] Dodać testy jednostkowe dla nowych akcji w `useDashboardStore`.

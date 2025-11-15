@@ -56,6 +56,7 @@ interface DashboardState {
   updateValueEntry: (command: UpsertValueEntryCommand) => Promise<void>;
   addColumn: (date: Date) => Promise<void>;
   deleteColumn: (date: string) => Promise<void>;
+  updateGridDataOptimistic: (newGridData: GridDataDto) => void;
   openModal: (modalName: keyof DashboardState["activeModals"], context?: unknown) => void;
   closeModal: (modalName: keyof DashboardState["activeModals"]) => void;
   resetStore: () => void;
@@ -507,6 +508,10 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       });
       throw error;
     }
+  },
+
+  updateGridDataOptimistic: (newGridData) => {
+    set({ gridData: newGridData });
   },
 
   openModal: (modalName, context) => {

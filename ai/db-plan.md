@@ -21,6 +21,7 @@ Przechowuje informacje o kontach finansowych użytkowników.
 | `archived_at` | `timestamptz`  | `NULL`                                                                | Data i czas zarchiwizowania konta. `NULL` oznacza aktywne konto. |
 | `created_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas utworzenia rekordu.                                  |
 | `updated_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas ostatniej aktualizacji rekordu.                      |
+| `display_order` | `integer`    | `NOT NULL`                                                            | Kolejność wyświetlania kont w interfejsie użytkownika.           |
 |               |                | `UNIQUE (user_id, name)`                                              | Zapewnia, że nazwy kont są unikalne dla każdego użytkownika.     |
 
 #### Tabela `value_entries`
