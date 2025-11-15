@@ -36,15 +36,18 @@ Na podstawie analizy dokumentu `ai/prd.md` i porównania go z obecnym stanem pro
     -   ~~W pętli "wypełnić" brakujące wpisy wartością początkową konta dla każdej daty, aż do napotkania pierwszego istniejącego wpisu.~~ (Zrealizowane)
     -   ~~Alternatywnie, logikę można zaimplementować po stronie frontendu w `useDashboardStore` po otrzymaniu danych, ale backend jest preferowany jako "single source of truth".~~ (Zrealizowane na backendzie)
 
-### 2.3. Mechanizm zbierania opinii
+### 2.3. Mechanizm zbierania opinii ✅
 
 - **Wymaganie PRD:** 3.6, Historyjka US-012
 - **Opis:** W stopce aplikacji powinny znaleźć się dwa linki: jeden do ankiety (np. Google Forms) i drugi `mailto:` do bezpośredniego kontaktu.
-- **Stan obecny:** Brak stopki z linkami w głównym layoucie.
-- **Plan działania:**
-    1.  Zmodyfikować komponent `src/layouts/Layout.astro`.
-    2.  Dodać element `<footer>`.
-    3.  W stopce umieścić dwa linki (`<a>`) z odpowiednimi atrybutami `href` (jeden do zewnętrznej ankiety, drugi `mailto:adres@email.com`).
+- **Stan obecny:** ✅ **ZREALIZOWANE** (15.11.2025)
+- **Implementacja:**
+    1.  ✅ Utworzono reużywalny komponent `src/components/Footer.astro`.
+    2.  ✅ Zintegrowano Footer z oboma layoutami: `src/layouts/Layout.astro` i `src/layouts/AuthLayout.astro`.
+    3.  ✅ Dodano link "Przekaż opinię" → Google Forms (target="_blank", rel="noopener noreferrer").
+    4.  ✅ Dodano element kontaktowy: "Kontakt: assetly.mail@gmail.com" (tekst z select-all dla łatwego kopiowania).
+    5.  ✅ Zaimplementowano responsywność (mobile: kolumna, desktop: wiersz z separatorem).
+    6.  ✅ Stopka widoczna na wszystkich stronach aplikacji, w tym krytycznie na stronach logowania/rejestracji.
 
 ---
 

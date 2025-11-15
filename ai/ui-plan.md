@@ -128,14 +128,22 @@ Nawigacja w aplikacji jest celowo zminimalizowana, aby skupić użytkownika na z
     - Przełącznik trybu Jasny/Ciemny.
     - Opcję "Ustawienia" (otwierającą modal do zarządzania profilem, np. usunięcia konta).
     - Przycisk "Wyloguj".
+- **Stopka (Footer)**:
+  - Znajduje się na dole każdej strony aplikacji (zarówno po zalogowaniu, jak i na stronach autentykacji).
+  - Zawiera dwa elementy:
+    - Link "Przekaż opinię" prowadzący do zewnętrznej ankiety Google Forms (otwiera się w nowej karcie).
+    - Element kontaktowy: "Kontakt: assetly.mail@gmail.com" (tekst z możliwością łatwego zaznaczenia i skopiowania).
+  - Responsywność: na urządzeniach mobilnych elementy układają się w kolumnę, na desktop w wiersz z separatorem.
 - **Nawigacja na urządzeniach mobilnych**:
   - Układ pozostaje ten sam: nagłówek z logo i menu użytkownika. Jest to proste i efektywne dla aplikacji opartej na jednym głównym widoku.
   - Główna siatka danych jest przewijana horyzontalnie, aby umożliwić dostęp do wszystkich kolumn z datami.
+  - Stopka pozostaje widoczna na dole ekranu ze zoptymalizowanym układem kolumnowym.
 
 ## 5. Kluczowe komponenty
 
 Poniżej znajduje się lista kluczowych, reużywalnych komponentów UI, które będą stanowić podstawę interfejsu, w większości bazując na `shadcn/ui`.
 
+- **`Footer`**: Reużywalny komponent Astro (`src/components/Footer.astro`) wyświetlający stopkę z linkami do zbierania opinii i kontaktu. Używany w obu layoutach (`Layout.astro` i `AuthLayout.astro`).
 - **`DataGrid`**: Niestandardowy, złożony komponent do wyświetlania siatki danych. Będzie obsługiwał "lepkie" kolumny/wiersze, wirtualizację (w przyszłości) i interakcje z komórkami.
 - **`DateRangePicker`**: Komponent do wybierania zakresu dat, filtrujący dane w `DataGrid` i na wykresie.
 - **`Dialog` / `AlertDialog`**: Standardowe komponenty `shadcn/ui` do wszystkich interakcji modalnych i potwierdzeń.
