@@ -89,12 +89,22 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
   // Actions
   fetchData: async () => {
+    const { showArchived, dateRange } = get();
     set({ isLoading: true, error: null });
 
     try {
-      const { showArchived } = get();
+      // Budowanie URL z parametrami
+      const params = new URLSearchParams();
+      params.append("archived", showArchived.toString());
 
-      const url = `/api/grid-data?archived=${showArchived}`;
+      if (dateRange.from) {
+        params.append("from", format(dateRange.from, "yyyy-MM-dd"));
+      }
+      if (dateRange.to) {
+        params.append("to", format(dateRange.to, "yyyy-MM-dd"));
+      }
+
+      const url = `/api/grid-data?${params.toString()}`;
 
       // Fetch grid data from the API (includes accounts, dates, entries)
       const gridDataResponse = await fetch(url);
