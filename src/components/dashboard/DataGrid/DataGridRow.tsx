@@ -15,7 +15,7 @@ import { getAccountRowClasses } from "@/lib/utils";
 interface DataGridRowProps {
   account: GridAccountDto;
   dates: string[];
-  onCellClick: (accountId: string, date: string, accountType: AccountType, previousValue: number) => void;
+  onCellClick: (accountId: string, date: string, accountType: AccountType) => void;
 }
 
 export default function DataGridRow({ account, dates, onCellClick }: DataGridRowProps) {

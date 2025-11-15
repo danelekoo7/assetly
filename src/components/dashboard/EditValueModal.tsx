@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import type { UpsertValueEntryCommand } from "@/types";
 
 // Validation schema
 const valueEntrySchema = z.object({
@@ -242,14 +243,24 @@ export default function EditValueModal() {
   const onSubmit = async (data: ValueEntryFormData) => {
     if (!context) return;
 
+    const payload: UpsertValueEntryCommand = {
+      account_id: context.accountId,
+      date: context.date,
+      value: parseFloat(data.value),
+      cash_flow: null,
+      gain_loss: null,
+    };
+
+    if (calcState.userModifiedCashFlow) {
+      payload.cash_flow = data.cash_flow ? parseFloat(data.cash_flow) : 0;
+    }
+
+    if (calcState.userModifiedGainLoss) {
+      payload.gain_loss = data.gain_loss ? parseFloat(data.gain_loss) : 0;
+    }
+
     try {
-      await updateValueEntry({
-        account_id: context.accountId,
-        date: context.date,
-        value: parseFloat(data.value),
-        cash_flow: data.cash_flow ? parseFloat(data.cash_flow) : null,
-        gain_loss: data.gain_loss ? parseFloat(data.gain_loss) : null,
-      });
+      await updateValueEntry(payload);
       // Close modal after successful save
       closeModal("editValue");
     } catch (error) {

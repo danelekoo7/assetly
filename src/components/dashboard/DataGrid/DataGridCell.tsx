@@ -6,12 +6,12 @@ interface DataGridCellProps {
   date: string;
   accountType: AccountType;
   value: number | null;
-  onCellClick: (accountId: string, date: string, accountType: AccountType, previousValue: number) => void;
+  onCellClick: (accountId: string, date: string, accountType: AccountType) => void;
 }
 
 export default function DataGridCell({ accountId, date, accountType, value, onCellClick }: DataGridCellProps) {
   const handleInteraction = () => {
-    onCellClick(accountId, date, accountType, value ?? 0);
+    onCellClick(accountId, date, accountType);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
