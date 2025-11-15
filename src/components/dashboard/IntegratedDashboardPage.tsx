@@ -11,6 +11,8 @@ import DataGrid from "./DataGrid";
 import AddEditAccountModal from "./AddEditAccountModal";
 import EditValueModal from "./EditValueModal";
 import ConfirmActionDialog from "./ConfirmActionDialog";
+import EmptyState from "./EmptyState";
+import DashboardLoadingSkeleton from "./DashboardLoadingSkeleton";
 
 export default function IntegratedDashboardPage() {
   const { isLoading, error, gridData, summaryData, fetchData } = useDashboardStore();
@@ -36,34 +38,47 @@ export default function IntegratedDashboardPage() {
     );
   }
 
+  const renderContent = () => {
+    if (isLoading) {
+      return <DashboardLoadingSkeleton />;
+    }
+
+    if (gridData && gridData.accounts.length === 0) {
+      return <EmptyState />;
+    }
+
+    return (
+      <div className="mx-auto max-w-7xl space-y-6">
+        {/* Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Twoje centrum finansowe - zarządzaj kontami i śledź wartość netto</p>
+        </div>
+
+        {/* Toolbar */}
+        <DashboardToolbar />
+
+        {/* KPI Section */}
+        <KpiSection summaryData={summaryData} />
+
+        {/* Chart Section */}
+        <NetWorthChart gridData={gridData} />
+
+        {/* Data Grid */}
+        <DataGrid gridData={gridData} />
+      </div>
+    );
+  };
+
   return (
     <>
       <Toaster position="top-right" richColors />
       <div className="min-h-screen bg-background p-6">
-        <div className="mx-auto max-w-7xl space-y-6">
-          {/* Header */}
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">Twoje centrum finansowe - zarządzaj kontami i śledź wartość netto</p>
-          </div>
-
-          {/* Toolbar */}
-          <DashboardToolbar />
-
-          {/* KPI Section */}
-          <KpiSection summaryData={summaryData} isLoading={isLoading} />
-
-          {/* Chart Section */}
-          <NetWorthChart gridData={gridData} isLoading={isLoading} />
-
-          {/* Data Grid */}
-          <DataGrid gridData={gridData} isLoading={isLoading} />
-
-          {/* Modals */}
-          <AddEditAccountModal />
-          <EditValueModal />
-          <ConfirmActionDialog />
-        </div>
+        {renderContent()}
+        {/* Modals are always needed */}
+        <AddEditAccountModal />
+        <EditValueModal />
+        <ConfirmActionDialog />
       </div>
     </>
   );

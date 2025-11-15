@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
 import type { GridDataDto, AccountType } from "@/types";
 import DataGridHeader from "./DataGrid/DataGridHeader";
@@ -8,10 +7,9 @@ import DataGridSummaryRow from "./DataGrid/DataGridSummaryRow";
 
 interface DataGridProps {
   gridData: GridDataDto | null;
-  isLoading: boolean;
 }
 
-export default function DataGrid({ gridData, isLoading }: DataGridProps) {
+export default function DataGrid({ gridData }: DataGridProps) {
   const { openModal } = useDashboardStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -31,18 +29,9 @@ export default function DataGrid({ gridData, isLoading }: DataGridProps) {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-2">
-        <Skeleton className="h-12 w-full" />
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
-      </div>
-    );
-  }
-
   if (!gridData || gridData.accounts.length === 0) {
+    // This case should not be reached if IntegratedDashboardPage handles the empty state,
+    // but it's a good fallback.
     return (
       <div className="rounded-lg border border-border bg-card p-8 text-center">
         <p className="text-muted-foreground">

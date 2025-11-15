@@ -67,12 +67,14 @@ Poniższe funkcjonalności są częściowo zaimplementowane, ale wymagają pełn
     4.  Upewnić się, że przyciski mają odpowiedni rozmiar (`touch target`).
     5.  Dodać testy E2E (Playwright) dla widoku mobilnego.
 
-### 3.2. Stany puste i onboarding
+### 3.2. Stany puste i onboarding ✅
 
 - **Wymaganie PRD:** 3.5, Historyjka US-004
 - **Opis:** Aplikacja powinna wyświetlać przyjazny komunikat dla nowych użytkowników bez żadnych danych.
-- **Stan obecny:** Prawdopodobnie siatka danych jest po prostu pusta.
-- **Plan działania:**
-    1.  W komponencie `IntegratedDashboardPage.tsx` lub `DataGrid.tsx` dodać warunek sprawdzający, czy `gridData.accounts` jest puste.
-    2.  Jeśli tak, wyświetlić dedykowany komponent "pustego stanu" z komunikatem i przyciskiem "Dodaj swoje pierwsze konto", który otwiera modal dodawania konta.
-    3.  Dodać test E2E dla scenariusza pierwszego logowania nowego użytkownika.
+- **Stan obecny:** ✅ **ZREALIZOWANE** (15.11.2025)
+- **Implementacja:**
+    1.  ✅ Utworzono komponent `src/components/dashboard/EmptyState.tsx` z przyjaznym komunikatem i CTA.
+    2.  ✅ Utworzono komponent `src/components/dashboard/DashboardLoadingSkeleton.tsx` dla spójnego stanu ładowania, co eliminuje "mignięcie" interfejsu.
+    3.  ✅ Zrefaktoryzowano `IntegratedDashboardPage.tsx` do obsługi trzech stanów: ładowanie (szkielet), pusty (`EmptyState`) i z danymi (dashboard).
+    4.  ✅ Uproszczono komponenty `KpiSection`, `NetWorthChart` i `DataGrid` poprzez usunięcie z nich indywidualnej logiki ładowania.
+    5.  ✅ Dodano i zweryfikowano testy jednostkowe dla `EmptyState.tsx`.
