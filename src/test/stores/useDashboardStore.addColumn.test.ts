@@ -57,6 +57,7 @@ const mockGridDataWithAccounts: GridDataDto = {
       id: "acc-1",
       name: "mBank",
       type: "cash_asset",
+      archived_at: null,
       entries: {
         "2024-01-01": { value: 1000, cash_flow: 0, gain_loss: 0 },
         "2024-02-01": { value: 1200, cash_flow: 200, gain_loss: 0 },
@@ -66,6 +67,7 @@ const mockGridDataWithAccounts: GridDataDto = {
       id: "acc-2",
       name: "XTB",
       type: "investment_asset",
+      archived_at: null,
       entries: {
         "2024-01-01": { value: 10000, cash_flow: 0, gain_loss: 0 },
         "2024-02-01": { value: 10500, cash_flow: 0, gain_loss: 500 },
@@ -75,6 +77,7 @@ const mockGridDataWithAccounts: GridDataDto = {
       id: "acc-3",
       name: "Kredyt",
       type: "liability",
+      archived_at: null,
       entries: {
         "2024-01-01": { value: 5000, cash_flow: 0, gain_loss: 0 },
       },
@@ -102,6 +105,7 @@ const mockGridDataWithAccountsNoEntries: GridDataDto = {
       id: "acc-1",
       name: "New Account",
       type: "cash_asset",
+      archived_at: null,
       entries: {},
     },
   ],
@@ -299,7 +303,7 @@ describe("useDashboardStore - addColumn", () => {
       }
     });
 
-    it("should set cash_flow and gain_loss to 0 for new entries", async () => {
+    it("should set cash_flow and gain_loss to null for new entries", async () => {
       // Arrange
       const store = useDashboardStore.getState();
       useDashboardStore.setState({ gridData: mockGridDataWithAccounts });
@@ -314,14 +318,14 @@ describe("useDashboardStore - addColumn", () => {
       // Act
       await store.addColumn(newDate);
 
-      // Assert - verify POST body contains cash_flow and gain_loss = 0
+      // Assert - verify POST body contains cash_flow and gain_loss = null
       const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
       const valueEntryCalls = fetchCalls.filter((call) => call[0].toString().includes("/api/value-entries"));
 
       for (const call of valueEntryCalls) {
         const requestBody = JSON.parse(call[1].body);
-        expect(requestBody.cash_flow).toBe(0);
-        expect(requestBody.gain_loss).toBe(0);
+        expect(requestBody.cash_flow).toBe(null);
+        expect(requestBody.gain_loss).toBe(null);
       }
     });
 
