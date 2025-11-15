@@ -31,10 +31,11 @@ Widok będzie zaimplementowany jako strona Astro (`src/pages/index.astro`), któ
     - Recharts (Wykres liniowy)
   - DataGrid
     - DataGridHeader (lepki)
-    - DataGridRow[]
-      - DataGridCell (Nazwa konta, lepka)
-        - DropdownMenu (Akcje: Edytuj, Archiwizuj, Usuń)
-      - DataGridCell (Wartość) -> (otwiera EditValueModal)
+    - SortableContext (dnd-kit)
+      - SortableDataGridRow[] (draggable)
+        - DataGridCell (Nazwa konta, lepka, z uchwytem do przeciągania)
+          - DropdownMenu (Akcje: Edytuj, Archiwizuj, Usuń)
+        - DataGridCell (Wartość) -> (otwiera EditValueModal)
     - DataGridSummaryRow (lepki)
   - AddEditAccountModal (Dialog)
   - EditValueModal (Dialog)
@@ -76,9 +77,9 @@ Widok będzie zaimplementowany jako strona Astro (`src/pages/index.astro`), któ
 
 ### `DataGrid`
 
-- **Opis:** Niestandardowy komponent siatki zbudowany z `div` z rolami ARIA (`grid`, `row`, `gridcell`). Pierwsza kolumna (nazwy kont) i wiersz podsumowania są "lepkie" (sticky).
-- **Główne elementy:** `div`y, `DropdownMenu` dla akcji na koncie.
-- **Obsługiwane interakcje:** Kliknięcie komórki wartości otwiera `EditValueModal`. Kliknięcie menu akcji otwiera `DropdownMenu`.
+- **Opis:** Niestandardowy komponent siatki zbudowany z `div` z rolami ARIA (`grid`, `row`, `gridcell`), zintegrowany z biblioteką `dnd-kit` w celu umożliwienia sortowania wierszy metodą "przeciągnij i upuść". Pierwsza kolumna (nazwy kont) i wiersz podsumowania są "lepkie" (sticky).
+- **Główne elementy:** `div`y, `DropdownMenu` dla akcji na koncie, uchwyt do przeciągania (drag handle) w pierwszej komórce.
+- **Obsługiwane interakcje:** Przeciąganie i upuszczanie wierszy w celu zmiany ich kolejności. Kliknięcie komórki wartości otwiera `EditValueModal`. Kliknięcie menu akcji otwiera `DropdownMenu`.
 - **Typy:** `GridDataDto`.
 - **Propsy:** `gridData: GridDataDto | null`, `isLoading: boolean`.
 
@@ -162,6 +163,7 @@ Stan globalny widoku będzie zarządzany przy użyciu biblioteki **Zustand**. Zo
     - `setDateRange(range)`: Aktualizuje zakres dat i wywołuje `fetchData`.
     - `addAccount(command)`: Wywołuje `POST /api/accounts`, a po sukcesie optymistycznie aktualizuje stan `gridData`.
     - `updateValueEntry(command)`: Wywołuje `POST /api/value-entries`, a po sukcesie optymistycznie aktualizuje komórkę w `gridData`. W przypadku błędu cofa zmianę i wyświetla powiadomienie.
+    - `reorderAccounts(accountIds)`: Wywołuje `POST /api/accounts/reorder` z nową kolejnością ID kont. Optymistycznie aktualizuje UI natychmiast po przeciągnięciu.
     - `openModal(modalName, context)` / `closeModal(modalName)`: Akcje do zarządzania widocznością modali.
 
 ## 7. Integracja API
@@ -184,12 +186,16 @@ Komponenty będą komunikować się z API poprzez akcje zdefiniowane w hooku `us
   - `DELETE /api/accounts/{id}`: Usunięcie konta.
     - **Request:** Brak
     - **Response:** `204 No Content`
+  - `POST /api/accounts/reorder`: Zmiana kolejności kont.
+    - **Request:** `{ account_ids: string[] }`
+    - **Response:** `204 No Content`
 
 ## 8. Interakcje użytkownika
 
 - **Edycja komórki:** Kliknięcie komórki w `DataGrid` -> Otwarcie `EditValueModal` z kontekstem komórki.
 - **Zapis edycji:** Wypełnienie formularza w `EditValueModal` i kliknięcie "Zapisz" -> Wywołanie akcji `updateValueEntry` -> Optymistyczna aktualizacja UI -> Wywołanie API -> Zamknięcie modala.
 - **Dodawanie konta:** Kliknięcie "+ Dodaj konto" -> Otwarcie `AddEditAccountModal` -> Wypełnienie i zapis formularza -> Wywołanie akcji `addAccount` -> Optymistyczna aktualizacja UI -> Zamknięcie modala.
+- **Zmiana kolejności kont:** Użytkownik przeciąga wiersz konta i upuszcza go w nowym miejscu -> UI natychmiast się aktualizuje -> Wywołanie akcji `reorderAccounts` w tle w celu zapisania nowej kolejności.
 - **Usuwanie konta:** Kliknięcie "Usuń" w `DropdownMenu` konta -> Otwarcie `ConfirmActionDialog` -> Kliknięcie "Potwierdź" -> Wywołanie `DELETE /api/accounts/{id}` -> Usunięcie wiersza z `DataGrid`.
 - **Zmiana zakresu dat:** Wybranie nowego zakresu w `DateRangePicker` -> Wywołanie `fetchData` -> Zaktualizowanie `DataGrid` i `NetWorthChart`.
 

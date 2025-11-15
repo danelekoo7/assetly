@@ -63,7 +63,8 @@ Aplikacja składa się z głównych widoków statycznych (stron) oraz widoków d
   - Siatka danych: Niestandardowy komponent oparty na `div` z `role="grid"`, `DropdownMenu` (dla akcji na koncie), `Popover` z `Calendar` (do dodawania kolumny).
 - **UX, dostępność i względy bezpieczeństwa**:
   - **UX**: Optymistyczne aktualizacje po edycji komórki. Stany ładowania obsługiwane przez `Skeleton`. Płynne animacje przy interakcjach. Wskaźnik zapisu komórki.
-  - **Dostępność**: Pierwsza kolumna siatki ("Konto") jest "lepka" (sticky). Semantyczny HTML (`role="grid"`). Typy kont rozróżnione ikoną/tekstem, a nie tylko kolorem.
+  - **UX**: Optymistyczne aktualizacje po edycji komórki i zmianie kolejności kont. Stany ładowania obsługiwane przez `Skeleton`. Płynne animacje przy interakcjach. Wskaźnik zapisu komórki.
+  - **Dostępność**: Pierwsza kolumna siatki ("Konto") jest "lepka" (sticky). Semantyczny HTML (`role="grid"`). Typy kont rozróżnione ikoną/tekstem, a nie tylko kolorem. Interakcja `drag-and-drop` ma odpowiedniki klawiaturowe.
   - **Bezpieczeństwo**: Wszystkie dane pobierane w kontekście zalogowanego użytkownika (RLS).
 
 ### Widoki modalne (Komponenty React)
@@ -106,7 +107,8 @@ Aplikacja składa się z głównych widoków statycznych (stron) oraz widoków d
 7.  **Wskazówka (Guidance)**: Pojawia się `Tooltip` lub `Popover`, który wskazuje na przycisk `+ Dodaj kolumnę`, sugerując następny krok.
 8.  **Dodanie nowej kolumny**: Użytkownik klika przycisk, wybiera datę w kalendarzu, a nowa kolumna jest dodawana do siatki z wartościami skopiowanymi z poprzedniego dnia.
 9.  **Edycja wartości**: Użytkownik klika na komórkę w siatce, co otwiera **Modal Edycji Wartości**. Wprowadza nową wartość, a reszta pól oblicza się automatycznie.
-10. **Zapis optymistyczny**: Po kliknięciu "Zapisz", UI natychmiast się aktualizuje, a w tle wysyłane jest żądanie do API. Komórka pokazuje subtelny wskaźnik statusu zapisu.
+10. **Zmiana kolejności kont**: Użytkownik chwyta za uchwyt przy nazwie konta i przeciąga wiersz w nowe miejsce. UI aktualizuje się natychmiast.
+11. **Zapis optymistyczny**: Po kliknięciu "Zapisz" w modalu lub po upuszczeniu wiersza, UI natychmiast się aktualizuje, a w tle wysyłane jest żądanie do API. Komórka pokazuje subtelny wskaźnik statusu zapisu.
 
 ### Przepływ zarządzania kontem
 

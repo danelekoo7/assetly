@@ -73,6 +73,7 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
 - Użytkownik może zarchiwizować konto. Zarchiwizowane konto jest wyszarzone i ukryte z domyślnego widoku tabeli, ale jego historyczne dane nadal są uwzględniane na wykresie wartości netto. Operacja wymaga potwierdzenia w oknie dialogowym.
 - Użytkownik może trwale usunąć konto. Usunięcie konta powoduje skasowanie całej jego historii wartości i jest operacją nieodwracalną. Operacja wymaga potwierdzenia w oknie dialogowym.
 - Użytkownik może zmienić typ istniejącego konta pomiędzy "Aktywo inwestycyjne" a "Aktywo gotówkowe". Zmiana typu nie wpływa na historyczne wpisy, a jedynie na domyślne zachowanie aplikacji przy tworzeniu nowych wpisów w przyszłości.
+- Użytkownik może zmieniać kolejność kont w tabeli za pomocą przeciągania i upuszczania (drag-and-drop). Zmieniona kolejność jest zapisywana i staje się domyślnym widokiem dla użytkownika.
 
 ### 3.5. Stany puste i onboarding
 
@@ -193,6 +194,14 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
   - Po kliknięciu, pojawia się okno dialogowe z wyraźnym ostrzeżeniem, że operacja jest nieodwracalna, i prośbą o potwierdzenie.
   - Po potwierdzeniu, konto i wszystkie powiązane z nim historyczne wartości są trwale usuwane z bazy danych.
   - Pulpit, wykres i podsumowania są natychmiast aktualizowane.
+
+- ID: US-018
+- Tytuł: Zmiana kolejności kont
+- Opis: Jako użytkownik, chcę móc dowolnie sortować moje konta, aby dostosować widok do moich preferencji.
+- Kryteria akceptacji:
+  - Użytkownik może przeciągać i upuszczać wiersze w tabeli, aby zmienić ich kolejność.
+  - Po zmianie kolejności, nowa pozycja jest automatycznie zapisywana w tle.
+  - Przy następnym załadowaniu aplikacji, konta są wyświetlane w ostatnio zapisanej kolejności.
 
 ### Zarządzanie danymi i wizualizacja
 

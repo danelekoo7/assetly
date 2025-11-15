@@ -89,6 +89,7 @@ Niniejszy dokument opisuje strategię, zakres, podejście i zasoby przeznaczone 
 | TC-07 | Użytkownik próbuje dodać konto z niepoprawnymi danymi (np. ujemna wartość). | Formularz wyświetla błędy walidacji.                                               | Wysoki    |
 | TC-08 | Użytkownik edytuje istniejące konto.                                        | Dane konta oraz dashboardu zostają zaktualizowane.                                 | Wysoki    |
 | TC-09 | Użytkownik usuwa istniejące konto.                                          | Konto znika z listy, dane na dashboardzie są przeliczane ponownie.                 | Wysoki    |
+| TC-10 | Użytkownik zmienia kolejność kont za pomocą przeciągnij i upuść.            | Kolejność kont w UI zostaje zmieniona i zapisana. Po odświeżeniu strony kolejność jest zachowana. | Wysoki    |
 
 ## 5. Środowisko testowe
 
