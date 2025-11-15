@@ -33,6 +33,7 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
   2.  Skumulowana wartość zysków/strat z inwestycji.
 - Na pulpicie znajduje się główny wykres liniowy, który prezentuje historyczne zmiany całkowitej wartości netto w czasie.
 - Wykres może opcjonalnie pokazywać podział na wartość pochodzącą z wpłat/wypłat i wartość wypracowaną przez inwestycje.
+- Użytkownik może filtrować dane wyświetlane na pulpicie (KPI, wykres) oraz w siatce danych za pomocą komponentu wyboru daty. Komponent ten pozwala na szybki wybór predefiniowanych okresów (np. "Ostatnie 3 miesiące", "Bieżący rok", "Cały okres") oraz na ręczne ustawienie niestandardowego zakresu dat.
 
 ### 3.3. Interfejs tabelaryczny (Zarządzanie danymi)
 
@@ -238,6 +239,7 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
 - Tytuł: Przeglądanie pulpitu z podziałem na wpłaty i zyski dla wybranego okresu
 - Opis: Jako użytkownik, chcę po zalogowaniu widzieć na pulpicie kluczowe wskaźniki finansowe (KPI) dla wybranego przeze mnie okresu czasu, aby móc porównywać różne okresy (np. poszczególne lata, kwartały).
 - Kryteria akceptacji:
+  - Użytkownik ma do dyspozycji intuicyjny komponent do wyboru zakresu dat, który oferuje zarówno predefiniowane okresy (np. "Ostatni rok", "Bieżący rok"), jak i możliwość wyboru niestandardowego zakresu.
   - Pulpit jest domyślnym widokiem po zalogowaniu.
   - KPI są obliczane dla **wybranego zakresu dat** widocznego w siatce danych:
     - **Wartość netto**: Stan na **koniec wybranego okresu** (ostatnia data w zakresie) = suma aktywów - suma pasywów

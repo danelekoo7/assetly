@@ -5,22 +5,64 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Plus, Calendar as CalendarIcon } from "lucide-react";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
-import { format } from "date-fns";
+import { format, subMonths, startOfYear, endOfYear } from "date-fns";
 import { pl } from "date-fns/locale";
+import { type DateRange } from "react-day-picker";
+
+interface Preset {
+  label: string;
+  range: { from: Date; to: Date } | { from: undefined; to: undefined };
+}
 
 export default function DashboardToolbar() {
   const { dateRange, showArchived, setDateRange, setShowArchived, openModal, addColumn, isAddingColumn } =
     useDashboardStore();
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+  const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(dateRange);
   const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
   const [selectedColumnDate, setSelectedColumnDate] = useState<Date>();
 
-  const handleDateRangeSelect = (range: { from?: Date; to?: Date } | undefined) => {
-    if (range?.from && range?.to) {
-      setDateRange({ from: range.from, to: range.to });
-      setIsDateRangeOpen(false);
+  const handleDateRangeOpenChange = (open: boolean) => {
+    if (open) {
+      setLocalDateRange(dateRange);
     }
+    setIsDateRangeOpen(open);
   };
+
+  const applyDateRange = () => {
+    if (localDateRange) {
+      setDateRange({ from: localDateRange.from, to: localDateRange.to });
+    }
+    setIsDateRangeOpen(false);
+  };
+
+  const handlePresetSelect = (preset: Preset) => {
+    if (preset.range.from && preset.range.to) {
+      setDateRange({ from: preset.range.from, to: preset.range.to });
+    } else {
+      setDateRange({ from: undefined, to: undefined });
+    }
+    setIsDateRangeOpen(false);
+  };
+
+  const presets: Preset[] = [
+    {
+      label: "Ostatnie 3 miesiące",
+      range: { from: subMonths(new Date(), 3), to: new Date() },
+    },
+    {
+      label: "Ostatnie 12 miesięcy",
+      range: { from: subMonths(new Date(), 12), to: new Date() },
+    },
+    {
+      label: "Bieżący rok",
+      range: { from: startOfYear(new Date()), to: endOfYear(new Date()) },
+    },
+    {
+      label: "Cały okres",
+      range: { from: undefined, to: undefined },
+    },
+  ];
 
   const handleOpenAddColumn = (open: boolean) => {
     if (open) {
@@ -55,7 +97,7 @@ export default function DashboardToolbar() {
   return (
     <div className="flex flex-wrap items-center gap-4">
       {/* Date Range Picker */}
-      <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+      <Popover open={isDateRangeOpen} onOpenChange={handleDateRangeOpenChange}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-64 justify-start text-left font-normal">
             <CalendarIcon className="mr-2 h-4 w-4" />
@@ -69,14 +111,35 @@ export default function DashboardToolbar() {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="range"
-            selected={{ from: dateRange.from, to: dateRange.to }}
-            onSelect={handleDateRangeSelect}
-            numberOfMonths={2}
-            locale={pl}
-            defaultMonth={dateRange.from}
-          />
+          <div className="flex">
+            <div className="flex flex-col space-y-2 border-r p-4">
+              {presets.map((preset) => (
+                <Button
+                  key={preset.label}
+                  variant="ghost"
+                  className="justify-start"
+                  onClick={() => handlePresetSelect(preset)}
+                >
+                  {preset.label}
+                </Button>
+              ))}
+            </div>
+            <div>
+              <Calendar
+                mode="range"
+                selected={localDateRange}
+                onSelect={setLocalDateRange}
+                numberOfMonths={2}
+                locale={pl}
+                defaultMonth={dateRange.from}
+              />
+              <div className="border-t p-3">
+                <Button onClick={applyDateRange} className="w-full">
+                  Zastosuj
+                </Button>
+              </div>
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
 
