@@ -1,0 +1,30 @@
+---
+import AuthLayout from "@/layouts/AuthLayout.astro";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2 } from "lucide-react";
+---
+
+<AuthLayout title="Konto usunięte">
+  <div class="space-y-6 text-center">
+    <div class="flex justify-center">
+      <div class="rounded-full bg-destructive/10 p-3">
+        <CheckCircle2 className="h-8 w-8 text-destructive" />
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <h2 class="text-2xl font-semibold tracking-tight">Konto zostało usunięte</h2>
+      <p class="text-sm text-muted-foreground">
+        Twoje konto oraz wszystkie powiązane dane zostały trwale usunięte z naszego systemu.
+      </p>
+    </div>
+
+    <p class="text-sm text-muted-foreground">
+      Dziękujemy za korzystanie z Assetly. Jeśli w przyszłości zdecydujesz się wrócić, będziemy Cię mile widzieć.
+    </p>
+
+    <a href="/login">
+      <Button className="w-full">Przejdź do strony głównej</Button>
+    </a>
+  </div>
+</AuthLayout>

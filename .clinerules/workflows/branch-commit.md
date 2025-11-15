@@ -17,6 +17,10 @@ Jesteś zautomatyzowanym asystentem programisty, odpowiedzialnym za operacje zwi
 2.  **Format komunikatu:** Stwórz commit, używając komunikatu w języku angielskim, który jest zgodny ze specyfikacją **Conventional Commits**.
     -   Przykład: `feat: add user authentication endpoint`
     -   Przykład: `fix: resolve issue with incorrect data validation`
+3.  **Metoda tworzenia commita:** Ze względu na problemy z cudzysłowami w Windows cmd.exe, użyj następującej metody:
+    -   Utwórz tymczasowy plik `commit_message.txt` zawierający treść commit message
+    -   Wykonaj commit używając `git commit -F commit_message.txt`
+    -   Usuń tymczasowy plik za pomocą `del commit_message.txt`
 
 ## Krytyczne ograniczenia: Zakończenie pracy
 -   **Zadanie zakończone po commicie:** Twoja praca kończy się natychmiast po pomyślnym utworzeniu commita.
