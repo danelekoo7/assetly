@@ -94,17 +94,18 @@ const mockValueEntries = [
 // MOCK SUPABASE CLIENT
 // ================================================================================================
 
+type MockAccounts = typeof mockAccounts;
+type MockEntries = typeof mockValueEntries;
+
 function createMockSupabaseClient(
-  accountsData: typeof mockAccounts = mockAccounts,
-  entriesData: {
-    account_id: string;
-    date: string;
-    value: number;
-    cash_flow: number | null;
-    gain_loss: number | null;
-  }[] = mockValueEntries
+  accountsData: MockAccounts | Error = mockAccounts,
+  entriesData: MockEntries | Error = mockValueEntries
 ) {
-  const mockQuery = {
+  const createThenable = (data: unknown, error: { message: string } | null = null) => ({
+    then: (resolve: (value: { data: unknown; error: { message: string } | null }) => void) => resolve({ data, error }),
+  });
+
+  const mockQueryBuilder = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     is: vi.fn().mockReturnThis(),
@@ -112,41 +113,53 @@ function createMockSupabaseClient(
     gte: vi.fn().mockReturnThis(),
     lte: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
+    // Make the query builder thenable to resolve with data
+    ...createThenable(null),
   };
 
-  // We need to control what data is returned based on the table
-  let currentTable = "";
+  const from = vi.fn((table: string) => {
+    if (table === "accounts") {
+      // If the accountsData is an error, make the query fail
+      if (accountsData instanceof Error) {
+        const errorBuilder = {
+          ...mockQueryBuilder,
+          ...createThenable(null, { message: accountsData.message }),
+        };
+        errorBuilder.select = vi.fn().mockReturnValue(errorBuilder);
+        return errorBuilder;
+      }
+      const successBuilder = {
+        ...mockQueryBuilder,
+        ...createThenable(accountsData),
+      };
+      successBuilder.select = vi.fn().mockReturnValue(successBuilder);
+      return successBuilder;
+    }
+    if (table === "value_entries") {
+      if (entriesData instanceof Error) {
+        const errorBuilder = {
+          ...mockQueryBuilder,
+          ...createThenable(null, { message: entriesData.message }),
+        };
+        errorBuilder.select = vi.fn().mockReturnValue(errorBuilder);
+        return errorBuilder;
+      }
+      const successBuilder = {
+        ...mockQueryBuilder,
+        ...createThenable(entriesData),
+      };
+      successBuilder.select = vi.fn().mockReturnValue(successBuilder);
+      return successBuilder;
+    }
+    return mockQueryBuilder;
+  });
 
   const mockSupabase = {
-    from: vi.fn((table: string) => {
-      currentTable = table;
-
-      // Return a new query object with terminal methods that return actual data
-      const query = { ...mockQuery };
-
-      // Override terminal methods to return data based on current table
-      const terminalMethods = {
-        then: async (resolve: (value: { data: unknown; error: null }) => void) => {
-          if (currentTable === "accounts") {
-            resolve({ data: accountsData, error: null });
-          } else if (currentTable === "value_entries") {
-            resolve({ data: entriesData, error: null });
-          }
-        },
-      };
-
-      return new Proxy(query, {
-        get(target: Record<string, unknown>, prop: string) {
-          if (prop in terminalMethods) {
-            return terminalMethods[prop as keyof typeof terminalMethods];
-          }
-          return target[prop];
-        },
-      });
-    }),
+    from,
   } as unknown as SupabaseClient<Database>;
 
-  return { mockSupabase, mockQuery };
+  // Return the original mockQuery for verifying calls on the builder methods
+  return { mockSupabase, mockQuery: mockQueryBuilder };
 }
 
 // ================================================================================================
@@ -484,16 +497,7 @@ describe("GridDataService", () => {
     // =============================================================================================
 
     it("should throw error when accounts query fails", async () => {
-      // Create a mock that returns an error for accounts
-      const mockSupabase = {
-        from: vi.fn(() => ({
-          select: vi.fn().mockReturnThis(),
-          is: vi.fn().mockResolvedValue({
-            data: null,
-            error: { message: "Database connection failed" },
-          }),
-        })),
-      } as unknown as SupabaseClient<Database>;
+      const { mockSupabase } = createMockSupabaseClient(new Error("Database connection failed"));
 
       await expect(GridDataService.getGridData(mockSupabase, userId)).rejects.toThrow(
         "Failed to fetch accounts: Database connection failed"
@@ -501,44 +505,7 @@ describe("GridDataService", () => {
     });
 
     it("should throw error when value_entries query fails", async () => {
-      let callCount = 0;
-
-      // Create a mock that succeeds for accounts but fails for value_entries
-      const mockSupabase = {
-        from: vi.fn(() => {
-          callCount++;
-          if (callCount === 1) {
-            // First call (accounts) - success with all chain methods
-            const accountsQuery = {
-              select: vi.fn().mockReturnThis(),
-              is: vi.fn().mockReturnThis(),
-            };
-            // Make it thenable to resolve with data
-            Object.assign(accountsQuery, {
-              then: async (resolve: (value: { data: unknown; error: null }) => void) => {
-                resolve({ data: [mockAccounts[0]], error: null });
-              },
-            });
-            return accountsQuery;
-          } else {
-            // Second call (value_entries) - error
-            const entriesQuery = {
-              select: vi.fn().mockReturnThis(),
-              in: vi.fn().mockReturnThis(),
-              gte: vi.fn().mockReturnThis(),
-              lte: vi.fn().mockReturnThis(),
-              order: vi.fn().mockReturnThis(),
-            };
-            // Make it thenable to resolve with error
-            Object.assign(entriesQuery, {
-              then: async (resolve: (value: { data: null; error: { message: string } }) => void) => {
-                resolve({ data: null, error: { message: "Failed to query value_entries" } });
-              },
-            });
-            return entriesQuery;
-          }
-        }),
-      } as unknown as SupabaseClient<Database>;
+      const { mockSupabase } = createMockSupabaseClient(mockAccounts, new Error("Failed to query value_entries"));
 
       await expect(GridDataService.getGridData(mockSupabase, userId)).rejects.toThrow(
         "Failed to fetch value entries: Failed to query value_entries"

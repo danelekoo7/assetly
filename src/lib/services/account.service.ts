@@ -64,9 +64,24 @@ const AccountService = {
     userId: string,
     command: CreateAccountCommand
   ) {
-    // Step 1: Insert the new account into the 'accounts' table.
-    // The 'currency' field is hardcoded to 'PLN' as it's not in the command
-    // but present in the example response. This might require future adjustments.
+    // Step 1: Determine the next display_order for the new account.
+    const { data: maxOrderAccount, error: maxOrderError } = await supabase
+      .from("accounts")
+      .select("display_order")
+      .eq("user_id", userId)
+      .order("display_order", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (maxOrderError && maxOrderError.code !== "PGRST116") {
+      // PGRST116: "The result contains 0 rows" - this is fine if user has no accounts.
+      // For other errors, we should throw.
+      throw maxOrderError;
+    }
+
+    const nextDisplayOrder = maxOrderAccount ? maxOrderAccount.display_order + 1 : 0;
+
+    // Step 2: Insert the new account with the calculated display_order.
     const { data: newAccount, error: accountError } = await supabase
       .from("accounts")
       .insert({
@@ -74,6 +89,7 @@ const AccountService = {
         type: command.type,
         user_id: userId,
         currency: "PLN", // Default currency
+        display_order: nextDisplayOrder,
       })
       .select()
       .single();
