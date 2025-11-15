@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import type { GridDataDto } from "@/types";
 
 interface NetWorthChartProps {
   gridData: GridDataDto | null;
-  isLoading: boolean;
 }
 
 type SeriesKey = "net_worth" | "cumulative_cash_flow" | "cumulative_gain_loss";
@@ -37,21 +35,8 @@ const formatDate = (dateString: string): string => {
   });
 };
 
-export default function NetWorthChart({ gridData, isLoading }: NetWorthChartProps) {
+export default function NetWorthChart({ gridData }: NetWorthChartProps) {
   const [visibleSeries, setVisibleSeries] = useState<SeriesKey[]>(["net_worth"]);
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-6 w-48" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-96 w-full" />
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (!gridData || gridData.dates.length === 0) {
     return (
