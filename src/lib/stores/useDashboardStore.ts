@@ -432,8 +432,8 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
         // Determine initial value
         let value = 0;
-        const cash_flow = 0;
-        const gain_loss = 0;
+        const cash_flow = null;
+        const gain_loss = null;
 
         if (lastEntry) {
           value = lastEntry.entry.value;
