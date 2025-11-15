@@ -75,6 +75,7 @@ src/
 │   └── auth/          # Auth-related pages
 ├── layouts/            # Astro layouts (Layout.astro, AuthLayout.astro)
 ├── components/         # Mixed Astro (static) and React (interactive)
+│   ├── Footer.astro   # Reusable footer with feedback links
 │   ├── ui/            # Shadcn/ui components
 │   ├── auth/          # Auth forms (React)
 │   └── dashboard/     # Dashboard components (React)

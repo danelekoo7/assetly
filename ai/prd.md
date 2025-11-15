@@ -79,9 +79,9 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
 
 ### 3.6. Zbieranie opinii
 
-- W stopce aplikacji znajdują się dwa linki:
-  1.  Link do prostej ankiety (3-4 pytania) w celu zebrania opinii na temat użyteczności i brakujących funkcji.
-  2.  Link `mailto:` do kontaktowego adresu e-mail, umożliwiający bezpośredni kontakt.
+- W stopce aplikacji znajdują się dwa elementy:
+  1.  Link do prostej ankiety (3-4 pytania) w celu zebrania opinii na temat użyteczności i brakujących funkcji. Link otwiera się w nowej karcie przeglądarki.
+  2.  Element tekstowy z adresem e-mail kontaktowym, umożliwiający łatwe skopiowanie adresu do schowka i bezpośredni kontakt z użyciem dowolnego klienta poczty.
 
 ### 3.7. Responsywność i interfejs mobilny
 
@@ -287,9 +287,11 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
 - Tytuł: Przekazywanie opinii
 - Opis: Jako użytkownik, chcę mieć łatwy dostęp do sposobu przekazania mojej opinii lub zgłoszenia problemu, aby pomóc w rozwoju aplikacji.
 - Kryteria akceptacji:
-  - W stopce aplikacji stale widoczne są dwa linki: "Przekaż opinię" i "Kontakt".
-  - Link "Przekaż opinię" otwiera zewnętrzną ankietę (np. Google Forms, Tally) w nowej karcie.
-  - Link "Kontakt" jest linkiem typu `mailto:`, który otwiera domyślnego klienta poczty e-mail z wpisanym adresem odbiorcy.
+  - W stopce aplikacji stale widoczne są dwa elementy: link "Przekaż opinię" i element kontaktowy.
+  - Link "Przekaż opinię" otwiera zewnętrzną ankietę (Google Forms) w nowej karcie przeglądarki (target="_blank", rel="noopener noreferrer").
+  - Element kontaktowy wyświetla widoczny tekst "Kontakt:" oraz adres e-mail (assetly.mail@gmail.com) z możliwością łatwego zaznaczenia i skopiowania.
+  - Stopka jest widoczna na wszystkich stronach aplikacji, w tym na stronach autentykacji (logowanie, rejestracja), aby umożliwić kontakt nawet użytkownikom z problemami z dostępem.
+  - Stopka jest w pełni responsywna: na urządzeniach mobilnych elementy układają się w kolumnę, na desktopie w wiersz z separatorem wizualnym.
 
 ## 6. Metryki sukcesu
 
