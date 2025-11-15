@@ -55,6 +55,7 @@ interface DashboardState {
   deleteAccount: (id: string) => Promise<void>;
   updateValueEntry: (command: UpsertValueEntryCommand) => Promise<void>;
   addColumn: (date: Date) => Promise<void>;
+  deleteColumn: (date: string) => Promise<void>;
   openModal: (modalName: keyof DashboardState["activeModals"], context?: unknown) => void;
   closeModal: (modalName: keyof DashboardState["activeModals"]) => void;
   resetStore: () => void;
@@ -329,6 +330,57 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       get().closeModal("editValue");
     } catch (error) {
       // Ensure rollback happened
+      set({ gridData: previousGridData });
+      throw error;
+    }
+  },
+
+  deleteColumn: async (date: string) => {
+    const { gridData } = get();
+    const previousGridData = gridData;
+
+    try {
+      // [1] Optimistic update - remove column from UI
+      if (gridData) {
+        const updatedGridData = { ...gridData };
+        updatedGridData.dates = updatedGridData.dates.filter((d) => d !== date);
+
+        // Remove entries for this date from all accounts
+        updatedGridData.accounts = updatedGridData.accounts.map((account) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [date]: removed, ...remainingEntries } = account.entries;
+          return { ...account, entries: remainingEntries };
+        });
+
+        set({ gridData: updatedGridData });
+      }
+
+      // [2] Call API
+      const response = await fetch(`/api/value-entries?date=${date}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        // Rollback
+        set({ gridData: previousGridData });
+        const error = await response.json();
+        toast.error("Nie udało się usunąć kolumny", {
+          description: error.message,
+        });
+        throw new Error(error.message || "Failed to delete column");
+      }
+
+      // [3] Success
+      const result = await response.json();
+      toast.success(`Usunięto kolumnę ${format(new Date(date), "dd.MM.yyyy", { locale: pl })}`, {
+        description: `Usunięto ${result.deleted_count} wpisów`,
+      });
+
+      // [4] Refresh data
+      await get().fetchData(true); // skip cache
+      get().closeModal("confirmAction");
+    } catch (error) {
+      // Ensure rollback
       set({ gridData: previousGridData });
       throw error;
     }

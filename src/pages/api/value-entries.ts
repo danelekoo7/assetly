@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 
 import ValueEntryService from "@/lib/services/value-entry.service";
 import { NotFoundError, ValidationError } from "@/lib/errors";
-import { upsertValueEntrySchema } from "@/lib/validation/value-entry.schemas";
+import { upsertValueEntrySchema, deleteDateSchema } from "@/lib/validation/value-entry.schemas";
 
 // Ensure dynamic rendering for this API endpoint
 export const prerender = false;
@@ -98,6 +98,83 @@ export const POST: APIRoute = async ({ request, locals }) => {
       JSON.stringify({
         error: "Internal Server Error",
         message: "Could not create or update value entry.",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+/**
+ * DELETE /api/value-entries?date=YYYY-MM-DD
+ *
+ * Deletes all value entries for a specific date across all user's accounts.
+ * This operation is irreversible.
+ *
+ * @query date - Date in YYYY-MM-DD format
+ *
+ * @returns 200 - { deleted_count: number }
+ * @returns 400 - Invalid date format
+ * @returns 401 - User not authenticated
+ * @returns 500 - Internal server error
+ */
+export const DELETE: APIRoute = async ({ request, locals }) => {
+  const { supabase, user } = locals;
+
+  // Verify that a user is authenticated.
+  const userId = user?.id;
+  if (!userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Extract date from query parameters
+  const url = new URL(request.url);
+  const date = url.searchParams.get("date");
+
+  // Validate query parameter
+  const parseResult = deleteDateSchema.safeParse({ date });
+
+  if (!parseResult.success) {
+    return new Response(
+      JSON.stringify({
+        error: "Bad Request",
+        message: "Data musi być w formacie YYYY-MM-DD",
+        details: parseResult.error.format(),
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  try {
+    // Call the service to delete all entries for the given date
+    const deletedCount = await ValueEntryService.deleteEntriesByDate(supabase, userId, parseResult.data.date);
+
+    // Return success response with count
+    return new Response(
+      JSON.stringify({
+        deleted_count: deletedCount,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    // Log and return a generic 500 error for any failures.
+    // eslint-disable-next-line no-console
+    console.error("Failed to delete value entries:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: "Nie udało się usunąć wpisów wartości.",
       }),
       {
         status: 500,

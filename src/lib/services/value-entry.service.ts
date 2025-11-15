@@ -153,6 +153,48 @@ const ValueEntryService = {
       gain_loss: value - previousValue,
     };
   },
+
+  /**
+   * Delete all value entries for a specific date across all user's accounts.
+   * This operation is irreversible and removes all entries for the given date.
+   *
+   * @param supabase - Supabase client with user session
+   * @param userId - The authenticated user's ID
+   * @param date - Date in YYYY-MM-DD format
+   * @returns Number of deleted entries
+   * @throws Error if deletion fails
+   */
+  async deleteEntriesByDate(supabase: SupabaseClient<Database>, userId: string, date: string): Promise<number> {
+    // Step 1: Get all account IDs for the user
+    const { data: accounts, error: accountsError } = await supabase.from("accounts").select("id").eq("user_id", userId);
+
+    if (accountsError) {
+      throw accountsError;
+    }
+
+    // If user has no accounts, return 0
+    if (!accounts || accounts.length === 0) {
+      return 0;
+    }
+
+    const accountIds = accounts.map((acc) => acc.id);
+
+    // Step 2: Delete all value_entries for these accounts and the given date
+    // RLS policies will automatically ensure we only delete entries for user's accounts
+    const { data, error: deleteError } = await supabase
+      .from("value_entries")
+      .delete()
+      .in("account_id", accountIds)
+      .eq("date", date)
+      .select();
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    // Step 3: Return count of deleted entries
+    return data?.length ?? 0;
+  },
 };
 
 export default ValueEntryService;
