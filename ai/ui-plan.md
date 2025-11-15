@@ -147,7 +147,9 @@ Poniżej znajduje się lista kluczowych, reużywalnych komponentów UI, które b
 
 - **`Footer`**: Reużywalny komponent Astro (`src/components/Footer.astro`) wyświetlający stopkę z linkami do zbierania opinii i kontaktu. Używany w obu layoutach (`Layout.astro` i `AuthLayout.astro`).
 - **`DataGrid`**: Niestandardowy, złożony komponent do wyświetlania siatki danych. Będzie obsługiwał "lepkie" kolumny/wiersze, wirtualizację (w przyszłości) i interakcje z komórkami.
-- **`DateRangePicker`**: Komponent do wybierania zakresu dat, filtrujący dane w `DataGrid` i na wykresie.
+- **`DateRangePicker`**: Hybrydowy komponent do wybierania zakresu dat, który filtruje dane w `DataGrid` i na wykresie. Łączy w sobie dwie funkcjonalności:
+  - **Predefiniowane zakresy**: Umożliwia szybki wybór najczęściej używanych okresów (np. "Ostatnie 3 miesiące", "Bieżący rok", "Cały okres") za pomocą jednego kliknięcia.
+  - **Niestandardowy wybór**: Zawiera również tradycyjny kalendarz (`Calendar` w trybie `range`), który pozwala na precyzyjne zdefiniowanie dowolnego zakresu dat. Zmiany są zatwierdzane dopiero po kliknięciu przycisku "Zastosuj", co zapobiega przypadkowemu zamknięciu okna podczas wyboru.
 - **`Dialog` / `AlertDialog`**: Standardowe komponenty `shadcn/ui` do wszystkich interakcji modalnych i potwierdzeń.
 - **`Card`**: Używany do wyświetlania wskaźników KPI w sekcji pulpitu.
 - **`Skeleton`**: Używany jako placeholder podczas ładowania danych dla KPI, wykresu i siatki, poprawiając postrzeganą wydajność.
