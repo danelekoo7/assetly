@@ -242,6 +242,21 @@ Następujące funkcje i elementy są świadomie wyłączone z zakresu MVP, aby z
   - Wykres może opcjonalnie pokazywać podział na wartość pochodzącą z wpłat/wypłat i wartość wypracowaną przez inwestycje.
   - Oś X wykresu reprezentuje czas (daty), a oś Y reprezentuje wartość netto.
 
+- ID: US-017
+- Tytuł: Usuwanie kolumny z przypadkowo dodaną datą
+- Opis: Jako użytkownik, chcę móc usunąć całą kolumnę (datę) wraz z wszystkimi wpisami, jeśli dodałem ją przez pomyłkę, aby skorygować błędy w danych i utrzymać porządek w historii finansowej.
+- Kryteria akceptacji:
+  - W nagłówku każdej kolumny (daty) znajduje się menu kontekstowe z opcjami zarządzania.
+  - Menu zawiera opcję "Usuń kolumnę".
+  - Po wybraniu opcji usunięcia, system wyświetla dialog potwierdzenia z wyraźnym ostrzeżeniem o nieodwracalności operacji.
+  - Dialog informuje, że operacja usunie wszystkie wpisy wartości dla tej daty dla wszystkich kont użytkownika.
+  - Po potwierdzeniu przez użytkownika, wszystkie wpisy wartości (value_entries) dla tej daty są trwale usuwane z bazy danych.
+  - Kolumna natychmiast znika z interfejsu tabeli.
+  - System automatycznie odświeża dane na pulpicie, wykresie i w wierszu podsumowania.
+  - Użytkownik otrzymuje potwierdzenie sukcesu operacji z informacją o liczbie usuniętych wpisów.
+  - Nie ma ograniczenia dotyczącego usuwania ostatniej kolumny - użytkownik może usunąć wszystkie kolumny i dodać nowe w dowolnym momencie.
+  - Operacja jest nieodwracalna - nie ma możliwości przywrócenia usuniętych danych.
+
 ### Responsywność i mobilność
 
 - ID: US-013

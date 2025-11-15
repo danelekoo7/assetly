@@ -24,3 +24,11 @@ export const upsertValueEntrySchema = z.object({
     .nullable()
     .optional(),
 });
+
+/**
+ * Schemat walidacji dla operacji usuwania wpisów dla danej daty (DELETE /value-entries?date=YYYY-MM-DD).
+ * Waliduje query parameter 'date'.
+ */
+export const deleteDateSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data musi być w formacie YYYY-MM-DD"),
+});
