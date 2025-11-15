@@ -70,7 +70,7 @@ export async function GET({ url, request, cookies }: APIContext) {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "private, max-age=60", // Cache for 60 seconds
+        "Cache-Control": "no-cache, no-store, must-revalidate",
       },
     });
   } catch (error) {
