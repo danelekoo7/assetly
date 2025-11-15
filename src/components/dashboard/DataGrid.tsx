@@ -20,7 +20,20 @@ export default function DataGrid({ gridData }: DataGridProps) {
     }
   }, [gridData]);
 
-  const handleCellClick = (accountId: string, date: string, accountType: AccountType, previousValue: number) => {
+  const handleCellClick = (accountId: string, date: string, accountType: AccountType) => {
+    if (!gridData) return;
+
+    const account = gridData.accounts.find((acc) => acc.id === accountId);
+    if (!account) return;
+
+    const dateIndex = gridData.dates.indexOf(date);
+    let previousValue = 0;
+
+    if (dateIndex > 0) {
+      const previousDate = gridData.dates[dateIndex - 1];
+      previousValue = account.entries[previousDate]?.value ?? 0;
+    }
+
     openModal("editValue", {
       accountId,
       date,

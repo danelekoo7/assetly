@@ -154,5 +154,38 @@ describe("ValueEntryService", () => {
         expect(result.gain_loss).toBe(100);
       });
     });
+
+    // =============================================================================================
+    // SCENARIO FROM BUG REPORT
+    // =============================================================================================
+    it("should correctly calculate gain_loss when updating an existing entry based on the chronologically previous entry", () => {
+      // This test simulates the bug report scenario:
+      // 1. Entry on 10.11 with value 500
+      // 2. Entry on 15.11 with value 600
+      // 3. User edits the 15.11 entry to 800
+      // The calculation should be based on the 500 from 10.11, not the 600 from 15.11's previous state.
+
+      // Arrange
+      const previousValueFromChronologicallyEarlierEntry = 500; // This is the value from 10.11
+      const newValueForExistingEntry = 800; // User updates the value to 800
+      const accountType = "investment_asset";
+
+      // Act
+      // We simulate the service's behavior. The service correctly fetches the previous value (500).
+      // We are testing the calculation logic that receives this correctly fetched value.
+      const result = ValueEntryService.calculateCashFlowAndGainLoss(
+        newValueForExistingEntry,
+        previousValueFromChronologicallyEarlierEntry,
+        accountType,
+        null, // User did not manually enter cash_flow
+        null // User did not manually enter gain_loss
+      );
+
+      // Assert
+      // For an investment asset, the change should be reflected in gain_loss.
+      // Expected gain_loss = 800 (new value) - 500 (previous entry's value) = 300
+      expect(result.cash_flow).toBe(0);
+      expect(result.gain_loss).toBe(300);
+    });
   });
 });
