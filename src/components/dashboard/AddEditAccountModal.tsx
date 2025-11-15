@@ -22,24 +22,20 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import type { AccountType } from "@/types";
 
-// Validation schema
-const accountSchema = z.object({
+// Unified schema for both add and edit modes
+const accountFormSchema = z.object({
   name: z.string().min(3, "Nazwa musi mieć co najmniej 3 znaki"),
   type: z.enum(["investment_asset", "cash_asset", "liability"], {
     required_error: "Wybierz typ konta",
   }),
-  initial_value: z.coerce.number({
-    required_error: "Wartość początkowa jest wymagana",
-    invalid_type_error: "Wartość musi być liczbą",
-  }),
+  // Initial value is optional in the schema, but required conditionally in the form logic
+  initial_value: z.coerce.number().optional(),
 });
 
-const editAccountSchema = accountSchema.pick({ name: true });
-
-type AccountFormData = z.infer<typeof accountSchema>;
+type AccountFormData = z.infer<typeof accountFormSchema>;
 
 export default function AddEditAccountModal() {
-  const { activeModals, closeModal, addAccount, updateAccountName } = useDashboardStore();
+  const { activeModals, closeModal, addAccount, updateAccount } = useDashboardStore();
 
   const isOpen = activeModals.addAccount;
   const editContext = activeModals.editAccount;
@@ -52,11 +48,10 @@ export default function AddEditAccountModal() {
   });
 
   const form = useForm<AccountFormData>({
-    resolver: zodResolver(isEditMode ? editAccountSchema : accountSchema),
+    resolver: zodResolver(accountFormSchema),
     defaultValues: {
       name: "",
       type: "investment_asset",
-      initial_value: 0,
     },
   });
 
@@ -86,8 +81,30 @@ export default function AddEditAccountModal() {
   const onSubmit = async (data: AccountFormData) => {
     try {
       if (isEditMode && editContext) {
-        await updateAccountName(editContext.account.id, data.name);
+        // In edit mode, we only send the fields that have changed.
+        const changedData: Partial<AccountFormData> = {};
+        if (data.name && data.name !== editContext.account.name) {
+          changedData.name = data.name;
+        }
+        if (data.type && data.type !== editContext.account.type) {
+          changedData.type = data.type;
+        }
+
+        if (Object.keys(changedData).length > 0) {
+          await updateAccount(editContext.account.id, changedData);
+        }
+        // Close modal even if nothing changed
+        handleClose();
       } else {
+        // In "add" mode, initial_value is required.
+        if (data.initial_value === undefined || data.initial_value === null) {
+          form.setError("initial_value", {
+            type: "manual",
+            message: "Wartość początkowa jest wymagana.",
+          });
+          return;
+        }
+
         // Format date as YYYY-MM-DD string to avoid timezone issues
         const dateStr = format(selectedDate, "yyyy-MM-dd");
 
@@ -101,7 +118,7 @@ export default function AddEditAccountModal() {
     } catch (error) {
       // Handle specific error cases
       if (error instanceof Error) {
-        // The store action for updateAccountName already shows a toast for 409
+        // The store action for updateAccount already shows a toast for 409
         // We just need to set the form error state
         if (error.message.includes("Conflict")) {
           form.setError("name", {
@@ -156,33 +173,41 @@ export default function AddEditAccountModal() {
               )}
             />
 
-            {/* Type Field - Only show in create mode */}
-            {!isEditMode && (
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Typ konta</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Wybierz typ konta" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="investment_asset">Aktywo inwestycyjne</SelectItem>
-                        <SelectItem value="cash_asset">Aktywo gotówkowe</SelectItem>
+            {/* Type Field */}
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Typ konta</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    // Disable changing type for liabilities or from liability
+                    disabled={isEditMode && (editContext?.account.type === "liability" || field.value === "liability")}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz typ konta" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="investment_asset">Aktywo inwestycyjne</SelectItem>
+                      <SelectItem value="cash_asset">Aktywo gotówkowe</SelectItem>
+                      {/* Show liability only in create mode */}
+                      {!isEditMode ? (
                         <SelectItem value="liability">Pasywo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                      ) : (
+                        editContext?.account.type === "liability" && <SelectItem value="liability">Pasywo</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            {/* Initial Value Field - Only show in create mode */}
+            {/* Initial Value and Date Fields - Only show in create mode */}
             {!isEditMode && (
               <>
                 <FormField

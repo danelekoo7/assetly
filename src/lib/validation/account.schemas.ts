@@ -26,8 +26,9 @@ export const updateAccountSchema = z
       .datetime({ message: "Data archiwizacji musi być w formacie ISO 8601." })
       .nullable()
       .optional(),
+    type: z.enum(["cash_asset", "investment_asset"]).optional(),
   })
-  .refine((data) => data.name !== undefined || data.archived_at !== undefined, {
-    message: "Należy podać przynajmniej jedno pole do aktualizacji (name lub archived_at).",
+  .refine((data) => data.name !== undefined || data.archived_at !== undefined || data.type !== undefined, {
+    message: "Należy podać przynajmniej jedno pole do aktualizacji (name, archived_at lub type).",
     path: [], // Apply the error to the whole object if the check fails
   });

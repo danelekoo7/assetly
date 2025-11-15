@@ -72,6 +72,7 @@ Użytkownicy, którzy posiadają aktywa i pasywa w różnych instytucjach (konta
 - Typy kont są wizualnie rozróżnione w tabeli (np. kolor tła, ikony) w celu zapewnienia czytelności i dostępności.
 - Użytkownik może zarchiwizować konto. Zarchiwizowane konto jest wyszarzone i ukryte z domyślnego widoku tabeli, ale jego historyczne dane nadal są uwzględniane na wykresie wartości netto. Operacja wymaga potwierdzenia w oknie dialogowym.
 - Użytkownik może trwale usunąć konto. Usunięcie konta powoduje skasowanie całej jego historii wartości i jest operacją nieodwracalną. Operacja wymaga potwierdzenia w oknie dialogowym.
+- Użytkownik może zmienić typ istniejącego konta pomiędzy "Aktywo inwestycyjne" a "Aktywo gotówkowe". Zmiana typu nie wpływa na historyczne wpisy, a jedynie na domyślne zachowanie aplikacji przy tworzeniu nowych wpisów w przyszłości.
 
 ### 3.5. Stany puste i onboarding
 

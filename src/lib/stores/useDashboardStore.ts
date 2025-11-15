@@ -49,7 +49,7 @@ interface DashboardState {
   setDateRange: (range: { from: Date; to: Date }) => void;
   setShowArchived: (show: boolean) => void;
   addAccount: (command: CreateAccountCommand) => Promise<void>;
-  updateAccountName: (id: string, name: string) => Promise<void>;
+  updateAccount: (id: string, data: Partial<UpdateAccountCommand>) => Promise<void>;
   archiveAccount: (id: string) => Promise<void>;
   restoreAccount: (id: string) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
@@ -200,11 +200,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     get().closeModal("addAccount");
   },
 
-  updateAccountName: async (id: string, name: string) => {
+  updateAccount: async (id: string, data: Partial<UpdateAccountCommand>) => {
     const response = await fetch(`/api/accounts/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
@@ -214,14 +214,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
           description: "Proszę wybrać inną nazwę.",
         });
       } else {
-        toast.error("Błąd aktualizacji nazwy", {
-          description: errorData.message || "Nie udało się zaktualizować nazwy konta.",
+        toast.error("Błąd aktualizacji konta", {
+          description: errorData.message || "Nie udało się zaktualizować danych konta.",
         });
       }
-      throw new Error(errorData.message || "Failed to update account name");
+      throw new Error(errorData.message || "Failed to update account");
     }
 
-    toast.success("Nazwa konta została pomyślnie zaktualizowana.");
+    toast.success("Konto zostało pomyślnie zaktualizowane.");
     await get().fetchData(true);
     get().closeModal("editAccount");
   },
