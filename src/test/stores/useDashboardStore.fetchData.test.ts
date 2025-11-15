@@ -13,6 +13,7 @@ const mockGridDataDto: GridDataDto = {
       id: "acc-1",
       name: "mBank",
       type: "cash_asset",
+      archived_at: null,
       entries: {
         "2024-01-01": { value: 1000, cash_flow: 0, gain_loss: 0 },
         "2024-02-01": { value: 1200, cash_flow: 200, gain_loss: 0 },
@@ -23,6 +24,7 @@ const mockGridDataDto: GridDataDto = {
       id: "acc-2",
       name: "XTB",
       type: "investment_asset",
+      archived_at: null,
       entries: {
         "2024-01-01": { value: 10000, cash_flow: 0, gain_loss: 0 },
         "2024-02-01": { value: 10500, cash_flow: 0, gain_loss: 500 },
@@ -33,6 +35,7 @@ const mockGridDataDto: GridDataDto = {
       id: "acc-3",
       name: "Kredyt",
       type: "liability",
+      archived_at: null,
       entries: {
         "2024-01-01": { value: 5000, cash_flow: 0, gain_loss: 0 },
         "2024-02-01": { value: 4800, cash_flow: -200, gain_loss: 0 },
@@ -143,38 +146,6 @@ describe("useDashboardStore - fetchData", () => {
 
       // Assert - verify archived=false in query
       expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("archived=false"));
-    });
-
-    it("should add cache-busting timestamp when skipCache is true", async () => {
-      // Arrange
-      const store = useDashboardStore.getState();
-
-      global.fetch = vi.fn(() =>
-        Promise.resolve({
-          ok: true,
-          status: 200,
-          json: async () => emptyGridDataDto,
-        } as Response)
-      );
-
-      // Act - call with skipCache=true
-      await store.fetchData(true);
-
-      // Assert - verify _t= parameter is present
-      const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const urlWithTimestamp = fetchCalls[0][0];
-      expect(urlWithTimestamp).toContain("_t=");
-
-      // Reset mock
-      vi.clearAllMocks();
-
-      // Act - call with skipCache=false (default)
-      await store.fetchData(false);
-
-      // Assert - verify _t= parameter is NOT present
-      const fetchCallsWithoutTimestamp = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const urlWithoutTimestamp = fetchCallsWithoutTimestamp[0][0];
-      expect(urlWithoutTimestamp).not.toContain("_t=");
     });
 
     it("should set summaryData from gridData.summary.kpi", async () => {

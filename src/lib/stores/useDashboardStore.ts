@@ -45,7 +45,7 @@ interface DashboardState {
   };
 
   // Actions
-  fetchData: (skipCache?: boolean) => Promise<void>;
+  fetchData: () => Promise<void>;
   setDateRange: (range: { from: Date; to: Date }) => void;
   setShowArchived: (show: boolean) => void;
   addAccount: (command: CreateAccountCommand) => Promise<void>;
@@ -88,16 +88,13 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
 
   // Actions
-  fetchData: async (skipCache = false) => {
+  fetchData: async () => {
     set({ isLoading: true, error: null });
 
     try {
       const { showArchived } = get();
 
-      // Add cache-busting timestamp when skipCache is true
-      const url = skipCache
-        ? `/api/grid-data?archived=${showArchived}&_t=${Date.now()}`
-        : `/api/grid-data?archived=${showArchived}`;
+      const url = `/api/grid-data?archived=${showArchived}`;
 
       // Fetch grid data from the API (includes accounts, dates, entries)
       const gridDataResponse = await fetch(url);
@@ -197,7 +194,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     // Refresh data after successful creation
-    await get().fetchData(true);
+    await get().fetchData();
     get().closeModal("addAccount");
   },
 
@@ -223,7 +220,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     toast.success("Konto zostało pomyślnie zaktualizowane.");
-    await get().fetchData(true);
+    await get().fetchData();
     get().closeModal("editAccount");
   },
 
@@ -242,7 +239,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     toast.success("Konto zostało zarchiwizowane.");
-    await get().fetchData(true);
+    await get().fetchData();
     get().closeModal("confirmAction");
   },
 
@@ -261,7 +258,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }
 
     toast.success("Konto zostało przywrócone.");
-    await get().fetchData(true);
+    await get().fetchData();
     get().closeModal("confirmAction");
   },
 
@@ -280,7 +277,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
     toast.success("Konto zostało pomyślnie usunięte.");
     // Refresh data after successful deletion
-    await get().fetchData(true);
+    await get().fetchData();
     get().closeModal("confirmAction");
   },
 
@@ -326,7 +323,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
       // Note: Summary data refresh removed until /api/dashboard/summary endpoint is implemented
       // For now, we'll refresh all data to get the latest state
-      await get().fetchData(true);
+      await get().fetchData();
 
       get().closeModal("editValue");
     } catch (error) {
@@ -378,7 +375,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       });
 
       // [4] Refresh data
-      await get().fetchData(true); // skip cache
+      await get().fetchData();
       get().closeModal("confirmAction");
     } catch (error) {
       // Ensure rollback
@@ -476,7 +473,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       }
 
       // [5] Handle results
-      await get().fetchData(true); // Refresh data regardless of partial errors, skip cache
+      await get().fetchData(); // Refresh data regardless of partial errors
 
       if (errors.length === 0) {
         // Full success

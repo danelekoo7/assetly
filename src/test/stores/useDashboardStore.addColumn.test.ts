@@ -469,32 +469,6 @@ describe("useDashboardStore - addColumn", () => {
         description: expect.any(String),
       });
     });
-
-    it("should call fetchData with skipCache after adding column", async () => {
-      // Arrange
-      const store = useDashboardStore.getState();
-      useDashboardStore.setState({ gridData: mockGridDataWithAccounts });
-
-      const newDate = new Date("2024-03-01");
-
-      setupFetchMock([
-        { url: "/api/value-entries", status: 200, body: {} },
-        { url: "/api/grid-data", status: 200, body: mockGridDataWithAccounts },
-      ]);
-
-      // Act
-      await store.addColumn(newDate);
-
-      // Assert - verify fetchData was called with cache-busting timestamp
-      const fetchCalls = (global.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const gridDataCall = fetchCalls.find((call) => call[0].toString().includes("/api/grid-data"));
-
-      expect(gridDataCall).toBeTruthy();
-      if (gridDataCall) {
-        // Should include _t timestamp parameter for cache busting
-        expect(gridDataCall[0].toString()).toContain("_t=");
-      }
-    });
   });
 
   // ==============================================================================================
