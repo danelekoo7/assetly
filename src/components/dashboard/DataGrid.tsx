@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   DndContext,
   closestCenter,
@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/sortable";
 import { toast } from "sonner";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
-import type { GridDataDto, AccountType, GridAccountDto } from "@/types";
+import type { GridDataDto, AccountType } from "@/types";
 import DataGridHeader from "./DataGrid/DataGridHeader";
 import DataGridSummaryRow from "./DataGrid/DataGridSummaryRow";
 import SortableDataGridRow from "./DataGrid/SortableDataGridRow";
@@ -28,11 +28,7 @@ interface DataGridProps {
 export default function DataGrid({ gridData }: DataGridProps) {
   const { openModal, updateGridDataOptimistic, getFilteredAccounts } = useDashboardStore();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [accounts, setAccounts] = useState<GridAccountDto[]>(getFilteredAccounts());
-
-  useEffect(() => {
-    setAccounts(getFilteredAccounts());
-  }, [getFilteredAccounts]);
+  const accounts = getFilteredAccounts();
 
   // Auto-scroll to the right (newest dates) on mount and when data changes
   useEffect(() => {
@@ -56,7 +52,6 @@ export default function DataGrid({ gridData }: DataGridProps) {
       const newIndex = accounts.findIndex((acc) => acc.id === over.id);
 
       const newAccountsOrder = arrayMove(accounts, oldIndex, newIndex);
-      setAccounts(newAccountsOrder);
 
       // Optimistic update in Zustand store
       if (gridData) {
@@ -74,7 +69,6 @@ export default function DataGrid({ gridData }: DataGridProps) {
         if (!response.ok) {
           // Revert on failure
           await response.text();
-          setAccounts(getFilteredAccounts());
           if (gridData) {
             updateGridDataOptimistic({ ...gridData, accounts: gridData.accounts });
           }
@@ -82,7 +76,6 @@ export default function DataGrid({ gridData }: DataGridProps) {
         }
       } catch {
         // Revert on error
-        setAccounts(getFilteredAccounts());
         if (gridData) {
           updateGridDataOptimistic({ ...gridData, accounts: gridData.accounts });
         }

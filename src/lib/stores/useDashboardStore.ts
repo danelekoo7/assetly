@@ -9,6 +9,7 @@ import type {
   UpsertValueEntryCommand,
   UpdateAccountCommand,
   AccountDto,
+  GridAccountDto,
 } from "@/types";
 import { findLastEntry } from "@/lib/utils/grid-helpers";
 
@@ -46,7 +47,7 @@ interface DashboardState {
 
   // Actions
   fetchData: () => Promise<void>;
-  getFilteredAccounts: () => AccountDto[];
+  getFilteredAccounts: () => GridAccountDto[];
   setDateRange: (range: { from: Date; to: Date }) => void;
   setShowArchived: (show: boolean) => void;
   addAccount: (command: CreateAccountCommand) => Promise<void>;
