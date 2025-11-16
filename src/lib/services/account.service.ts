@@ -105,11 +105,14 @@ const AccountService = {
     }
 
     // Step 2: Insert the initial value entry for the newly created account.
+    // For liabilities, the initial cash flow should be negative.
+    const cashFlow = command.type === "liability" ? -command.initial_value : command.initial_value;
+
     const { error: valueEntryError } = await supabase.from("value_entries").insert({
       account_id: newAccount.id,
       date: command.date,
       value: command.initial_value,
-      cash_flow: command.initial_value, // For the first entry, cash_flow equals the initial value.
+      cash_flow: cashFlow,
     });
 
     if (valueEntryError) {
