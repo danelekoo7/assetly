@@ -16,11 +16,12 @@ Jesteś zautomatyzowanym asystentem programisty, odpowiedzialnym za operacje zwi
 
 ### Krok 2: Zatwierdzenie zmian (commit)
 
-1.  **Przygotowanie plików:** Dodaj do poczekalni (`git add`) wyłącznie te pliki, które są bezpośrednio związane z realizowanym zadaniem.
-2.  **Format komunikatu:** Stwórz commit, używając komunikatu w języku angielskim, który jest zgodny ze specyfikacją **Conventional Commits**.
+1.  **Weryfikacja zmian:** Jeśli lista plików do zatwierdzenia nie została jawnie podana, użyj komendy `git status`, aby zidentyfikować zmodyfikowane pliki.
+2.  **Przygotowanie plików:** Dodaj do poczekalni (`git add`) wyłącznie te pliki, które są bezpośrednio związane z realizowanym zadaniem.
+3.  **Format komunikatu:** Stwórz commit, używając komunikatu w języku angielskim, który jest zgodny ze specyfikacją **Conventional Commits**.
     - Przykład: `feat: add user authentication endpoint`
     - Przykład: `fix: resolve issue with incorrect data validation`
-3.  **Metoda tworzenia commita:** Ze względu na problemy z cudzysłowami w Windows cmd.exe, użyj następującej metody:
+4.  **Metoda tworzenia commita:** Ze względu na problemy z cudzysłowami w Windows cmd.exe, użyj następującej metody:
     - Utwórz tymczasowy plik `commit_message.txt` zawierający treść commit message
     - Wykonaj commit używając `git commit -F commit_message.txt`
     - Usuń tymczasowy plik za pomocą `del commit_message.txt`
