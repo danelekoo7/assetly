@@ -121,33 +121,6 @@ describe("useDashboardStore - fetchData", () => {
       expect(state.gridData).toEqual(mockGridDataDto);
     });
 
-    it("should include archived query param based on showArchived state", async () => {
-      // Arrange
-      const store = useDashboardStore.getState();
-      useDashboardStore.setState({ showArchived: true });
-
-      global.fetch = vi.fn(() =>
-        Promise.resolve({
-          ok: true,
-          status: 200,
-          json: async () => emptyGridDataDto,
-        } as Response)
-      );
-
-      // Act
-      await store.fetchData();
-
-      // Assert - verify archived=true in query
-      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("archived=true"));
-
-      // Change to false
-      useDashboardStore.setState({ showArchived: false });
-      await store.fetchData();
-
-      // Assert - verify archived=false in query
-      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("archived=false"));
-    });
-
     it("should set summaryData from gridData.summary.kpi", async () => {
       // Arrange
       const store = useDashboardStore.getState();
@@ -244,6 +217,89 @@ describe("useDashboardStore - fetchData", () => {
       expect(state.error).toBeNull();
 
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  // ==============================================================================================
+  // FILTERED ACCOUNTS TESTS
+  // ==============================================================================================
+
+  describe("getFilteredAccounts", () => {
+    it("should return empty array when gridData is null", () => {
+      // Arrange
+      const store = useDashboardStore.getState();
+      useDashboardStore.setState({ gridData: null });
+
+      // Act
+      const result = store.getFilteredAccounts();
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should return all accounts when showArchived is true", () => {
+      // Arrange
+      const gridDataWithArchived: GridDataDto = {
+        ...mockGridDataDto,
+        accounts: [
+          ...mockGridDataDto.accounts,
+          {
+            id: "acc-archived",
+            name: "Archived Account",
+            type: "cash_asset",
+            archived_at: "2024-03-15T10:00:00Z",
+            entries: {
+              "2024-01-01": { value: 500, cash_flow: 0, gain_loss: 0 },
+            },
+          },
+        ],
+      };
+
+      const store = useDashboardStore.getState();
+      useDashboardStore.setState({
+        gridData: gridDataWithArchived,
+        showArchived: true,
+      });
+
+      // Act
+      const result = store.getFilteredAccounts();
+
+      // Assert
+      expect(result).toHaveLength(4); // 3 active + 1 archived
+      expect(result).toEqual(gridDataWithArchived.accounts);
+    });
+
+    it("should return only non-archived accounts when showArchived is false", () => {
+      // Arrange
+      const gridDataWithArchived: GridDataDto = {
+        ...mockGridDataDto,
+        accounts: [
+          ...mockGridDataDto.accounts,
+          {
+            id: "acc-archived",
+            name: "Archived Account",
+            type: "cash_asset",
+            archived_at: "2024-03-15T10:00:00Z",
+            entries: {
+              "2024-01-01": { value: 500, cash_flow: 0, gain_loss: 0 },
+            },
+          },
+        ],
+      };
+
+      const store = useDashboardStore.getState();
+      useDashboardStore.setState({
+        gridData: gridDataWithArchived,
+        showArchived: false,
+      });
+
+      // Act
+      const result = store.getFilteredAccounts();
+
+      // Assert
+      expect(result).toHaveLength(3); // Only 3 active accounts
+      expect(result.every((acc) => acc.archived_at === null)).toBe(true);
+      expect(result.find((acc) => acc.id === "acc-archived")).toBeUndefined();
     });
   });
 

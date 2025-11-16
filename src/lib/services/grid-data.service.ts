@@ -10,8 +10,6 @@ export interface GetGridDataOptions {
   from?: string;
   /** Optional end date for data range (ISO 8601 or YYYY-MM-DD) */
   to?: string;
-  /** Whether to include archived accounts (default: false) */
-  showArchived?: boolean;
 }
 
 /**
@@ -21,10 +19,11 @@ export interface GetGridDataOptions {
 const GridDataService = {
   /**
    * Fetches all data needed to render the main data grid.
+   * Always returns all accounts (including archived ones).
    *
    * @param supabase - Supabase client instance
    * @param userId - User ID (note: RLS filters by user_id automatically)
-   * @param options - Query options (date range, archived filter)
+   * @param options - Query options (date range filter)
    * @returns GridDataDto containing dates, accounts with entries, and summary
    *
    * @throws {Error} If database queries fail
@@ -34,18 +33,11 @@ const GridDataService = {
     userId: string,
     options: GetGridDataOptions = {}
   ): Promise<GridDataDto> {
-    // Step 1: Fetch user's accounts
-    let accountsQuery = supabase
+    // Step 1: Fetch user's accounts (all accounts including archived)
+    const { data: accounts, error: accountsError } = await supabase
       .from("accounts")
       .select("id, name, type, archived_at, display_order")
       .order("display_order", { ascending: true });
-
-    // Filter archived accounts if showArchived is false
-    if (!options.showArchived) {
-      accountsQuery = accountsQuery.is("archived_at", null);
-    }
-
-    const { data: accounts, error: accountsError } = await accountsQuery;
 
     if (accountsError) {
       throw new Error(`Failed to fetch accounts: ${accountsError.message}`);

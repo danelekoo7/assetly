@@ -9,6 +9,7 @@ import type {
   UpsertValueEntryCommand,
   UpdateAccountCommand,
   AccountDto,
+  GridAccountDto,
 } from "@/types";
 import { findLastEntry } from "@/lib/utils/grid-helpers";
 
@@ -46,6 +47,7 @@ interface DashboardState {
 
   // Actions
   fetchData: () => Promise<void>;
+  getFilteredAccounts: () => GridAccountDto[];
   setDateRange: (range: { from: Date; to: Date }) => void;
   setShowArchived: (show: boolean) => void;
   addAccount: (command: CreateAccountCommand) => Promise<void>;
@@ -89,13 +91,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
   // Actions
   fetchData: async () => {
-    const { showArchived, dateRange } = get();
+    const { dateRange } = get();
     set({ isLoading: true, error: null });
 
     try {
       // Budowanie URL z parametrami
       const params = new URLSearchParams();
-      params.append("archived", showArchived.toString());
 
       if (dateRange.from) {
         params.append("from", format(dateRange.from, "yyyy-MM-dd"));
@@ -179,6 +180,17 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
       set({ gridData: emptyGridData, summaryData: emptySummaryData, isLoading: false, error: null });
     }
+  },
+
+  getFilteredAccounts: () => {
+    const { gridData, showArchived } = get();
+    if (!gridData) return [];
+
+    if (showArchived) {
+      return gridData.accounts;
+    }
+
+    return gridData.accounts.filter((account) => account.archived_at === null);
   },
 
   setDateRange: (range) => {
