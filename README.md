@@ -53,6 +53,11 @@ Assetly is built for individuals who:
 - **Tailwind CSS 4**: Utility-first CSS framework for rapid UI development
 - **Shadcn/ui**: Accessible, customizable React component library built on Radix UI
 - **Lucide React**: Icon library
+- **Zustand**: Lightweight state management for React
+- **Recharts**: Composable charting library for React
+- **React Hook Form & Zod**: Efficient form handling and validation
+- **Dnd-kit**: Drag and drop functionality for React
+- **Astro Integrations**: Includes Cloudflare for deployment and a sitemap generator
 
 ### Backend
 
@@ -61,10 +66,6 @@ Assetly is built for individuals who:
   - Built-in authentication
   - Real-time capabilities
   - Data encryption at rest and in transit
-
-### AI Integration
-
-- **Openrouter.ai**: Access to multiple AI models (OpenAI, Anthropic, Google) with financial limits on API keys
 
 ### Development & Deployment
 
@@ -106,6 +107,14 @@ Assetly is built for individuals who:
    ```env
    PUBLIC_SUPABASE_URL=your_supabase_url
    PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+   # SMTP Configuration for Email Sending
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your_email@gmail.com
+   SMTP_PASS=your_app_password
+   SMTP_SENDER_NAME=Assetly
+   SMTP_SENDER_EMAIL=your_sending_email@example.com
    ```
 
 4. Start the development server:
@@ -125,6 +134,10 @@ Assetly is built for individuals who:
 - **`npm run lint`**: Run ESLint to check code quality
 - **`npm run lint:fix`**: Automatically fix ESLint issues
 - **`npm run format`**: Format code using Prettier
+- **`npm run test`**: Run all unit and end-to-end tests
+- **`npm run test:unit`**: Run unit tests with Vitest
+- **`npm run test:unit:watch`**: Run unit tests in watch mode
+- **`npm run test:e2e`**: Run end-to-end tests with Playwright
 
 ## Project Scope
 
@@ -149,7 +162,6 @@ Assetly is built for individuals who:
 - ❌ Native mobile applications (iOS/Android)
 - ❌ Restoring archived accounts
 - ❌ Advanced analytics and reporting beyond net worth chart
-- ❌ Password reset functionality (minimal scope)
 - ❌ Final logo design (using text-based logo for MVP)
 
 ## Project Status
