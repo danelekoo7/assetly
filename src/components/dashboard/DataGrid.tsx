@@ -26,13 +26,13 @@ interface DataGridProps {
 }
 
 export default function DataGrid({ gridData }: DataGridProps) {
-  const { openModal, updateGridDataOptimistic } = useDashboardStore();
+  const { openModal, updateGridDataOptimistic, getFilteredAccounts } = useDashboardStore();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [accounts, setAccounts] = useState<GridAccountDto[]>(gridData?.accounts ?? []);
+  const [accounts, setAccounts] = useState<GridAccountDto[]>(getFilteredAccounts());
 
   useEffect(() => {
-    setAccounts(gridData?.accounts ?? []);
-  }, [gridData?.accounts]);
+    setAccounts(getFilteredAccounts());
+  }, [getFilteredAccounts]);
 
   // Auto-scroll to the right (newest dates) on mount and when data changes
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function DataGrid({ gridData }: DataGridProps) {
         if (!response.ok) {
           // Revert on failure
           await response.text();
-          setAccounts(gridData?.accounts ?? []);
+          setAccounts(getFilteredAccounts());
           if (gridData) {
             updateGridDataOptimistic({ ...gridData, accounts: gridData.accounts });
           }
@@ -82,7 +82,7 @@ export default function DataGrid({ gridData }: DataGridProps) {
         }
       } catch {
         // Revert on error
-        setAccounts(gridData?.accounts ?? []);
+        setAccounts(getFilteredAccounts());
         if (gridData) {
           updateGridDataOptimistic({ ...gridData, accounts: gridData.accounts });
         }

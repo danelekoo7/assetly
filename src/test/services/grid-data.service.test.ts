@@ -272,22 +272,19 @@ describe("GridDataService", () => {
     // FILTERING TESTS
     // =============================================================================================
 
-    it("should filter archived accounts when showArchived is false", async () => {
-      const { mockSupabase, mockQuery } = createMockSupabaseClient();
+    it("should always return all accounts regardless of archive status", async () => {
+      const { mockSupabase } = createMockSupabaseClient();
 
-      await GridDataService.getGridData(mockSupabase, userId, { showArchived: false });
+      const result = await GridDataService.getGridData(mockSupabase, userId);
 
-      // Verify that is() was called with archived_at = null
-      expect(mockQuery.is).toHaveBeenCalledWith("archived_at", null);
-    });
+      // Verify all accounts are returned (including archived one)
+      expect(result.accounts).toHaveLength(4);
 
-    it("should include archived accounts when showArchived is true", async () => {
-      const { mockSupabase, mockQuery } = createMockSupabaseClient();
-
-      await GridDataService.getGridData(mockSupabase, userId, { showArchived: true });
-
-      // Verify that is() was NOT called (no filtering)
-      expect(mockQuery.is).not.toHaveBeenCalled();
+      // Verify archived account is present in results
+      const archivedAccount = result.accounts.find((acc) => acc.id === "acc-archived-1");
+      expect(archivedAccount).toBeDefined();
+      expect(archivedAccount?.name).toBe("Stare konto");
+      expect(archivedAccount?.archived_at).toBe("2024-01-15T00:00:00Z");
     });
 
     it("should filter entries by date range (from)", async () => {
@@ -469,10 +466,10 @@ describe("GridDataService", () => {
         });
       });
 
-      it("should handle null cash_flow and gain_loss gracefully", async () => {
+      it("should handle zero cash_flow and gain_loss gracefully", async () => {
         const customEntries = [
-          { account_id: "acc-cash-1", date: "2024-01-01", value: 1000, cash_flow: 100, gain_loss: null },
-          { account_id: "acc-investment-1", date: "2024-01-01", value: 5000, cash_flow: null, gain_loss: 50 },
+          { account_id: "acc-cash-1", date: "2024-01-01", value: 1000, cash_flow: 100, gain_loss: 0 },
+          { account_id: "acc-investment-1", date: "2024-01-01", value: 5000, cash_flow: 0, gain_loss: 50 },
         ];
         const { mockSupabase } = createMockSupabaseClient(mockAccounts, customEntries);
         const result = await GridDataService.getGridData(mockSupabase, userId);

@@ -13,7 +13,6 @@ export const prerender = false;
  * Query Parameters:
  * - from (optional): Start date for data range (ISO 8601 or YYYY-MM-DD)
  * - to (optional): End date for data range (ISO 8601 or YYYY-MM-DD)
- * - archived (optional): Include archived accounts (default: false)
  *
  * @returns 200 OK with GridDataDto on success
  * @returns 400 Bad Request if query parameters are invalid
@@ -56,14 +55,13 @@ export async function GET({ url, request, cookies }: APIContext) {
     );
   }
 
-  const { from, to, archived } = validationResult.data;
+  const { from, to } = validationResult.data;
 
   // Step 3: Call the service to fetch grid data
   try {
     const gridData = await GridDataService.getGridData(supabase, session.user.id, {
       from,
       to,
-      showArchived: archived,
     });
 
     return new Response(JSON.stringify(gridData), {

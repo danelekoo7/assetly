@@ -5,13 +5,11 @@ import { z } from "zod";
  *
  * @property from - Optional start date for data range (ISO 8601 or YYYY-MM-DD)
  * @property to - Optional end date for data range (ISO 8601 or YYYY-MM-DD)
- * @property archived - Optional boolean to include archived accounts (default: false)
  */
 export const gridDataQuerySchema = z
   .object({
     from: z.string().date().optional().or(z.string().datetime().optional()),
     to: z.string().date().optional().or(z.string().datetime().optional()),
-    archived: z.coerce.boolean().optional().default(false),
   })
   .refine(
     (data) => {
