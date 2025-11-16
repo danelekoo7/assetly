@@ -1,7 +1,6 @@
 import type { APIContext } from "astro";
 import GridDataService from "@/lib/services/grid-data.service";
 import { gridDataQuerySchema } from "@/lib/validation/grid-data.schemas";
-import { createSupabaseServerInstance } from "@/db/supabase.server";
 
 export const prerender = false;
 
@@ -19,18 +18,11 @@ export const prerender = false;
  * @returns 401 Unauthorized if user is not authenticated
  * @returns 500 Internal Server Error on database or unexpected errors
  */
-export async function GET({ url, request, cookies }: APIContext) {
+export async function GET({ locals, url }: APIContext) {
   // Step 1: Verify authentication
-  const supabase = createSupabaseServerInstance({
-    headers: request.headers,
-    cookies,
-  });
+  const { supabase, user } = locals;
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session) {
+  if (!user?.id) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
@@ -59,7 +51,7 @@ export async function GET({ url, request, cookies }: APIContext) {
 
   // Step 3: Call the service to fetch grid data
   try {
-    const gridData = await GridDataService.getGridData(supabase, session.user.id, {
+    const gridData = await GridDataService.getGridData(supabase, user.id, {
       from,
       to,
     });

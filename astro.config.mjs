@@ -19,13 +19,13 @@ export default defineConfig({
   }),
   env: {
     schema: {
-      SUPABASE_URL: envField.string({
-        context: "server",
-        access: "secret",
+      PUBLIC_SUPABASE_URL: envField.string({
+        context: "client",
+        access: "public",
       }),
-      SUPABASE_KEY: envField.string({
-        context: "server",
-        access: "secret",
+      PUBLIC_SUPABASE_KEY: envField.string({
+        context: "client",
+        access: "public",
       }),
     },
   },
