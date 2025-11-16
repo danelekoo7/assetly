@@ -39,7 +39,7 @@ Niniejszy dokument opisuje strategię, zakres, podejście i zasoby przeznaczone 
 
 ### 2.2. Funkcjonalności wyłączone z testów
 
-- Testowanie wewnętrznej infrastruktury Supabase i DigitalOcean (zakładamy ich niezawodność).
+- Testowanie wewnętrznej infrastruktury Supabase i Cloudflare (zakładamy ich niezawodność).
 - Szczegółowe testy wydajnościowe bibliotek zewnętrznych (np. shadcn/ui).
 
 ## 3. Typy testów do przeprowadzenia
@@ -95,7 +95,7 @@ Niniejszy dokument opisuje strategię, zakres, podejście i zasoby przeznaczone 
 
 - **Środowisko lokalne**: Deweloperzy uruchamiają testy jednostkowe i integracyjne na swoich maszynach.
 - **Środowisko CI (Continuous Integration)**: Github Actions. Wszystkie testy (jednostkowe, integracyjne, E2E) są automatycznie uruchamiane dla każdego pull requesta do głównego brancha.
-- **Środowisko Staging**: Kopia środowiska produkcyjnego hostowana na DigitalOcean. Używane do testów E2E, testów manualnych i UAT (User Acceptance Testing) przed wdrożeniem.
+- **Środowisko Staging**: Kopia środowiska produkcyjnego hostowana na Cloudflare. Używane do testów E2E, testów manualnych i UAT (User Acceptance Testing) przed wdrożeniem.
 - **Baza danych**: Dedykowana, odizolowana instancja projektu Supabase dla środowiska Staging i testów E2E, regularnie czyszczona i wypełniana danymi testowymi.
 
 ## 6. Narzędzia do testowania
