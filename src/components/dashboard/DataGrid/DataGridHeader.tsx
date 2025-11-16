@@ -34,7 +34,7 @@ export default function DataGridHeader({ dates }: DataGridHeaderProps) {
     <div role="row" className="sticky top-0 z-20 flex bg-muted/50 backdrop-blur supports-[backdrop-filter]:bg-muted/50">
       <div
         role="columnheader"
-        className="sticky left-0 z-30 min-w-[180px] w-[20vw] flex-shrink-0 border-r border-border bg-muted px-4 py-3 text-left text-sm font-semibold text-foreground"
+        className="sticky left-0 z-30 w-[35vw] md:w-[200px] flex-shrink-0 border-r border-border bg-muted px-4 py-3 text-left text-sm font-semibold text-foreground"
       >
         Konto
       </div>
@@ -43,7 +43,7 @@ export default function DataGridHeader({ dates }: DataGridHeaderProps) {
           <div
             key={date}
             role="columnheader"
-            className="relative min-w-[120px] w-[25vw] flex-shrink-0 border-r border-border px-4 py-3 text-right"
+            className="relative w-[25vw] md:w-[150px] flex-shrink-0 border-r border-border px-4 py-3 text-right"
           >
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">{formatDate(date)}</span>

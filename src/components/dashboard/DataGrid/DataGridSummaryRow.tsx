@@ -13,7 +13,7 @@ export default function DataGridSummaryRow({ gridData }: DataGridSummaryRowProps
     >
       <div
         role="gridcell"
-        className="sticky left-0 z-30 min-w-[180px] w-[20vw] flex-shrink-0 border-r border-border bg-muted px-4 py-3 text-left font-bold text-foreground"
+        className="sticky left-0 z-30 w-[35vw] md:w-[200px] flex-shrink-0 border-r border-border bg-muted px-4 py-3 text-left font-bold text-foreground"
       >
         Wartość netto
       </div>
@@ -26,7 +26,7 @@ export default function DataGridSummaryRow({ gridData }: DataGridSummaryRowProps
             <div
               key={date}
               role="gridcell"
-              className="min-w-[120px] w-[25vw] flex-shrink-0 border-r border-border px-4 py-3 text-right font-bold"
+              className="w-[25vw] md:w-[150px] flex-shrink-0 border-r border-border px-4 py-3 text-right font-bold"
             >
               <span className={netWorth >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
                 {formatCurrency(netWorth)}

@@ -120,7 +120,11 @@ export default function DataGrid({ gridData }: DataGridProps) {
 
   return (
     <div ref={scrollRef} className="overflow-x-auto rounded-lg border border-border">
-      <div role="grid" className="min-w-full divide-y divide-border bg-card" aria-label="Siatka danych finansowych">
+      <div
+        role="grid"
+        className="inline-block min-w-full divide-y divide-border bg-card"
+        aria-label="Siatka danych finansowych"
+      >
         <DataGridHeader dates={gridData.dates} />
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={accounts.map((acc) => acc.id)} strategy={verticalListSortingStrategy}>
