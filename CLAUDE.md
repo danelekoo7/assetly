@@ -253,7 +253,7 @@ For E2E tests, use `.env.test` (loaded by Playwright).
 
 ## Deployment
 
-- **Platform:** DigitalOcean (Docker containers)
+- **Platform:** Cloudflare
 - **Adapter:** Cloudflare (`@astrojs/cloudflare` in directory mode)
 - **CI/CD:** GitHub Actions
 - **Linting/Formatting:** Enforced via Husky and lint-staged on pre-commit
