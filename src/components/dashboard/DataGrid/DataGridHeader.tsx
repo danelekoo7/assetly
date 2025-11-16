@@ -43,7 +43,7 @@ export default function DataGridHeader({ dates }: DataGridHeaderProps) {
           <div
             key={date}
             role="columnheader"
-            className="relative min-w-[120px] w-[25vw] flex-shrink-0 border-r border-border px-4 py-3 text-right last:border-r-0"
+            className="relative min-w-[120px] w-[25vw] flex-shrink-0 border-r border-border px-4 py-3 text-right"
           >
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">{formatDate(date)}</span>
