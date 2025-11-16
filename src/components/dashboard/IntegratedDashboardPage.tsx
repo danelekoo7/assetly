@@ -48,7 +48,7 @@ export default function IntegratedDashboardPage() {
     }
 
     return (
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="max-w-7xl space-y-6">
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -73,7 +73,7 @@ export default function IntegratedDashboardPage() {
   return (
     <>
       <Toaster position="top-right" richColors />
-      <div className="min-h-screen bg-background p-6">
+      <div className="min-h-screen bg-background p-2 sm:p-6">
         {renderContent()}
         {/* Modals are always needed */}
         <AddEditAccountModal />

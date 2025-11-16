@@ -41,7 +41,7 @@ export default function DataGridRow({ account, dates, onCellClick, attributes, l
       {/* Account Name Cell (Sticky) */}
       <div
         role="gridcell"
-        className={`sticky left-0 z-10 w-[250px] flex-shrink-0 flex items-center justify-between border-r border-border px-2 py-3 ${rowColorClasses}`}
+        className={`sticky left-0 z-10 min-w-[180px] w-[20vw] flex-shrink-0 flex items-center justify-between border-r border-border px-2 py-3 ${rowColorClasses}`}
       >
         <div className="flex items-center flex-1">
           <div {...attributes} {...listeners} className="cursor-grab touch-none p-2">
