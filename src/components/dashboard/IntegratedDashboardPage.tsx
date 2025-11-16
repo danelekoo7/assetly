@@ -3,7 +3,6 @@ import { useDashboardStore } from "@/lib/stores/useDashboardStore";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
-import { Toaster } from "@/components/ui/sonner";
 import KpiSection from "./KpiSection";
 import NetWorthChart from "./NetWorthChart";
 import DashboardToolbar from "./DashboardToolbar";
@@ -72,7 +71,6 @@ export default function IntegratedDashboardPage() {
 
   return (
     <>
-      <Toaster position="top-right" richColors />
       <div className="min-h-screen bg-background p-2 sm:p-6">
         {renderContent()}
         {/* Modals are always needed */}
