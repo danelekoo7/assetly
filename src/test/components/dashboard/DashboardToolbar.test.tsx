@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import DashboardToolbar from "@/components/dashboard/DashboardToolbar.tsx";
 import { useDashboardStore } from "@/lib/stores/useDashboardStore";
 import { format } from "date-fns";
@@ -109,6 +110,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
     addColumn: ReturnType<typeof vi.fn>;
     isAddingColumn: boolean;
   };
+  const user = userEvent.setup();
 
   beforeEach(() => {
     mockStoreState = {
@@ -130,7 +132,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Act: Click "Dodaj kolumnę" button
     const addColumnButton = screen.getByRole("button", { name: /Dodaj kolumnę/i });
-    await addColumnButton.click();
+    await user.click(addColumnButton);
 
     // Assert: Calendar should be visible
     // Check for calendar by role or test-id (Calendar from shadcn/ui uses role="dialog")
@@ -145,7 +147,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Act: Open calendar
     const addColumnButton = screen.getByRole("button", { name: /Dodaj kolumnę/i });
-    await addColumnButton.click();
+    await user.click(addColumnButton);
 
     // Assert: Future dates should be disabled
     // This is implementation-specific; the calendar uses disabled prop
@@ -164,7 +166,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Act: Open calendar
     const addColumnButton = screen.getByRole("button", { name: /Dodaj kolumnę/i });
-    await addColumnButton.click();
+    await user.click(addColumnButton);
 
     // Wait for dialog to open
     await waitFor(() => {
@@ -173,7 +175,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Click OK button (calendar date selection is complex, so we'll test the OK button flow)
     const okButton = screen.getByRole("button", { name: /OK/i });
-    await okButton.click();
+    await user.click(okButton);
 
     // Assert: addColumn should be called
     expect(mockStoreState.addColumn).toHaveBeenCalled();
@@ -199,7 +201,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Act: Open popover
     const addColumnButton = screen.getByRole("button", { name: /Dodaj kolumnę/i });
-    await addColumnButton.click();
+    await user.click(addColumnButton);
 
     // Wait for dialog
     await waitFor(() => {
@@ -208,7 +210,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Click OK to trigger addColumn
     const okButton = screen.getByRole("button", { name: /OK/i });
-    await okButton.click();
+    await user.click(okButton);
 
     // Assert: Popover should close after successful addColumn
     // (In real implementation, the component would re-render without the dialog)
@@ -226,7 +228,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Act: Open popover
     const addColumnButton = screen.getByRole("button", { name: /Dodaj kolumnę/i });
-    await addColumnButton.click();
+    await user.click(addColumnButton);
 
     // Wait for dialog
     await waitFor(() => {
@@ -235,7 +237,7 @@ describe("DashboardToolbar - Add Column Functionality", () => {
 
     // Click OK to trigger addColumn (which will fail)
     const okButton = screen.getByRole("button", { name: /OK/i });
-    await okButton.click();
+    await user.click(okButton);
 
     // Assert: addColumn was called but failed
     await waitFor(() => {
