@@ -4,6 +4,8 @@
 
 A simple, centralized web application for tracking your net worth by manually managing assets and liabilities across multiple accounts.
 
+**🚀 Live Demo:** [https://assetly.pages.dev/](https://assetly.pages.dev/)
+
 ## Table of Contents
 
 - [About](#about)
