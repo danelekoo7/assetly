@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -123,9 +123,21 @@ export default function EditValueModal() {
   // Get previous value from gridData
   const previousValue = context?.previousValue ?? 0;
 
-  // Reset form when modal opens/closes
+  // Track if form was initialized for current modal session
+  const isInitializedRef = useRef(false);
+
+  // Reset form when modal opens
   useEffect(() => {
-    if (isOpen && context) {
+    // Reset initialization flag when modal closes
+    if (!isOpen) {
+      isInitializedRef.current = false;
+      return;
+    }
+
+    // Skip if already initialized for this session (prevents reset on gridData changes)
+    if (isInitializedRef.current) return;
+
+    if (context) {
       // Find existing entry data if available
       const account = gridData?.accounts.find((acc) => acc.id === context.accountId);
       const entry = account?.entries[context.date];
@@ -151,6 +163,8 @@ export default function EditValueModal() {
           userModifiedGainLoss: false,
         },
       });
+
+      isInitializedRef.current = true;
     }
   }, [isOpen, context, form, gridData]);
 

@@ -89,9 +89,10 @@ const ValueEntryService = {
   },
 
   /**
-   * Calculates cash_flow and gain_loss based on three scenarios:
+   * Calculates cash_flow and gain_loss based on four scenarios:
    * - Scenario 1: Only value provided → calculate based on account type
-   * - Scenario 2: Value + cash_flow provided → calculate gain_loss
+   * - Scenario 2a: Value + cash_flow provided → calculate gain_loss
+   * - Scenario 2b: Value + gain_loss provided → calculate cash_flow
    * - Scenario 3: All three provided → validate consistency
    *
    * @param value - The new total value
@@ -131,11 +132,19 @@ const ValueEntryService = {
       };
     }
 
-    // Scenario 2: Value + cash_flow provided → calculate gain_loss
+    // Scenario 2a: Value + cash_flow provided → calculate gain_loss
     if (hasCashFlow) {
       return {
         cash_flow: cashFlowInput,
         gain_loss: value - previousValue - cashFlowInput * cfMultiplier,
+      };
+    }
+
+    // Scenario 2b: Value + gain_loss provided → calculate cash_flow
+    if (hasGainLoss) {
+      return {
+        cash_flow: (value - previousValue - gainLossInput) * cfMultiplier,
+        gain_loss: gainLossInput,
       };
     }
 

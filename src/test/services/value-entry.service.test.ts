@@ -156,6 +156,83 @@ describe("ValueEntryService", () => {
     });
 
     // =============================================================================================
+    // SCENARIO 2B: ONLY GAIN_LOSS PROVIDED (calculate cash_flow)
+    // =============================================================================================
+
+    describe("Scenario 2b: calculate cash_flow when only gain_loss provided", () => {
+      it("should calculate cash_flow for cash_asset when only gain_loss provided", () => {
+        // Given: previousValue = 5006, value = 4500, gain_loss = 100
+        // Formula: cash_flow = (value - previousValue - gain_loss) * cfMultiplier
+        // For cash_asset cfMultiplier = 1: cash_flow = (4500 - 5006 - 100) * 1 = -606
+        const result = ValueEntryService.calculateCashFlowAndGainLoss(4500, 5006, "cash_asset", null, 100);
+
+        expect(result.cash_flow).toBe(-606);
+        expect(result.gain_loss).toBe(100);
+      });
+
+      it("should calculate cash_flow for cash_asset with positive gain_loss", () => {
+        // Given: previousValue = 1000, value = 1500, gain_loss = 200
+        // cash_flow = (1500 - 1000 - 200) * 1 = 300
+        const result = ValueEntryService.calculateCashFlowAndGainLoss(1500, 1000, "cash_asset", null, 200);
+
+        expect(result.cash_flow).toBe(300);
+        expect(result.gain_loss).toBe(200);
+      });
+
+      it("should calculate cash_flow for cash_asset with negative gain_loss (loss)", () => {
+        // Given: previousValue = 1000, value = 800, gain_loss = -100
+        // cash_flow = (800 - 1000 - (-100)) * 1 = -100
+        const result = ValueEntryService.calculateCashFlowAndGainLoss(800, 1000, "cash_asset", null, -100);
+
+        expect(result.cash_flow).toBe(-100);
+        expect(result.gain_loss).toBe(-100);
+      });
+
+      it("should calculate cash_flow for liability when only gain_loss provided", () => {
+        // Given: previousValue = 1000, value = 1300, gain_loss = 100
+        // Formula: cash_flow = (value - previousValue - gain_loss) * cfMultiplier
+        // For liability cfMultiplier = -1: cash_flow = (1300 - 1000 - 100) * -1 = -200
+        const result = ValueEntryService.calculateCashFlowAndGainLoss(1300, 1000, "liability", null, 100);
+
+        expect(result.cash_flow).toBe(-200);
+        expect(result.gain_loss).toBe(100);
+      });
+
+      it("should calculate cash_flow for investment_asset when only gain_loss provided", () => {
+        // Given: previousValue = 10000, value = 11000, gain_loss = 500
+        // Formula: cash_flow = (value - previousValue - gain_loss) * cfMultiplier
+        // For investment_asset cfMultiplier = 1: cash_flow = (11000 - 10000 - 500) * 1 = 500
+        const result = ValueEntryService.calculateCashFlowAndGainLoss(11000, 10000, "investment_asset", null, 500);
+
+        expect(result.cash_flow).toBe(500);
+        expect(result.gain_loss).toBe(500);
+      });
+
+      it("should handle zero gain_loss", () => {
+        // Given: previousValue = 1000, value = 1200, gain_loss = 0
+        // cash_flow = (1200 - 1000 - 0) * 1 = 200
+        const result = ValueEntryService.calculateCashFlowAndGainLoss(1200, 1000, "cash_asset", null, 0);
+
+        expect(result.cash_flow).toBe(200);
+        expect(result.gain_loss).toBe(0);
+      });
+
+      it("should distinguish between null and 0 for gain_loss", () => {
+        // With gain_loss = null, it should go to Scenario 1 (auto-calculate based on account type)
+        const resultWithNull = ValueEntryService.calculateCashFlowAndGainLoss(1200, 1000, "cash_asset", null, null);
+        expect(resultWithNull.cash_flow).toBe(200);
+        expect(resultWithNull.gain_loss).toBe(0);
+
+        // With gain_loss = 0, it should go to Scenario 2b (use provided gain_loss)
+        const resultWithZero = ValueEntryService.calculateCashFlowAndGainLoss(1200, 1000, "cash_asset", null, 0);
+        expect(resultWithZero.cash_flow).toBe(200);
+        expect(resultWithZero.gain_loss).toBe(0);
+
+        // Both should give same result in this case, but the code path is different
+      });
+    });
+
+    // =============================================================================================
     // SCENARIO FROM BUG REPORT
     // =============================================================================================
     it("should correctly calculate gain_loss when updating an existing entry based on the chronologically previous entry", () => {
