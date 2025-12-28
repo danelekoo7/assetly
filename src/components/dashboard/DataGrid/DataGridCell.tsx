@@ -6,10 +6,18 @@ interface DataGridCellProps {
   date: string;
   accountType: AccountType;
   value: number | null;
+  isSameAsPrevious?: boolean;
   onCellClick: (accountId: string, date: string, accountType: AccountType) => void;
 }
 
-export default function DataGridCell({ accountId, date, accountType, value, onCellClick }: DataGridCellProps) {
+export default function DataGridCell({
+  accountId,
+  date,
+  accountType,
+  value,
+  isSameAsPrevious,
+  onCellClick,
+}: DataGridCellProps) {
   const handleInteraction = () => {
     onCellClick(accountId, date, accountType);
   };
@@ -22,11 +30,12 @@ export default function DataGridCell({ accountId, date, accountType, value, onCe
   };
 
   const cellColorClasses = getAccountRowClasses(accountType);
+  const sameValueClasses = isSameAsPrevious ? "border-l-4 border-l-amber-400" : "";
 
   return (
     <div
       role="gridcell"
-      className={`w-[25vw] md:w-[150px] flex-shrink-0 cursor-pointer border-r border-border px-4 py-3 text-right transition-colors hover:opacity-90 ${cellColorClasses}`}
+      className={`w-[25vw] md:w-[150px] flex-shrink-0 cursor-pointer border-r border-border px-4 py-3 text-right transition-colors hover:opacity-90 ${cellColorClasses} ${sameValueClasses}`}
       onClick={handleInteraction}
       tabIndex={0}
       onKeyDown={handleKeyDown}
