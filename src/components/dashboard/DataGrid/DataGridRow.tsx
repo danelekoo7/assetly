@@ -88,9 +88,18 @@ export default function DataGridRow({ account, dates, onCellClick, attributes, l
       </div>
 
       {/* Value Cells */}
-      {dates.map((date) => {
+      {dates.map((date, index) => {
         const entry = account.entries[date];
         const value = entry?.value ?? null;
+
+        // Sprawdź czy wartość jest taka sama jak w poprzedniej kolumnie
+        let isSameAsPrevious = false;
+        if (index > 0 && value !== null) {
+          const previousDate = dates[index - 1];
+          const previousValue = account.entries[previousDate]?.value ?? null;
+          isSameAsPrevious = previousValue !== null && value === previousValue;
+        }
+
         return (
           <DataGridCell
             key={date}
@@ -98,6 +107,7 @@ export default function DataGridRow({ account, dates, onCellClick, attributes, l
             date={date}
             accountType={account.type}
             value={value}
+            isSameAsPrevious={isSameAsPrevious}
             onCellClick={onCellClick}
           />
         );
