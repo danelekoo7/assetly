@@ -1,6 +1,7 @@
 # Plan: Wizualne wyróżnienie komórek z niezmienioną wartością
 
 ## Cel
+
 Dodać wizualne wyróżnienie komórek, których wartość jest identyczna jak w poprzedniej kolumnie (po lewej stronie), aby użytkownik mógł na pierwszy rzut oka zobaczyć które wartości się nie zmieniły.
 
 ## Pliki zmodyfikowane
@@ -20,7 +21,7 @@ interface DataGridCellProps {
   date: string;
   accountType: AccountType;
   value: number | null;
-  isSameAsPrevious?: boolean;  // NOWY PROP
+  isSameAsPrevious?: boolean; // NOWY PROP
   onCellClick: (accountId: string, date: string, accountType: AccountType) => void;
 }
 ```
@@ -36,30 +37,32 @@ const sameValueClasses = isSameAsPrevious ? "border-l-4 border-l-amber-400" : ""
 W pętli `dates.map()` dodano logikę porównującą wartość z poprzednią kolumną:
 
 ```tsx
-{dates.map((date, index) => {
-  const entry = account.entries[date];
-  const value = entry?.value ?? null;
+{
+  dates.map((date, index) => {
+    const entry = account.entries[date];
+    const value = entry?.value ?? null;
 
-  // Sprawdź czy wartość jest taka sama jak w poprzedniej kolumnie
-  let isSameAsPrevious = false;
-  if (index > 0 && value !== null) {
-    const previousDate = dates[index - 1];
-    const previousValue = account.entries[previousDate]?.value ?? null;
-    isSameAsPrevious = previousValue !== null && value === previousValue;
-  }
+    // Sprawdź czy wartość jest taka sama jak w poprzedniej kolumnie
+    let isSameAsPrevious = false;
+    if (index > 0 && value !== null) {
+      const previousDate = dates[index - 1];
+      const previousValue = account.entries[previousDate]?.value ?? null;
+      isSameAsPrevious = previousValue !== null && value === previousValue;
+    }
 
-  return (
-    <DataGridCell
-      key={date}
-      accountId={account.id}
-      date={date}
-      accountType={account.type}
-      value={value}
-      isSameAsPrevious={isSameAsPrevious}
-      onCellClick={onCellClick}
-    />
-  );
-})}
+    return (
+      <DataGridCell
+        key={date}
+        accountId={account.id}
+        date={date}
+        accountType={account.type}
+        value={value}
+        isSameAsPrevious={isSameAsPrevious}
+        onCellClick={onCellClick}
+      />
+    );
+  });
+}
 ```
 
 ## Styl wizualny
@@ -71,5 +74,6 @@ W pętli `dates.map()` dodano logikę porównującą wartość z poprzednią kol
 ## Weryfikacja
 
 Po implementacji:
+
 1. `npm run lint` - sprawdzenie lintingu
 2. `npm run test:unit` - uruchomienie testów jednostkowych

@@ -18,10 +18,10 @@ Zmodyfikuję funkcję `addColumn` w pliku `src/lib/stores/useDashboardStore.ts`,
 ## 4. Kroki implementacji
 
 1.  **Modyfikacja pliku `src/lib/stores/useDashboardStore.ts`**:
-    -   Zlokalizuj funkcję `addColumn`.
-    -   Zmień inicjalizację zmiennych `cash_flow` i `gain_loss` z `0` na `null`.
+    - Zlokalizuj funkcję `addColumn`.
+    - Zmień inicjalizację zmiennych `cash_flow` i `gain_loss` z `0` na `null`.
 2.  **Weryfikacja**:
-    -   Uruchomienie linterów w celu zapewnienia zgodności ze standardami kodowania.
+    - Uruchomienie linterów w celu zapewnienia zgodności ze standardami kodowania.
 
 ## 5. Oczekiwany rezultat
 

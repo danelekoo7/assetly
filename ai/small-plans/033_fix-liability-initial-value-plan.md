@@ -24,8 +24,8 @@ Po wprowadzeniu modyfikacji, przeprowadzę weryfikację w celu upewnienia się, 
 - **Lintery:** Uruchomię komendę `npm run lint`, aby sprawdzić zgodność kodu ze standardami projektu.
 - **Testy jednostkowe:** Uruchomię komendę `npm run test`, aby zweryfikować, czy istniejące testy przechodzą pomyślnie.
 - **Testy manualne:**
-    1.  Stworzę nowe konto typu "pasywo" i zweryfikuję, czy w podsumowaniu (KPI) oraz w historii transakcji, wartość początkowa jest widoczna jako wypłata (ujemna).
-    2.  Stworzę nowe konto typu "aktywo" i upewnię się, że jego wartość początkowa jest nadal traktowana jako wpłata (dodatnia).
+  1.  Stworzę nowe konto typu "pasywo" i zweryfikuję, czy w podsumowaniu (KPI) oraz w historii transakcji, wartość początkowa jest widoczna jako wypłata (ujemna).
+  2.  Stworzę nowe konto typu "aktywo" i upewnię się, że jego wartość początkowa jest nadal traktowana jako wpłata (dodatnia).
 
 ## 4. Oczekiwany rezultat
 

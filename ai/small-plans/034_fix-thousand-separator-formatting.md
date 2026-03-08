@@ -9,6 +9,7 @@ W tabeli, gdy użytkownik wpisuje kwotę czterocyfrową (np. 1234,56), wyświetl
 ### Kod obecny
 
 1. **Formatowanie wartości** (`src/lib/utils.ts`):
+
 ```typescript
 export const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat("pl-PL", {
@@ -21,6 +22,7 @@ export const formatCurrency = (value: number): string => {
 ```
 
 2. **Użycie w komponentach** (`src/components/dashboard/DataGrid/DataGridCell.tsx`):
+
 ```typescript
 {value !== null ? (
   <span className={value >= 0 ? "text-foreground" : "text-red-600 dark:text-red-400"}>
@@ -33,9 +35,10 @@ export const formatCurrency = (value: number): string => {
 
 ### Przyczyna problemu
 
-API `Intl.NumberFormat` dla lokalizacji `pl-PL` **domyślnie używa separatora tysięcy** (spacja niełamliwa), więc problem NIE leży w samej funkcji `formatCurrency`. 
+API `Intl.NumberFormat` dla lokalizacji `pl-PL` **domyślnie używa separatora tysięcy** (spacja niełamliwa), więc problem NIE leży w samej funkcji `formatCurrency`.
 
 Możliwe przyczyny:
+
 1. **CSS** - właściwość `white-space` może ignorować/usuwać spacje
 2. **Renderowanie** - spacja niełamliwa (`\u00A0`) może być źle renderowana
 3. **Font** - niektóre czcionki mogą źle wyświetlać separator tysięcy
@@ -45,24 +48,30 @@ Najbardziej prawdopodobne: CSS w komponentach DataGrid może ustawiać `white-sp
 ## Plan rozwiązania
 
 ### Krok 1: Weryfikacja formatowania
+
 - Dodać test jednostkowy dla `formatCurrency` sprawdzający separator tysięcy
 - Upewnić się, że funkcja zwraca prawidłowy format z separatorem
 
 ### Krok 2: Analiza stylów CSS
+
 - Sprawdzić klasy CSS w `DataGridCell.tsx`
 - Sprawdzić globalne style w `src/styles/global.css`
 - Zidentyfikować potencjalne właściwości CSS wpływające na wyświetlanie spacji
 
 ### Krok 3: Implementacja poprawki
+
 Jeśli problem w CSS:
+
 - Upewnić się, że komponent używa odpowiednich klas Tailwind
 - Potencjalnie dodać `whitespace-normal` lub dostosować inne właściwości
 
 Jeśli problem w renderowaniu:
+
 - Rozważyć wymuszenie użycia spacji niełamliwej (`\u00A0`) w formacie
 - Opcjonalnie: użyć `useGrouping: true` jawnie w `Intl.NumberFormat`
 
 ### Krok 4: Weryfikacja
+
 - Uruchomić testy jednostkowe
 - Uruchomić lintery
 - Sprawdzić wizualnie w przeglądarce różne kwoty (1234,56, 12345,67, 123456,78)

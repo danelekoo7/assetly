@@ -24,22 +24,22 @@ Dodać parametry `from` i `to` do URL zapytania API:
 fetchData: async () => {
   const { showArchived, dateRange } = get();
   set({ isLoading: true, error: null });
-  
+
   try {
     // Budowanie URL z parametrami
     const params = new URLSearchParams();
     params.append('archived', showArchived.toString());
-    
+
     if (dateRange.from) {
       params.append('from', format(dateRange.from, 'yyyy-MM-dd'));
     }
     if (dateRange.to) {
       params.append('to', format(dateRange.to, 'yyyy-MM-dd'));
     }
-    
+
     const url = `/api/grid-data?${params.toString()}`;
     const response = await fetch(url);
-    
+
     // ... reszta kodu
   }
   // ... catch i finally
@@ -51,17 +51,21 @@ fetchData: async () => {
 Upewnić się, że funkcja `format` z `date-fns` jest zaimportowana na początku pliku:
 
 ```typescript
-import { format } from 'date-fns';
+import { format } from "date-fns";
 ```
 
 ## Weryfikacja
 
 ### 1. Linter
+
 ```bash
 npm run lint
 ```
+
 ### 2. Testy jednostkowe
+
 Uruchomić istniejące testy dla store'a:
+
 ```bash
 npm run test:unit src/test/stores/useDashboardStore.fetchData.test.ts
 ```
@@ -69,6 +73,7 @@ npm run test:unit src/test/stores/useDashboardStore.fetchData.test.ts
 Sprawdzić czy testy przechodzą. Jeśli testy zakładały brak parametrów dat, może być konieczna ich aktualizacja.
 
 ### 3. Test manualny
+
 1. Uruchomić aplikację (`npm run dev`)
 2. Zalogować się na dashboard
 3. Zmienić zakres dat używając presetu (np. "This Month") lub kalendarza
@@ -86,6 +91,7 @@ Sprawdzić czy testy przechodzą. Jeśli testy zakładały brak parametrów dat,
 ## Zgodność z PRD
 
 Ta zmiana jest zgodna z wymaganiami PRD:
+
 - Dashboard powinien wyświetlać dane historyczne dla wybranego zakresu dat
 - Filtrowanie po dacie jest kluczową funkcjonalnością do analizy majątku netto w czasie
 
@@ -107,6 +113,7 @@ Zmodyfikowano plik `src/lib/stores/useDashboardStore.ts` zgodnie z planem:
 ### Weryfikacja
 
 #### 1. Linter
+
 ✅ **Status:** Przeszedł pomyślnie
 
 - Początkowe uruchomienie wykryło błędy formatowania (styl cudzysłowów i wcięcia)
@@ -114,13 +121,16 @@ Zmodyfikowano plik `src/lib/stores/useDashboardStore.ts` zgodnie z planem:
 - Końcowy wynik: brak błędów lintera
 
 #### 2. Testy jednostkowe
+
 ✅ **Status:** 7/7 testów przeszło pomyślnie
 
 Uruchomiono testy dla `useDashboardStore.fetchData.test.ts`:
+
 - Wszystkie istniejące testy przeszły bez konieczności modyfikacji
 - Testy prawidłowo weryfikują budowanie URL z parametrami dat
 
 #### 3. Test manualny
+
 ⏭️ **Status:** Pozostawiono do weryfikacji przez użytkownika
 
 ### Status końcowy

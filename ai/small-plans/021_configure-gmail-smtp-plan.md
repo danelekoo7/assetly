@@ -1,9 +1,11 @@
 # Plan: Konfiguracja Gmail SMTP dla Rejestracji Użytkowników
 
 ## Problem
+
 Rejestracja nowych użytkowników nie wysyła emaili z linkiem aktywacyjnym. Użytkownicy widzą komunikat sukcesu, ale nie otrzymują wiadomości email. Obecnie w trybie lokalnym używany jest Inbucket (testowy serwer email), a potwierdzenia emaili są wyłączone w konfiguracji Supabase.
 
 ## Cel
+
 Skonfigurować Gmail SMTP do wysyłania prawdziwych emaili aktywacyjnych podczas rejestracji oraz włączyć wymaganie potwierdzenia emaila.
 
 ---
@@ -11,6 +13,7 @@ Skonfigurować Gmail SMTP do wysyłania prawdziwych emaili aktywacyjnych podczas
 ## Krok 1: Konfiguracja Gmail - Wygenerowanie App Password
 
 ### Dlaczego potrzebne?
+
 Gmail nie pozwala na używanie zwykłego hasła do konta w aplikacjach zewnętrznych. Trzeba wygenerować specjalne "App Password" (hasło aplikacji).
 
 ### Kroki do wykonania:
@@ -30,6 +33,7 @@ Gmail nie pozwala na używanie zwykłego hasła do konta w aplikacjach zewnętrz
    - ⚠️ **WAŻNE**: To hasło pojawi się tylko raz, zapisz je bezpiecznie!
 
 ### Wynik:
+
 Hasło w formacie: `abcd efgh ijkl mnop` (użyj bez spacji: `abcdefghijklmnop`)
 
 ---
@@ -72,7 +76,9 @@ SMTP_SENDER_EMAIL=
 ```
 
 ### Na produkcji (Cloudflare Pages):
+
 Ustaw zmienne środowiskowe w Cloudflare Dashboard:
+
 1. Przejdź do swojego projektu w Cloudflare Pages
 2. Settings > Environment Variables
 3. Dodaj wszystkie zmienne `SMTP_*` wymienione powyżej
@@ -116,6 +122,7 @@ max_frequency = "1s"
 #### 3.3 Opcjonalnie: Dostosuj szablony emaili
 
 Jeśli chcesz zmienić treść emaili, możesz dostosować szablony w Supabase Dashboard:
+
 - Authentication > Email Templates
 - Lub dodaj custom templates w `supabase/templates/`
 
@@ -128,11 +135,13 @@ Jeśli chcesz zmienić treść emaili, możesz dostosować szablony w Supabase D
 ### Dla local development:
 
 1. **Zatrzymaj Supabase**:
+
    ```bash
    npx supabase stop
    ```
 
 2. **Zastosuj zmiany konfiguracji**:
+
    ```bash
    npx supabase start
    ```
@@ -143,7 +152,9 @@ Jeśli chcesz zmienić treść emaili, możesz dostosować szablony w Supabase D
    ```
 
 ### Dla produkcji (Supabase Cloud):
+
 Jeśli używasz Supabase Cloud (hosted):
+
 - Przejdź do Dashboard Supabase
 - Settings > Auth > SMTP Settings
 - Wprowadź dane konfiguracyjne Gmail SMTP
@@ -158,6 +169,7 @@ Jeśli używasz Supabase Cloud (hosted):
 ### 5.1 Endpoint rejestracji (już poprawnie skonfigurowany)
 
 Plik `src/pages/api/auth/register.ts` już używa:
+
 ```typescript
 const { data, error } = await supabase.auth.signUp({
   email,
@@ -173,22 +185,24 @@ const { data, error } = await supabase.auth.signUp({
 Rozważ aktualizację komunikatu sukcesu, aby był bardziej precyzyjny:
 
 **Opcja 1**: Obecny komunikat (wystarczający):
+
 ```typescript
 return new Response(
   JSON.stringify({
-    message: 'Rejestracja rozpoczęta. Sprawdź skrzynkę e‑mail i potwierdź konto, korzystając z linku aktywacyjnego.',
+    message: "Rejestracja rozpoczęta. Sprawdź skrzynkę e‑mail i potwierdź konto, korzystając z linku aktywacyjnego.",
   }),
-  { status: 200, headers: { 'Content-Type': 'application/json' } }
+  { status: 200, headers: { "Content-Type": "application/json" } }
 );
 ```
 
 **Opcja 2**: Bardziej szczegółowy (opcjonalnie):
+
 ```typescript
 return new Response(
   JSON.stringify({
     message: `Link aktywacyjny został wysłany na adres ${email}. Sprawdź skrzynkę odbiorczą (oraz folder spam) i kliknij link, aby aktywować konto.`,
   }),
-  { status: 200, headers: { 'Content-Type': 'application/json' } }
+  { status: 200, headers: { "Content-Type": "application/json" } }
 );
 ```
 
@@ -224,17 +238,20 @@ return new Response(
 ### 6.3 Sprawdzanie błędów
 
 #### Problem: Email nie przychodzi
+
 - Sprawdź folder SPAM
 - Sprawdź logi Supabase: `npx supabase logs --db postgres`
 - Sprawdź czy App Password jest poprawny
 - Sprawdź czy 2FA jest włączone na koncie Gmail
 
 #### Problem: SMTP authentication failed
+
 - Sprawdź czy `SMTP_USER` to pełny adres email (@gmail.com)
 - Sprawdź czy `SMTP_PASS` to App Password (nie zwykłe hasło)
 - Sprawdź czy nie ma spacji w App Password
 
 #### Problem: Link aktywacyjny nie działa
+
 - Sprawdź `emailRedirectTo` w `register.ts`
 - Sprawdź czy URL jest dodany do "Redirect URLs" w Supabase Dashboard (Auth > URL Configuration)
 
@@ -263,8 +280,8 @@ Supabase domyślnie wysyła emaile po angielsku. Dla polskich użytkowników **m
 <p><a href="{{ .ConfirmationURL }}">Aktywuj konto</a></p>
 <p><em>Link jest ważny przez 24 godziny.</em></p>
 <p>Jeśli to nie Ty zarejestrowałeś to konto, zignoruj tę wiadomość.</p>
-<br>
-<p>Pozdrawiamy,<br>Zespół Assetly</p>
+<br />
+<p>Pozdrawiamy,<br />Zespół Assetly</p>
 ```
 
 3. **Dostosuj inne szablony** (opcjonalnie teraz, ale zalecane):
@@ -277,6 +294,7 @@ Supabase domyślnie wysyła emaile po angielsku. Dla polskich użytkowników **m
 ### 7.2 Monitoring wysyłanych emaili
 
 Rozważ dodanie logowania dla śledzenia wysłanych emaili:
+
 - Logi w Supabase Dashboard
 - Monitoring w Gmail (Sent folder)
 - Dodanie tabeli `email_logs` w bazie danych (dla audytu)
@@ -297,10 +315,12 @@ Bez tego linki w emailach mogą nie działać!
 ### 7.4 Rate limiting
 
 Gmail ma limity wysyłania:
+
 - **500 emaili/dzień** dla darmowych kont
 - **2000 emaili/dzień** dla Google Workspace
 
 Dla większej skali rozważ:
+
 - SendGrid (99 darmowych emaili/dzień, potem płatne)
 - Mailgun
 - AWS SES
@@ -310,31 +330,37 @@ Dla większej skali rozważ:
 ## Podsumowanie Wymaganych Działań
 
 ### Gmail:
+
 - ✅ Włącz 2FA na koncie Gmail
 - ✅ Wygeneruj App Password
 - ✅ Zapisz bezpiecznie App Password
 
 ### Zmienne środowiskowe:
+
 - ✅ Dodaj `SMTP_*` zmienne do `.env`
 - ✅ Zaktualizuj `.env.example`
 - ✅ Ustaw zmienne w Cloudflare Pages Dashboard (Production + Preview)
 
 ### Supabase config:
+
 - ✅ Włącz `enable_confirmations = true`
 - ✅ Skonfiguruj `[auth.email.smtp]` dla Gmail
 - ✅ Restart Supabase lokalnie
 
 ### Testowanie:
+
 - ✅ Test rejestracji lokalnie
 - ✅ Sprawdź email i link aktywacyjny
 - ✅ Test na produkcji
 
 ### Customizacja emaili:
+
 - ✅ Dostosuj szablon "Confirm signup" na polski
 - ✅ Dodaj Redirect URLs w Supabase Dashboard
 - ⚪ Dostosuj pozostałe szablony (Magic Link, Reset Password)
 
 ### Opcjonalnie:
+
 - ⚪ Monitoring wysyłanych emaili
 - ⚪ Lepszy komunikat sukcesu
 
@@ -370,6 +396,7 @@ Dla większej skali rozważ:
 ## Next Steps
 
 Po zatwierdzeniu tego planu:
+
 1. Przejdę do implementacji zmian w plikach
 2. Pomogę w konfiguracji Gmail App Password (krok po kroku)
 3. Przetestuję funkcjonalność lokalnie

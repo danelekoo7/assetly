@@ -11,9 +11,9 @@ Problem wynikał z faktu, że główny kontener siatki (`div` z `role="grid"`) n
 ## Plan implementacji
 
 1.  **Modyfikacja komponentu `DataGrid.tsx`**:
-    *   Do głównego kontenera siatki (`div` z `role="grid"`) została dodana klasa `inline-block`.
-    *   Zmiana ta sprawia, że kontener siatki rozszerza się, aby dopasować się do całkowitej szerokości swojej zawartości (wszystkich kolumn), a `min-w-full` zapewnia, że nie jest węższy niż widoczny obszar.
-    *   Dzięki temu, wiersze (`div` z `role="row"` i `display: flex`) wewnątrz siatki naturalnie rozciągają się na całą szerokość kontenera siatki, co eliminuje problem z tłem.
+    - Do głównego kontenera siatki (`div` z `role="grid"`) została dodana klasa `inline-block`.
+    - Zmiana ta sprawia, że kontener siatki rozszerza się, aby dopasować się do całkowitej szerokości swojej zawartości (wszystkich kolumn), a `min-w-full` zapewnia, że nie jest węższy niż widoczny obszar.
+    - Dzięki temu, wiersze (`div` z `role="row"` i `display: flex`) wewnątrz siatki naturalnie rozciągają się na całą szerokość kontenera siatki, co eliminuje problem z tłem.
 
 ## Oczekiwany rezultat
 

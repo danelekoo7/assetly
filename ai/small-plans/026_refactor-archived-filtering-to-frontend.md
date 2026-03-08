@@ -3,11 +3,13 @@
 ## Problem
 
 Obecna implementacja filtruje dane o zarchiwizowanych kontach już na poziomie backendu, co powoduje że:
+
 - KPI (wartość netto, aktywa, pasywa) pokazują tylko dane aktywnych kont gdy checkbox "Pokaż zarchiwizowane" jest odznaczony
 - Podsumowanie siatki (sumy kolumn) pokazuje tylko dane aktywnych kont
 - Wiersze siatki pokazują tylko aktywne konta
 
 **Pożądane zachowanie:**
+
 - Backend zawsze zwraca WSZYSTKIE konta (aktywne + zarchiwizowane)
 - KPI i podsumowanie siatki zawsze obliczane dla WSZYSTKICH kont
 - Tylko wiersze siatki są filtrowane frontendowo na podstawie checkboxu
@@ -17,6 +19,7 @@ Obecna implementacja filtruje dane o zarchiwizowanych kontach już na poziomie b
 ### Backend
 
 **`src/pages/api/grid-data.ts`:**
+
 ```typescript
 const { from, to, archived } = validationResult.data;
 const gridData = await GridDataService.getGridData(supabase, session.user.id, {
@@ -27,6 +30,7 @@ const gridData = await GridDataService.getGridData(supabase, session.user.id, {
 ```
 
 **`src/lib/services/grid-data.service.ts`:**
+
 ```typescript
 async getGridData(
   supabase: SupabaseClient<Database>,
@@ -39,6 +43,7 @@ async getGridData(
 ```
 
 **`src/lib/validation/grid-data.schemas.ts`:**
+
 ```typescript
 export const getGridDataQuerySchema = z.object({
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -50,12 +55,14 @@ export const getGridDataQuerySchema = z.object({
 ### Frontend
 
 **`src/lib/stores/useDashboardStore.ts`:**
+
 ```typescript
 const params = new URLSearchParams();
 params.append("archived", showArchived.toString()); // ← to trzeba usunąć
 ```
 
 **Komponenty:**
+
 - `IntegratedDashboardPage.tsx` - główny kontener
 - `KpiSection.tsx` - oblicza KPI z otrzymanych danych
 - `DataGrid.tsx` - renderuje siatkę
@@ -67,9 +74,11 @@ params.append("archived", showArchived.toString()); // ← to trzeba usunąć
 ### Krok 1: Modyfikacja backendu
 
 #### 1.1. Usunięcie parametru `archived` z walidacji
+
 **Plik:** `src/lib/validation/grid-data.schemas.ts`
 
 Usunąć pole `archived` ze schematu `getGridDataQuerySchema`:
+
 ```typescript
 export const getGridDataQuerySchema = z.object({
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -79,6 +88,7 @@ export const getGridDataQuerySchema = z.object({
 ```
 
 #### 1.2. Modyfikacja endpointu API
+
 **Plik:** `src/pages/api/grid-data.ts`
 
 ```typescript
@@ -100,9 +110,11 @@ const gridData = await GridDataService.getGridData(supabase, session.user.id, {
 ```
 
 #### 1.3. Modyfikacja serwisu GridDataService
+
 **Plik:** `src/lib/services/grid-data.service.ts`
 
 1. Zmienić sygnaturę metody `getGridData`:
+
 ```typescript
 // Przed:
 async getGridData(
@@ -120,31 +132,28 @@ async getGridData(
 ```
 
 2. Usunąć logikę filtrowania po `archived_at`:
+
 ```typescript
 // Przed:
-let query = supabase
-  .from('accounts')
-  .select('*')
-  .eq('user_id', userId);
+let query = supabase.from("accounts").select("*").eq("user_id", userId);
 
 if (!options.showArchived) {
-  query = query.is('archived_at', null);
+  query = query.is("archived_at", null);
 }
 
 // Po:
-const query = supabase
-  .from('accounts')
-  .select('*')
-  .eq('user_id', userId);
+const query = supabase.from("accounts").select("*").eq("user_id", userId);
 // Zawsze zwracamy wszystkie konta
 ```
 
 ### Krok 2: Modyfikacja frontendu
 
 #### 2.1. Usunięcie parametru z żądania API
+
 **Plik:** `src/lib/stores/useDashboardStore.ts`
 
 W metodzie `fetchData`:
+
 ```typescript
 // Przed:
 const params = new URLSearchParams();
@@ -160,9 +169,11 @@ params.append("to", to);
 ```
 
 #### 2.2. Dodanie lokalnego filtrowania w store
+
 **Plik:** `src/lib/stores/useDashboardStore.ts`
 
 Dodać nową computed property lub getter do filtrowania kont:
+
 ```typescript
 // W interface DashboardStore dodać:
 getFilteredAccounts: () => AccountWithValues[];
@@ -171,20 +182,22 @@ getFilteredAccounts: () => AccountWithValues[];
 getFilteredAccounts: () => {
   const { data, showArchived } = get();
   if (!data) return [];
-  
+
   if (showArchived) {
     return data.accounts;
   }
-  
+
   // Filtruj tylko aktywne konta (archived_at === null)
   return data.accounts.filter(account => account.archived_at === null);
 },
 ```
 
 #### 2.3. Modyfikacja komponentu DataGrid
+
 **Plik:** `src/components/dashboard/DataGrid.tsx`
 
 Zmienić sposób renderowania wierszy - używać `getFilteredAccounts()` zamiast `data.accounts`:
+
 ```typescript
 // Przed:
 {data.accounts.map((account) => (
@@ -198,23 +211,27 @@ Zmienić sposób renderowania wierszy - używać `getFilteredAccounts()` zamiast
 ```
 
 #### 2.4. Weryfikacja KPI i podsumowania
+
 **Pliki do sprawdzenia:**
+
 - `src/components/dashboard/KpiSection.tsx`
 - `src/components/dashboard/DataGridSummaryRow.tsx`
 
 Upewnić się, że komponenty te korzystają z **pełnych** danych (`data.accounts` lub `data.kpi`), a nie z przefiltrowanych.
 
 **KpiSection.tsx** - powinno używać `data.kpi` (które są już obliczone na backendzie dla wszystkich kont):
+
 ```typescript
 // Powinno pozostać bez zmian - KPI są obliczane na backendzie
 <KpiCard title="Wartość netto" value={data.kpi.netWorth} />
 ```
 
 **DataGridSummaryRow.tsx** - sprawdzić czy używa `data.accounts` (wszystkie) czy `getFilteredAccounts()`:
+
 ```typescript
 // Powinno używać data.accounts (wszystkie konta), NIE getFilteredAccounts()
 const totalAssets = data.accounts
-  .filter(a => a.type === 'ASSET')
+  .filter((a) => a.type === "ASSET")
   .reduce((sum, account) => {
     // ... obliczenia
   }, 0);
@@ -242,17 +259,19 @@ Po implementacji przetestować:
 ### Krok 4: Aktualizacja testów jednostkowych i E2E
 
 #### 4.1. Testy jednostkowe
+
 **Plik:** `src/test/services/grid-data.service.test.ts`
 
 Usunąć testy związane z parametrem `showArchived`:
+
 ```typescript
 // USUNĄĆ test:
-it('should filter archived accounts when showArchived is false', async () => {
+it("should filter archived accounts when showArchived is false", async () => {
   // ...
 });
 
 // DODAĆ test:
-it('should always return all accounts regardless of archive status', async () => {
+it("should always return all accounts regardless of archive status", async () => {
   // ...
 });
 ```
@@ -260,25 +279,26 @@ it('should always return all accounts regardless of archive status', async () =>
 **Plik:** `src/test/stores/useDashboardStore.fetchData.test.ts`
 
 Usunąć asercje sprawdzające parametr `archived` w URLSearchParams:
+
 ```typescript
 // USUNĄĆ:
-expect(mockFetch).toHaveBeenCalledWith(
-  expect.stringContaining('archived=false')
-);
+expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("archived=false"));
 
 // DODAĆ test dla getFilteredAccounts():
-it('should filter accounts based on showArchived state', () => {
+it("should filter accounts based on showArchived state", () => {
   // ...
 });
 ```
 
 #### 4.2. Testy E2E
+
 **Plik:** `e2e/grid-data-api.spec.ts`
 
 Usunąć lub zmodyfikować testy sprawdzające parametr `archived`:
+
 ```typescript
 // USUNĄĆ lub ZMODYFIKOWAĆ:
-test('should filter archived accounts', async ({ request }) => {
+test("should filter archived accounts", async ({ request }) => {
   // Ten test powinien być usunięty, bo backend nie filtruje
 });
 ```
@@ -286,17 +306,20 @@ test('should filter archived accounts', async ({ request }) => {
 ## Podsumowanie zmian
 
 ### Backend (zawsze zwraca wszystkie dane):
+
 - ❌ Usunąć parametr `archived` z walidacji (`grid-data.schemas.ts`)
 - ❌ Usunąć parametr `showArchived` z endpointu API (`grid-data.ts`)
 - ❌ Usunąć logikę filtrowania po `archived_at` z serwisu (`grid-data.service.ts`)
 
 ### Frontend (filtruje tylko widok siatki):
+
 - ❌ Usunąć wysyłanie parametru `archived` do API (`useDashboardStore.ts`)
 - ✅ Dodać `getFilteredAccounts()` w store (`useDashboardStore.ts`)
 - ✅ Używać `getFilteredAccounts()` w DataGrid do renderowania wierszy
 - ✅ Upewnić się że KPI i podsumowanie używają wszystkich danych
 
 ### Testy:
+
 - ❌ Usunąć/zmodyfikować testy sprawdzające filtrowanie na backendzie
 - ✅ Dodać testy dla `getFilteredAccounts()`
 - ✅ Zweryfikować testy E2E

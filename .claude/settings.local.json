@@ -12,7 +12,9 @@
       "Bash(git checkout:*)",
       "Bash(npm run lint:fix:*)",
       "Bash(npm run test:unit:*)",
-      "Bash(del commit_message.txt)"
+      "Bash(del commit_message.txt)",
+      "Skill(branch-commit)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
