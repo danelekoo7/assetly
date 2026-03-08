@@ -18,7 +18,10 @@
     "test:unit:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "dev:local": "supabase start && npm run dev"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.1.0",
