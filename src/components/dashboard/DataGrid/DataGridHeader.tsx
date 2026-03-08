@@ -1,3 +1,4 @@
+import React from "react";
 import { MoreVertical, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -14,9 +15,10 @@ import { useDashboardStore } from "@/lib/stores/useDashboardStore";
 
 interface DataGridHeaderProps {
   dates: string[];
+  datesRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export default function DataGridHeader({ dates }: DataGridHeaderProps) {
+export default function DataGridHeader({ dates, datesRef }: DataGridHeaderProps) {
   const { openModal } = useDashboardStore();
 
   const handleDeleteColumn = (date: string) => {
@@ -38,7 +40,7 @@ export default function DataGridHeader({ dates }: DataGridHeaderProps) {
       >
         Konto
       </div>
-      <div className="flex">
+      <div ref={datesRef} className="flex">
         {dates.map((date) => (
           <div
             key={date}

@@ -28,7 +28,7 @@ interface DataGridProps {
 export default function DataGrid({ gridData }: DataGridProps) {
   const { openModal, updateGridDataOptimistic, getFilteredAccounts } = useDashboardStore();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
+  const headerDatesRef = useRef<HTMLDivElement>(null);
   const accounts = getFilteredAccounts();
 
   // Sync header horizontal position with body scroll via CSS transform.
@@ -37,8 +37,8 @@ export default function DataGrid({ gridData }: DataGridProps) {
   const handleBodyScroll = useCallback(() => {
     const scrollLeft = scrollRef.current?.scrollLeft ?? 0;
     requestAnimationFrame(() => {
-      if (headerRef.current) {
-        headerRef.current.style.transform = `translateX(-${scrollLeft}px)`;
+      if (headerDatesRef.current) {
+        headerDatesRef.current.style.transform = `translateX(-${scrollLeft}px)`;
       }
     });
   }, []);
@@ -143,9 +143,7 @@ export default function DataGrid({ gridData }: DataGridProps) {
        * with the body's scrollLeft.
        */}
       <div role="rowgroup" className="sticky top-[var(--navbar-height)] z-20 [overflow-x:clip]">
-        <div ref={headerRef}>
-          <DataGridHeader dates={gridData.dates} />
-        </div>
+        <DataGridHeader dates={gridData.dates} datesRef={headerDatesRef} />
       </div>
 
       {/* Body scroll container — only horizontal scroll here */}
