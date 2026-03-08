@@ -23,6 +23,11 @@ const userEmail = Astro.locals.user?.email;
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <style>
+      :root {
+        --navbar-height: 61px;
+      }
+    </style>
   </head>
   <body>
     <header
