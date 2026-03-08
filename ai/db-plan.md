@@ -11,18 +11,18 @@
 
 Przechowuje informacje o kontach finansowych użytkowników.
 
-| Nazwa kolumny | Typ danych     | Ograniczenia                                                          | Opis                                                             |
-| :------------ | :------------- | :-------------------------------------------------------------------- | :--------------------------------------------------------------- |
-| `id`          | `uuid`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                            | Unikalny identyfikator konta.                                    |
-| `user_id`     | `uuid`         | `NOT NULL`, `FOREIGN KEY REFERENCES auth.users(id) ON DELETE CASCADE` | Odniesienie do użytkownika w systemie autentykacji Supabase.     |
-| `name`        | `text`         | `NOT NULL`                                                            | Nazwa konta (np. "mBank", "Portfel XTB").                        |
-| `type`        | `account_type` | `NOT NULL`                                                            | Typ konta (Aktywo inwestycyjne, Aktywo gotówkowe, Pasywo).       |
-| `currency`    | `text`         | `NOT NULL`, `DEFAULT 'PLN'`                                           | Waluta konta, z domyślną wartością 'PLN'.                        |
-| `archived_at` | `timestamptz`  | `NULL`                                                                | Data i czas zarchiwizowania konta. `NULL` oznacza aktywne konto. |
-| `created_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas utworzenia rekordu.                                  |
-| `updated_at`  | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas ostatniej aktualizacji rekordu.                      |
-| `display_order` | `integer`    | `NOT NULL`                                                            | Kolejność wyświetlania kont w interfejsie użytkownika.           |
-|               |                | `UNIQUE (user_id, name)`                                              | Zapewnia, że nazwy kont są unikalne dla każdego użytkownika.     |
+| Nazwa kolumny   | Typ danych     | Ograniczenia                                                          | Opis                                                             |
+| :-------------- | :------------- | :-------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| `id`            | `uuid`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                            | Unikalny identyfikator konta.                                    |
+| `user_id`       | `uuid`         | `NOT NULL`, `FOREIGN KEY REFERENCES auth.users(id) ON DELETE CASCADE` | Odniesienie do użytkownika w systemie autentykacji Supabase.     |
+| `name`          | `text`         | `NOT NULL`                                                            | Nazwa konta (np. "mBank", "Portfel XTB").                        |
+| `type`          | `account_type` | `NOT NULL`                                                            | Typ konta (Aktywo inwestycyjne, Aktywo gotówkowe, Pasywo).       |
+| `currency`      | `text`         | `NOT NULL`, `DEFAULT 'PLN'`                                           | Waluta konta, z domyślną wartością 'PLN'.                        |
+| `archived_at`   | `timestamptz`  | `NULL`                                                                | Data i czas zarchiwizowania konta. `NULL` oznacza aktywne konto. |
+| `created_at`    | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas utworzenia rekordu.                                  |
+| `updated_at`    | `timestamptz`  | `NOT NULL`, `DEFAULT now()`                                           | Data i czas ostatniej aktualizacji rekordu.                      |
+| `display_order` | `integer`      | `NOT NULL`                                                            | Kolejność wyświetlania kont w interfejsie użytkownika.           |
+|                 |                | `UNIQUE (user_id, name)`                                              | Zapewnia, że nazwy kont są unikalne dla każdego użytkownika.     |
 
 #### Tabela `value_entries`
 

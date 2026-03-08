@@ -7,41 +7,56 @@ W dokumentacji projektu występują wzmianki o DigitalOcean jako platformie host
 ## Znalezione lokalizacje wymagające poprawy
 
 ### 1. CLAUDE.md
+
 **Lokalizacja:** Sekcja "Deployment"
+
 ```markdown
 - **Platform:** DigitalOcean (Docker containers)
 ```
-**Poprawka:** 
+
+**Poprawka:**
+
 ```markdown
 - **Platform:** Cloudflare
 ```
 
 ### 2. README.md
+
 **Lokalizacja:** Lista technologii
+
 ```markdown
 - **DigitalOcean**: Application hosting via Docker containers
 ```
-**Poprawka:** 
+
+**Poprawka:**
+
 ```markdown
 - **Cloudflare**: Application hosting via Cloudflare Pages
 ```
 
 ### 3. ai/tech-stack.md
+
 **Lokalizacja:** Sekcja hostingu
+
 ```markdown
 - DigitalOcean do hostowania aplikacji za pośrednictwem obrazu docker
 ```
+
 **Poprawka:**
+
 ```markdown
 - Cloudflare Pages do hostowania aplikacji
 ```
 
 ### 4. ai/automated-tests-plan.md
-**Lokalizacje:** 
+
+**Lokalizacje:**
+
 - W sekcji "Zakres testów" (gdzie mówi się o niezawodności infrastruktury)
 - W sekcji "Środowisko Staging"
 
 **Poprawki:**
+
 - Zamienić "Supabase i DigitalOcean" na "Supabase i Cloudflare"
 - Zamienić "hostowana na DigitalOcean" na "hostowana na Cloudflare"
 
@@ -55,6 +70,7 @@ W dokumentacji projektu występują wzmianki o DigitalOcean jako platformie host
 ## Weryfikacja
 
 Po wprowadzeniu zmian:
+
 - Przeszukać ponownie wszystkie pliki .md w poszukiwaniu pozostałych wzmianek o DigitalOcean
 - Upewnić się, że wszystkie referencje do hostingu wskazują na Cloudflare
 

@@ -3,14 +3,17 @@
 ## Analiza problemu
 
 ### Obecna sytuacja
+
 - Po kliknięciu "zapomniałem hasła" użytkownik otrzymuje błąd 500
 - Błąd: `GET https://assetly.pages.dev/forgot-password net::ERR_HTTP_RESPONSE_CODE_FAILURE 500`
 - Potwierdzenie aktywacji konta działa poprawnie
 
 ### Przyczyna
+
 Po analizie kodu zidentyfikowano problem:
 
 1. **Konfiguracja zmiennych środowiskowych** (`astro.config.mjs`):
+
    ```javascript
    SUPABASE_URL: envField.string({
      context: "server",  // ❌ Niedostępne w przeglądarce
@@ -23,6 +26,7 @@ Po analizie kodu zidentyfikowano problem:
    ```
 
 2. **Client-side usage** (`ForgotPasswordForm.tsx`):
+
    ```typescript
    import { supabaseClient } from "@/db/supabase.client";
    // ...
@@ -31,8 +35,8 @@ Po analizie kodu zidentyfikowano problem:
 
 3. **Inicjalizacja klienta** (`supabase.client.ts`):
    ```typescript
-   const supabaseUrl = import.meta.env.SUPABASE_URL;  // undefined w przeglądarce
-   const supabaseAnonKey = import.meta.env.SUPABASE_KEY;  // undefined w przeglądarce
+   const supabaseUrl = import.meta.env.SUPABASE_URL; // undefined w przeglądarce
+   const supabaseAnonKey = import.meta.env.SUPABASE_KEY; // undefined w przeglądarce
    ```
 
 **Wniosek:** Zmienne środowiskowe są zdefiniowane jako server-only, więc `supabaseClient` inicjalizuje się z wartościami `undefined`, co powoduje błąd 500.
@@ -63,20 +67,24 @@ Wybieram **Opcję 1** - jest zgodna z best practices Supabase i upraszcza implem
 ## Kroki implementacji
 
 ### Krok 1: Aktualizacja konfiguracji Astro
+
 - Zmienić `context: "server"` na `context: "client"`
 - Zmienić `access: "secret"` na `access: "public"`
 - Zmienić nazwy zmiennych na `PUBLIC_SUPABASE_URL` i `PUBLIC_SUPABASE_KEY`
 
 ### Krok 2: Aktualizacja plików .env
+
 - `.env.example` - zmienić nazwy zmiennych
 - Użytkownik musi zaktualizować swój lokalny `.env`
 
 ### Krok 3: Aktualizacja kodu
+
 - `src/db/supabase.client.ts` - użyć nowych nazw zmiennych
 - `src/db/supabase.server.ts` - sprawdzić czy używa poprawnych zmiennych (lub dodać nowe server-only jeśli potrzebne)
 - `src/env.d.ts` - zaktualizować typy dla `ImportMetaEnv`
 
 ### Krok 4: Weryfikacja
+
 - Przetestować forgot-password
 - Przetestować login/register
 - Upewnić się, że inne funkcje Supabase działają
@@ -91,7 +99,7 @@ W panelu Supabase należy sprawdzić:
 
 2. **Authentication** → **URL Configuration**
    - Site URL: `https://assetly.pages.dev` (dla produkcji)
-   - Redirect URLs: 
+   - Redirect URLs:
      - `https://assetly.pages.dev/reset-password`
      - `http://localhost:3000/reset-password` (dla dev)
 

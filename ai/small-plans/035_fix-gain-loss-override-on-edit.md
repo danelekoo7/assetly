@@ -11,6 +11,7 @@
 ### 1.1. Opis błędu
 
 Gdy użytkownik edytował wartość konta typu "aktywo gotówkowe" i zmieniał pole "zysk" (`gain_loss`):
+
 - W oknie edycji wartość wyświetlała się poprawnie
 - Po zapisie pole "zysk" pokazywało wartość 0 (błędne zachowanie)
 
@@ -21,6 +22,7 @@ Problem występował zarówno dla nowych wpisów, jak i przy edycji istniejącyc
 **Plik:** `src/lib/services/value-entry.service.ts`
 
 Backend obsługiwał tylko 3 scenariusze w funkcji `calculateCashFlowAndGainLoss`:
+
 1. **Scenariusz 1:** Tylko `value` → przelicz oba pola według typu konta
 2. **Scenariusz 2a:** `value` + `cash_flow` → przelicz `gain_loss`
 3. **Scenariusz 3:** Wszystkie trzy wartości → walidacja spójności
@@ -30,6 +32,7 @@ Backend obsługiwał tylko 3 scenariusze w funkcji `calculateCashFlowAndGainLoss
 ### 1.3. Przyczyna błędu
 
 Gdy użytkownik zmieniał tylko pole "zysk" (bez zmiany "wpłaty"), frontend wysyłał do API:
+
 ```javascript
 {
   account_id: "...",
@@ -41,6 +44,7 @@ Gdy użytkownik zmieniał tylko pole "zysk" (bez zmiany "wpłaty"), frontend wys
 ```
 
 Backend sprawdzał:
+
 1. `hasCashFlow && hasGainLoss` → **false** (brak cash_flow)
 2. `hasCashFlow` → **false** (brak cash_flow)
 3. Przechodził do **Scenariusza 1** który dla `cash_asset` ustawiał `gain_loss = 0`
@@ -74,6 +78,7 @@ if (hasGainLoss) {
 ```
 
 Zaktualizowano również komentarz dokumentacyjny:
+
 ```typescript
 /**
  * Calculates cash_flow and gain_loss based on four scenarios:
@@ -153,7 +158,7 @@ Początkowo dodano warunki `!calcState.userModifiedGainLoss` i `!calcState.userM
 
 ## 6. Pliki Zmodyfikowane
 
-| Plik | Zmiana |
-|------|--------|
-| `src/lib/services/value-entry.service.ts` | Dodano Scenariusz 2b |
+| Plik                                          | Zmiana                    |
+| --------------------------------------------- | ------------------------- |
+| `src/lib/services/value-entry.service.ts`     | Dodano Scenariusz 2b      |
 | `src/components/dashboard/EditValueModal.tsx` | Dodano `isInitializedRef` |

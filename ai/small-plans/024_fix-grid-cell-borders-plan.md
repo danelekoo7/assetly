@@ -9,23 +9,27 @@ W przypadku małej ilości danych w siatce brakuje wyraźnego odgraniczenia gdzi
 ### Obecnie w kodzie:
 
 **DataGridCell.tsx:**
+
 ```tsx
 className={`... border-r border-border ... last:border-r-0 ...`}
 ```
 
 **DataGridHeader.tsx:**
+
 ```tsx
-className="... border-r border-border ... last:border-r-0"
+className = "... border-r border-border ... last:border-r-0";
 ```
 
 **DataGridSummaryRow.tsx:**
+
 ```tsx
-className="... border-r border-border ... last:border-r-0"
+className = "... border-r border-border ... last:border-r-0";
 ```
 
 ### Zidentyfikowany problem:
 
 Klasa `last:border-r-0` usuwa prawy border z ostatniej komórki w wierszu. To powoduje, że:
+
 - Przy małej ilości kolumn brakuje wizualnego zamknięcia siatki po prawej stronie
 - Użytkownik nie widzi gdzie kończy się ostatnia komórka
 - Może to powodować wrażenie "niedokończonego" interfejsu
@@ -54,6 +58,7 @@ Klasa `last:border-r-0` usuwa prawy border z ostatniej komórki w wierszu. To po
 ## Weryfikacja
 
 Po wprowadzeniu zmian:
+
 1. Uruchomić lintery (`npm run lint`)
 2. Przetestować wizualnie dashboard z różną ilością kolumn:
    - 1 kolumna

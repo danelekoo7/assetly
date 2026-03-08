@@ -25,12 +25,12 @@ Zdecydowano się na wdrożenie **Opcji 3 (Rozwiązanie hybrydowe)**, ponieważ o
 Zmiany zostały wprowadzone w komponencie `src/components/dashboard/DashboardToolbar.tsx`.
 
 1.  **Struktura komponentu:** Wewnątrz `Popover` dodano dwie kolumny:
-    *   Po lewej stronie znajduje się lista przycisków z predefiniowanymi zakresami (np. "Ostatnie 3 miesiące", "Bieżący rok").
-    *   Po prawej stronie umieszczono interaktywny kalendarz do wyboru niestandardowego zakresu.
+    - Po lewej stronie znajduje się lista przycisków z predefiniowanymi zakresami (np. "Ostatnie 3 miesiące", "Bieżący rok").
+    - Po prawej stronie umieszczono interaktywny kalendarz do wyboru niestandardowego zakresu.
 
 2.  **Rozwiązanie problemu z zamykaniem okna:** Podczas implementacji zidentyfikowano i naprawiono błąd, który powodował natychmiastowe zamknięcie okna `Popover` po wybraniu pierwszej daty z zakresu. Problem rozwiązano poprzez:
-    *   Wprowadzenie lokalnego stanu (`localDateRange`) do przechowywania tymczasowo wybranego zakresu.
-    *   Dodanie przycisku "Zastosuj", który aktualizuje globalny stan aplikacji (`useDashboardStore`) i zamyka okno `Popover` dopiero po jego kliknięciu.
+    - Wprowadzenie lokalnego stanu (`localDateRange`) do przechowywania tymczasowo wybranego zakresu.
+    - Dodanie przycisku "Zastosuj", który aktualizuje globalny stan aplikacji (`useDashboardStore`) i zamyka okno `Popover` dopiero po jego kliknięciu.
 
 ## Wynik
 

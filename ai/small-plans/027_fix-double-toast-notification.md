@@ -11,13 +11,13 @@ Celem jest usunięcie podwójnych powiadomień i zapewnienie, że użytkownik ot
 ## Plan implementacji
 
 1.  **Identyfikacja zduplikowanych komponentów**:
-    *   Zlokalizowano dwie instancje komponentu `<Toaster />`: jedną w `src/layouts/Layout.astro` i drugą w `src/components/dashboard/IntegratedDashboardPage.tsx`.
+    - Zlokalizowano dwie instancje komponentu `<Toaster />`: jedną w `src/layouts/Layout.astro` i drugą w `src/components/dashboard/IntegratedDashboardPage.tsx`.
 
 2.  **Usunięcie zduplikowanego komponentu**:
-    *   Usunięto instancję `<Toaster />` z `src/components/dashboard/IntegratedDashboardPage.tsx`, pozostawiając tylko tę w głównym layoucie aplikacji.
+    - Usunięto instancję `<Toaster />` z `src/components/dashboard/IntegratedDashboardPage.tsx`, pozostawiając tylko tę w głównym layoucie aplikacji.
 
 3.  **Konfiguracja centralnego komponentu**:
-    *   Dodano atrybuty `position="top-right"` i `richColors` do instancji `<Toaster />` w `src/layouts/Layout.astro`, aby zapewnić spójny wygląd powiadomień w całej aplikacji.
+    - Dodano atrybuty `position="top-right"` i `richColors` do instancji `<Toaster />` w `src/layouts/Layout.astro`, aby zapewnić spójny wygląd powiadomień w całej aplikacji.
 
 4.  **Weryfikacja**:
-    *   Po wprowadzeniu zmian, uruchomiono linter (`npm run lint`), aby upewnić się, że kod jest zgodny ze standardami projektu.
+    - Po wprowadzeniu zmian, uruchomiono linter (`npm run lint`), aby upewnić się, że kod jest zgodny ze standardami projektu.
