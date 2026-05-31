@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -38,6 +38,63 @@ const formatDate = (dateString: string): string => {
 export default function NetWorthChart({ gridData }: NetWorthChartProps) {
   const [visibleSeries, setVisibleSeries] = useState<SeriesKey[]>(["net_worth"]);
 
+  const chartData = useMemo<ChartDataPoint[]>(() => {
+    if (!gridData) return [];
+
+    return gridData.dates.map((date) => {
+      const summary = gridData.summary.by_date[date];
+
+      let cumulativeCashFlow = 0;
+      let cumulativeGainLoss = 0;
+
+      gridData.accounts.forEach((account) => {
+        const entry = account.entries[date];
+        if (entry) {
+          cumulativeCashFlow += entry.cash_flow || 0;
+          cumulativeGainLoss += entry.gain_loss || 0;
+        }
+      });
+
+      return {
+        date,
+        net_worth: summary?.net_worth || 0,
+        cumulative_cash_flow: cumulativeCashFlow,
+        cumulative_gain_loss: cumulativeGainLoss,
+      };
+    });
+  }, [gridData]);
+
+  const yDomain = useMemo<[number | "auto", number | "auto"]>(() => {
+    const values: number[] = [];
+    chartData.forEach((point) => {
+      visibleSeries.forEach((series) => {
+        const value = point[series];
+        if (typeof value === "number" && Number.isFinite(value)) {
+          values.push(value);
+        }
+      });
+    });
+
+    if (values.length === 0) {
+      return ["auto", "auto"];
+    }
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min;
+    const padding = range === 0 ? Math.max(Math.abs(max) * 0.05, 1) : range * 0.1;
+
+    return [Math.floor(min - padding), Math.ceil(max + padding)];
+  }, [chartData, visibleSeries]);
+
+  const handleSeriesToggle = (value: string[]) => {
+    if (value.length > 0) {
+      setVisibleSeries(value as SeriesKey[]);
+    }
+  };
+
+  const isSeriesVisible = (series: SeriesKey) => visibleSeries.includes(series);
+
   if (!gridData || gridData.dates.length === 0) {
     return (
       <Card>
@@ -50,38 +107,6 @@ export default function NetWorthChart({ gridData }: NetWorthChartProps) {
       </Card>
     );
   }
-
-  // Prepare chart data
-  const chartData: ChartDataPoint[] = gridData.dates.map((date) => {
-    const summary = gridData.summary.by_date[date];
-
-    // Calculate cumulative values up to this date
-    let cumulativeCashFlow = 0;
-    let cumulativeGainLoss = 0;
-
-    gridData.accounts.forEach((account) => {
-      const entry = account.entries[date];
-      if (entry) {
-        cumulativeCashFlow += entry.cash_flow || 0;
-        cumulativeGainLoss += entry.gain_loss || 0;
-      }
-    });
-
-    return {
-      date,
-      net_worth: summary?.net_worth || 0,
-      cumulative_cash_flow: cumulativeCashFlow,
-      cumulative_gain_loss: cumulativeGainLoss,
-    };
-  });
-
-  const handleSeriesToggle = (value: string[]) => {
-    if (value.length > 0) {
-      setVisibleSeries(value as SeriesKey[]);
-    }
-  };
-
-  const isSeriesVisible = (series: SeriesKey) => visibleSeries.includes(series);
 
   return (
     <Card>
@@ -104,7 +129,7 @@ export default function NetWorthChart({ gridData }: NetWorthChartProps) {
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis dataKey="date" tickFormatter={formatDate} className="text-xs" />
-            <YAxis tickFormatter={formatCurrency} className="text-xs" />
+            <YAxis tickFormatter={formatCurrency} className="text-xs" domain={yDomain} allowDataOverflow={false} />
             <Tooltip
               formatter={(value: number) => formatCurrency(value)}
               labelFormatter={formatDate}
